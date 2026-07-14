@@ -1,0 +1,17 @@
+# CRACK Project - PPT Design Blueprint
+
+## 1. Global Layout Constraints
+- **Base Resolution:** The PPT presentation is designed and optimized for a 1920x1080 (F11 Fullscreen) viewport.
+- **Left Indicator Margin (CRITICAL):** The PPT system universally utilizes the left edge of the screen for absolute-positioned navigation dots (indicators). 
+    - **Rule:** Never place absolute or relative visible content within `0px ~ 100px` from the left edge of any slide (`spot` container). 
+    - **Reason:** In fullscreen mode, overlapping content with the left indicators creates severe visual clutter and impedes UI interaction readability. Always use a minimum `left: 100px` anchor for content wrappers.
+
+## 2. Interactive States
+- **Hover Priority:** Avoid infinite looped, obtrusive CSS animations (`animation: infinite`) for complex structural elements (like cards or nodes).
+- **Rule:** Use subtle CSS `:hover` states with smooth bezier transitions (`cubic-bezier(0.175, 0.885, 0.32, 1.275)`) and `transform: scale()` to deliver reactive feedback without overwhelming the viewer.
+
+## 3. Road & Connecting Paths (SVG)
+- **Mathematical Alignment:** When linking UI nodes with an SVG path (like the curved road on the Index slide), ensure the bezier `d` path perfectly mathematically intersects the exact `X, Y` center coordinates of the overlay nodes.
+- **Masking:** Never use uniform 4-way blurs that clip vertical path depth. Use directional linear gradients (e.g., `fade-x` only) to preserve vertical scale.
+
+*Document created to ensure consistent, premium UI formatting throughout the presentation.*

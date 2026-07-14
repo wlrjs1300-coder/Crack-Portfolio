@@ -1,0 +1,1015 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ detail.title }} - 상세 정보{% endblock %}
+
+{% block content %}
+<style>
+    /* 전역 main 패딩 제거 (상세페이지 전용) */
+    main {
+        padding: 0 !important;
+    }
+
+    .detail-container {
+        padding: 0;
+        background: #fcfcfc;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 80px;
+    }
+
+    .detail-header {
+        position: sticky;
+        top: -1px;
+        z-index: 100;
+        background: #ffffff;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .back-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .back-btn:active {
+        transform: scale(0.95);
+        background: #eee;
+    }
+
+    .media-hero {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #000;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .media-hero img,
+    .media-hero video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* 동영상 CV 오버레이 컨테이너 */
+    .video-cv-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: #000;
+        overflow: visible;
+        border-radius: 16px;
+    }
+
+    .video-cv-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        border-radius: 16px;
+    }
+
+    .video-cv-container canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .status-floating {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .info-card {
+        margin: 10px 20px 20px 20px;
+        background: white;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        position: relative;
+        z-index: 20;
+    }
+
+    .ai-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--accent-soft);
+        color: var(--point-orange);
+        padding: 4px 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        margin-bottom: 12px;
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 20px 0;
+    }
+
+    .meta-label {
+        display: block;
+        font-size: 0.7rem;
+        opacity: 0.4;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .meta-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-asphalt);
+    }
+
+    #view-map {
+        width: 100%;
+        height: 200px;
+        border-radius: 20px;
+        margin-top: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    /* 히스토리 버튼 */
+    .history-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--point-orange);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        margin-top: 16px;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        transition: all 0.2s;
+    }
+
+    .history-toggle-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* 히스토리 패널 */
+    .detection-history-panel {
+        display: none;
+        margin-top: 16px;
+        max-height: 300px;
+        overflow-y: auto;
+        border-radius: 16px;
+        border: 1px solid #eee;
+        background: #fafafa;
+    }
+
+    .detection-history-panel.active {
+        display: block;
+    }
+
+    .det-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .det-item:hover {
+        background: #fff3e0;
+    }
+
+    .det-item:last-child {
+        border-bottom: none;
+    }
+
+    .det-time {
+        min-width: 60px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #667eea;
+        font-family: 'Courier New', monospace;
+    }
+
+    .det-class {
+        flex: 1;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .det-conf {
+        font-size: 0.8rem;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 10px;
+        background: rgba(255, 140, 0, 0.1);
+        color: var(--point-orange);
+    }
+
+    .det-empty {
+        padding: 30px;
+        text-align: center;
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    .icon-point {
+        color: var(--point-orange) !important;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .icon-point:active {
+        transform: scale(0.9);
+    }
+
+    /* 상태별 배경색 */
+    .status-floating.status-done,
+    .detail-status-btn.status-done {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .status-floating.status-processing,
+    .detail-status-btn.status-processing {
+        background: #FEFCE8;
+        color: #FACC15;
+    }
+
+    .status-floating.status-received,
+    .detail-status-btn.status-received {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    .status-floating.status-rejected,
+    .detail-status-btn.status-rejected {
+        background: #FFEBEE;
+        color: #D32F2F;
+    }
+
+    .status-floating.status-analyzing,
+    .detail-status-btn.status-analyzing {
+        background: #FEEBF2;
+        color: #C2185B;
+    }
+
+    .status-floating.status-default,
+    .detail-status-btn.status-default {
+        background: #ECEFF1;
+        color: #455A64;
+    }
+
+    .status-dropdown-wrap {
+        position: relative;
+        display: inline-block;
+    }
+
+    .detail-status-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .status-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 6px;
+        width: 140px;
+        z-index: 1000;
+        border: 1px solid #f0f0f0;
+        display: none;
+    }
+
+    .status-dropdown-menu.show {
+        display: block;
+        animation: dropFade 0.2s ease-out;
+    }
+
+    @keyframes dropFade {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-item {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: all 0.15s;
+    }
+
+    .dropdown-item:hover {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+    .dropdown-item.reject-item {
+        color: #ef4444;
+    }
+
+    /* 커스텀 얼럿 모달 스타일 */
+    .custom-alert-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.25s ease-out;
+    }
+
+    .custom-alert-backdrop.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .custom-alert-card {
+        width: min(92vw, 380px);
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+        transform: translateY(20px);
+        transition: transform 0.3s cubic-bezier(0.17, 0.67, 0.43, 1.15);
+        text-align: center;
+    }
+
+    .custom-alert-backdrop.show .custom-alert-card {
+        transform: translateY(0);
+    }
+
+    .custom-alert-body {
+        padding: 32px 24px 24px;
+    }
+
+    .alert-icon {
+        font-size: 42px;
+        color: var(--point-orange);
+        margin-bottom: 16px;
+    }
+
+    .alert-title {
+        font-size: 19px;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .alert-desc {
+        font-size: 15px;
+        color: #64748b;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .alert-input {
+        width: 100%;
+        height: 48px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 0 16px;
+        font-size: 14px;
+        outline: none;
+        margin-bottom: 20px;
+    }
+
+    .alert-footer {
+        display: flex;
+        gap: 8px;
+        padding: 0 24px 24px;
+    }
+
+    .alert-btn {
+        flex: 1;
+        height: 50px;
+        border-radius: 16px;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-primary {
+        background: var(--point-orange);
+        color: #fff;
+    }
+
+    .alert-btn:active {
+        transform: scale(0.96);
+    }
+</style>
+
+<div id="safe-report-context" data-report-id="{{ detail.id }}" style="display:none;"></div>
+
+<div class="detail-container">
+    <div class="detail-header">
+        <a href="javascript:void(0)" onclick="history.back(); return false;" class="back-btn"
+            style="text-decoration: none; color: inherit;">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <h3
+            style="margin: 0; font-size: 1.1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            상세 정보</h3>
+
+        {# 본인이거나, 관리자(admin)이거나, 매니저(manager)인 경우 권한 부여 #}
+        {% if is_owner or is_admin or is_manager %}
+        {% if detail.status == '관리자 확인중' or is_admin or is_manager %}
+        <div onclick="handleEditReport()" style="cursor: pointer; padding: 5px; margin-right: 2px;" title="수정하기">
+            <i class="bi bi-pencil-square" style="color: var(--point-orange); font-size: 1.2rem;"></i>
+        </div>
+        <div onclick="handleDeleteReport()" style="cursor: pointer; padding: 5px;" title="삭제하기">
+            <i class="bi bi-trash3" style="color: var(--point-orange); font-size: 1.2rem;"></i>
+        </div>
+        {% else %}
+        {# 일반 사용자가 '관리자 확인중' 단계가 아닐 때만 잠금 표시 #}
+        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; margin-right: 2px; opacity: 0.3;"
+            title="수정 불가">
+            <i class="bi bi-pencil-square" style="color: #aaa; font-size: 1.2rem;"></i>
+        </div>
+        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; opacity: 0.3;" title="삭제 불가">
+            <i class="bi bi-trash3" style="color: #aaa; font-size: 1.2rem;"></i>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- 동영상 CV 오버레이 모드 (관리자 전용) -->
+    <div class="media-section">
+        {% if can_view_media %}
+        {% if detail.file_type == 'video' and detail.file_path %}
+        <div class="video-cv-container" id="video-cv-container">
+            {% if is_admin %}
+            <span class="status-floating
+                        {% if detail.status == '처리완료' %}status-done
+                        {% elif detail.status == '처리중' %}status-processing
+                        {% elif detail.status == '접수완료' %}status-received
+                        {% elif detail.status == '반려' %}status-rejected
+                        {% elif detail.status == 'AI 분석중' %}status-analyzing
+                        {% else %}status-default{% endif %}
+                    ">{{ detail.status }}</span>
+            {% endif %}
+            <video id="cv-video" poster="{{ detail.thumbnail_path }}" controls playsinline
+                style="width:100%; height:100%; object-fit:contain; border-radius:16px;">
+                <source src="{{ detail.file_path }}" type="video/mp4" onerror="handleVideoError(this)">
+                브라우저가 동영상 재생을 지원하지 않습니다.
+            </video>
+            <canvas id="cv-canvas"></canvas>
+        </div>
+        <!-- Video Error Handler -->
+        <script>
+            function handleVideoError(sourceElement) {
+                const videoEl = sourceElement.parentElement;
+                console.error("Video failed to play: Unsupported format or corrupted file.", videoEl.currentSrc);
+                // Optional fallback logic could go here
+                // e.g., showing a message to the user
+            }
+        </script>
+        {% else %}
+        <div class="media-hero"
+            onclick="openEnlargeModal('{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}')"
+            style="cursor: pointer;">
+            {% if detail.file_path or detail.thumbnail_path %}
+            <img src="{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}" alt="신고 사진">
+            {% else %}
+            <div
+                style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0;">
+                <i class="bi bi-image" style="font-size:3rem; opacity:0.1;"></i>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="media-hero"
+            style="background: #f8f9fa; cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <i class="bi bi-lock-fill" style="font-size: 3.5rem; color: #dee2e6; margin-bottom: 15px;"></i>
+            <p style="color: #adb5bd; font-weight: 700; font-size: 0.95rem;">관리자 및 작성자만 사진을 볼 수 있습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="enlarge-modal" onclick="closeEnlargeModal()"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <img id="enlarge-img" src=""
+            style="max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 0 30px rgba(0,0,0,0.5);">
+    </div>
+
+    <div class="info-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            {% if is_admin %}
+            <div class="ai-badge" style="margin-bottom: 0;">
+                <i class="bi bi-robot"></i>
+                AI 판독: {{ detail.damage_type }} ({{ detail.confidence }}%)
+            </div>
+
+            <div class="status-dropdown-wrap">
+                <button onclick="toggleDetailStatusDropdown(event)"
+                    class="detail-status-btn {% if detail.status == '처리완료' %}status-done{% elif detail.status == '처리중' %}status-processing{% elif detail.status == '접수완료' %}status-received{% elif detail.status == '반려' %}status-rejected{% elif detail.status == 'AI 분석중' %}status-analyzing{% else %}status-default{% endif %}">
+                    {{ detail.status }} <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
+                </button>
+                <div id="detailStatusDropdown" class="status-dropdown-menu">
+                    <div onclick="updateStatusFromDetail('관리자 확인중')" class="dropdown-item" style="color:#607D8B;">관리자 확인
+                    </div>
+                    <div onclick="updateStatusFromDetail('접수완료')" class="dropdown-item">접수완료</div>
+                    <div onclick="updateStatusFromDetail('처리중')" class="dropdown-item" style="color:#FACC15;">처리중</div>
+                    <div onclick="updateStatusFromDetail('처리완료')" class="dropdown-item" style="color:#2E7D32;">처리완료
+                    </div>
+                    <div onclick="updateStatusFromDetail('반려')" class="dropdown-item reject-item">반려</div>
+                    <div onclick="reAnalyzeAI()" class="dropdown-item"
+                        style="border-top:1px solid #eee; color:var(--point-orange);">
+                        <i class="bi bi-robot"></i> AI 재분석
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 12px;">{{ detail.title }}</h2>
+        <p style="font-size: 0.95rem; line-height: 1.6; opacity: 0.7;">{{ detail.content }}</p>
+
+        <div class="meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">제보자</span>
+                <span class="meta-value">{{ detail.reporter_name }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">제보 시간</span>
+                <span class="meta-value" style="font-size: 0.8rem;">{{ detail.time }}</span>
+            </div>
+        </div>
+
+        {% if is_admin and detail.file_type == 'video' %}
+        <!-- 검출 히스토리 버튼 (관리자 전용) -->
+        <button class="history-toggle-btn" onclick="toggleHistory()">
+            <i class="bi bi-clock-history"></i> AI 검출 히스토리
+        </button>
+        <div class="detection-history-panel" id="history-panel">
+            <div class="det-empty" id="history-loading"><i class="bi bi-hourglass-split"></i> 검출 기록 로딩 중...</div>
+        </div>
+        {% endif %}
+
+        <div id="view-map"></div>
+    </div>
+</div>
+
+<div id="customAlert" class="custom-alert-backdrop" onclick="if(event.target==this) hideAlert()">
+    <div class="custom-alert-card">
+        <div class="custom-alert-body">
+            <div class="alert-icon" id="alertIcon"><i class="bi bi-exclamation-circle-fill"></i></div>
+            <div class="alert-title" id="alertTitle">확인</div>
+            <div class="alert-desc" id="alertDesc">내용을 확인해주세요.</div>
+            <input type="text" id="alertInput" class="alert-input" placeholder="사유를 입력하세요..." style="display:none;">
+        </div>
+        <div class="alert-footer">
+            <button class="alert-btn btn-secondary" onclick="hideAlert()">취소</button>
+            <button class="alert-btn btn-primary" id="alertConfirmBtn">확인</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========================
+    // 1. 전역 상수 및 변수
+    // ========================
+    const REPORT_ID = document.getElementById('safe-report-context').dataset.reportId;
+    let alertPromiseResolve = null;
+
+    // ========================
+    // 2. 커스텀 얼럿
+    // ========================
+    function showAlert({ title, desc, showInput = false, icon = 'bi-exclamation-circle-fill' }) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('customAlert');
+            const confirmBtn = document.getElementById('alertConfirmBtn');
+            const inputField = document.getElementById('alertInput');
+
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertDesc').innerText = desc;
+            document.getElementById('alertIcon').innerHTML = `<i class="bi ${icon}"></i>`;
+
+            if (showInput) {
+                inputField.style.display = 'block';
+                inputField.value = '';
+            } else {
+                inputField.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+
+            confirmBtn.onclick = null;
+            confirmBtn.onclick = () => {
+                const result = showInput ? inputField.value : true;
+                hideAlert();
+                resolve(result);
+            };
+
+            alertPromiseResolve = resolve;
+        });
+    }
+
+    function hideAlert() {
+        const modal = document.getElementById('customAlert');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            if (alertPromiseResolve) {
+                alertPromiseResolve(null);
+                alertPromiseResolve = null;
+            }
+        }, 250);
+    }
+
+    // ========================
+    // 3. 수정 / 삭제 / 잠금
+    // ========================
+    window.handleEditReport = async function () {
+        const ok = await showAlert({
+            title: '게시글 수정',
+            desc: '이 게시글을 수정하시겠습니까?',
+            icon: 'bi-pencil-square'
+        });
+        if (ok === true) {
+            window.location.href = `/alert/edit/${REPORT_ID}`;
+        }
+    };
+
+    window.handleDeleteReport = async function () {
+        const ok = await showAlert({
+            title: '게시글 삭제',
+            desc: '정말로 이 게시물을 삭제하시겠습니까?',
+            icon: 'bi-trash3'
+        });
+        if (ok === true) {
+            try {
+                const resp = await fetch(`/api/report/${REPORT_ID}/delete`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.success) {
+                    window.location.href = '/alert';
+                } else {
+                    alert('삭제 실패: ' + data.message);
+                }
+            } catch (err) {
+                console.error('삭제 중 오류 발생:', err);
+            }
+        }
+    };
+
+    function showLockedAlert() {
+        showAlert({
+            title: '수정/삭제 불가',
+            desc: '관리자 확인 후에는 수정, 삭제가 불가능합니다.',
+            icon: 'bi-lock-fill'
+        });
+    }
+
+    // ========================
+    // 4. 동영상 CV 오버레이 (영상 신고인 경우에만 실행)
+    // ========================
+    {% if detail.file_type == 'video' %}
+    (function () {
+        var video = document.getElementById('cv-video');
+        if (!video || !REPORT_ID) return;
+
+        var allDetections = [];
+        var rafId = null;
+
+        // 검출 데이터 로드
+        fetch('/api/report/' + REPORT_ID + '/detections')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                allDetections = data;
+                renderHistory(data);
+                startCVRenderLoop();
+                console.log('[CV] Loaded ' + data.length + ' detections');
+            })
+            .catch(function (e) { console.error('[CV] Error loading detections:', e); });
+
+        function startCVRenderLoop() {
+            var canvas = document.getElementById('cv-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+
+            // 재생 중일 때만 rAF 루프 실행
+            function renderLoop() {
+                drawDetections(video, canvas, ctx);
+                rafId = requestAnimationFrame(renderLoop);
+            }
+
+            video.addEventListener('play', function () {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(renderLoop);
+            });
+
+            video.addEventListener('pause', function () {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                // 정지 시 현재 프레임 검출 결과는 timeupdate로 처리
+                drawDetections(video, canvas, ctx);
+            });
+
+            video.addEventListener('ended', function () {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            });
+
+            // 시간 탐색(seek) 시 즉시 반영
+            video.addEventListener('timeupdate', function () {
+                if (video.paused) {
+                    drawDetections(video, canvas, ctx);
+                }
+            });
+        }
+
+        function drawDetections(video, canvas, ctx) {
+            if (!allDetections || allDetections.length === 0) return;
+
+            // canvas 크기가 유효한지 확인
+            var cw = video.clientWidth;
+            var ch = video.clientHeight;
+            if (!cw || !ch) return;
+
+            canvas.width = cw;
+            canvas.height = ch;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            var currentTime = video.currentTime;
+            var currentDets = allDetections.filter(function (d) {
+                return Math.abs(d.time - currentTime) < 0.2;
+            });
+            if (currentDets.length === 0) return;
+
+            var vw = video.videoWidth;
+            var vh = video.videoHeight;
+            if (!vw || !vh) return;
+
+            // object-fit: contain 레터박스 offset 계산
+            var canvasAspect = canvas.width / canvas.height;
+            var videoAspect = vw / vh;
+            var renderWidth, renderHeight, offsetX, offsetY;
+
+            if (videoAspect > canvasAspect) {
+                renderWidth = canvas.width;
+                renderHeight = canvas.width / videoAspect;
+                offsetX = 0;
+                offsetY = (canvas.height - renderHeight) / 2;
+            } else {
+                renderHeight = canvas.height;
+                renderWidth = canvas.height * videoAspect;
+                offsetX = (canvas.width - renderWidth) / 2;
+                offsetY = 0;
+            }
+
+            // coordinates are normalized (0.0 to 1.0), so we multiply by renderWidth/Height directly
+            currentDets.forEach(function (d) {
+                var x = offsetX + d.x1 * renderWidth;
+                var y = offsetY + d.y1 * renderHeight;
+                var w = (d.x2 - d.x1) * renderWidth;
+                var h = (d.y2 - d.y1) * renderHeight;
+
+                ctx.strokeStyle = '#007AFF';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, w, h);
+
+                ctx.fillStyle = 'rgba(0, 122, 255, 0.1)';
+                ctx.fillRect(x, y, w, h);
+
+                ctx.fillStyle = '#007AFF';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(d.class + ' ' + d.conf + '%', x, y > 20 ? y - 5 : y + 20);
+            });
+        }
+
+        // allDetections를 외부(renderHistory, seekToTime)에서 쓸 수 있도록 window에 노출
+        window._cvAllDetections = function () { return allDetections; };
+    })();
+
+    // ========================
+    // 5. 히스토리 패널 / 시간 이동 (영상 신고인 경우에만 정의)
+    // ========================
+    function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function renderHistory(data) {
+        var panel = document.getElementById('history-panel');
+        if (!panel) return;
+        if (!data || data.length === 0) {
+            var emptyHtml = '<div class="det-empty"><i class="bi bi-camera-video-off"></i> 검출된 기록이 없습니다</div>';
+            {% if is_admin %}
+            emptyHtml += '<div style="text-align:center; padding-bottom:15px;">';
+            emptyHtml += '<button onclick="reAnalyzeAI()" style="background:none; border:none; color:var(--point-orange); font-size:0.8rem; text-decoration:underline; cursor:pointer;">';
+            emptyHtml += 'AI 재분석 실행 (데이터 생성)</button></div>';
+            {% endif %}
+            panel.innerHTML = emptyHtml;
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            var d = data[i];
+            html += '<div class="det-item" onclick="seekToTime(' + d.time + ')">';
+            html += '<span class="det-time">' + formatTime(d.time) + '</span>';
+            html += '<span class="det-class">' + d.class + '</span>';
+            html += '<span class="det-conf">' + d.conf + '%</span>';
+            html += '</div>';
+        }
+        panel.innerHTML = html;
+    }
+
+    function toggleHistory() {
+        var panel = document.getElementById('history-panel');
+        if (panel) panel.classList.toggle('active');
+    }
+
+    function seekToTime(sec) {
+        var video = document.getElementById('cv-video');
+        if (video) {
+            video.currentTime = sec;
+            video.play();
+            var container = document.getElementById('video-cv-container');
+            if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    {% endif %}
+
+    // ========================
+    // 6. 상태 드롭다운 (관리자용)
+    // ========================
+    function toggleDetailStatusDropdown(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('detailStatusDropdown');
+        menu.classList.toggle('show');
+
+        const closeHandler = (ev) => {
+            if (!menu.contains(ev.target)) {
+                menu.classList.remove('show');
+                document.removeEventListener('click', closeHandler);
+            }
+        };
+        if (menu.classList.contains('show')) {
+            setTimeout(() => document.addEventListener('click', closeHandler), 0);
+        }
+    }
+
+    async function updateStatusFromDetail(newStatus) {
+        document.getElementById('detailStatusDropdown').classList.remove('show');
+
+        let rejectReason = '';
+        if (newStatus === '반려') {
+            rejectReason = await showAlert({
+                title: '반려 사유',
+                desc: '반려 사유를 입력해주세요.',
+                showInput: true,
+                icon: 'bi-x-circle'
+            });
+            if (!rejectReason) return;
+        }
+
+        try {
+            const resp = await fetch('/incident/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    incident_id: parseInt(REPORT_ID),
+                    new_status: newStatus,
+                    reject_reason: rejectReason
+                })
+            });
+            const data = await resp.json();
+            if (data.ok) {
+                location.reload();
+            } else {
+                await showAlert({ title: '실패', desc: data.message || '상태 변경에 실패했습니다.' });
+            }
+        } catch (err) {
+            console.error('상태 변경 오류:', err);
+        }
+    }
+
+    // ========================
+    // 7. AI 재분석 (관리자용)
+    // ========================
+    async function reAnalyzeAI() {
+        document.getElementById('detailStatusDropdown').classList.remove('show');
+        const ok = await showAlert({
+            title: 'AI 재분석',
+            desc: '이 신고를 AI로 다시 분석하시겠습니까?',
+            icon: 'bi-robot'
+        });
+        if (ok === true) {
+            try {
+                const resp = await fetch(`/api/admin/report/${REPORT_ID}/reanalyze`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.success) {
+                    await showAlert({ title: '완료', desc: 'AI 재분석이 시작되었습니다.' });
+                    location.reload();
+                } else {
+                    await showAlert({ title: '실패', desc: data.message });
+                }
+            } catch (err) {
+                console.error('AI 재분석 오류:', err);
+            }
+        }
+    }
+
+    // ========================
+    // 8. 이미지 확대 모달
+    // ========================
+    function openEnlargeModal(src) {
+        const modal = document.getElementById('enlarge-modal');
+        document.getElementById('enlarge-img').src = src;
+        modal.style.display = 'flex';
+    }
+
+    function closeEnlargeModal() {
+        document.getElementById('enlarge-modal').style.display = 'none';
+    }
+
+    // ========================
+    // 9. 카카오 지도 초기화
+    //    window.onload 대신 DOMContentLoaded 사용 → layout.html과 충돌 방지
+    // ========================
+    document.addEventListener('DOMContentLoaded', function () {
+        const lat = parseFloat('{{ detail.lat or 37.5665 }}');
+        const lng = parseFloat('{{ detail.lng or 126.9780 }}');
+        const mapContainer = document.getElementById('view-map');
+        if (!mapContainer) return;
+
+        // 카카오 SDK가 아직 로드 안 됐을 경우 대비
+        if (typeof kakao === 'undefined' || !kakao.maps) {
+            console.warn('[Map] Kakao Maps SDK not loaded yet.');
+            return;
+        }
+
+        const mapOption = { center: new kakao.maps.LatLng(lat, lng), level: 3 };
+        const map = new kakao.maps.Map(mapContainer, mapOption);
+        new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat, lng) }).setMap(map);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+<div class="spot" id="spot-6a">
+    <i class="bi bi-shield-check huge-icon"
+        style="left: -100px; top: -50px; opacity: 0.03; color: var(--point-orange);"></i>
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h2 style="font-size: 4.2rem; margin-bottom: 15px;">안정적인 서비스 운영을 위한<br><span class="point">Technical
+                Risk Mitigation</span></h2>
+        <p style="font-size: 1.8rem; color: #777; font-weight: 500;">
+            단순한 신고 기능을 넘어, 발생 가능한 <strong>운영적·법적 리스크</strong>를 아키텍처 로직으로 사전 차단합니다.
+        </p>
+    </div>
+
+    <div style="display: flex; gap: 30px; justify-content: center; max-width: 1400px; flex-wrap: wrap;">
+
+        <!-- 1. 중복/허위 제보 방지 -->
+        <div class="risk-card"
+            style="flex: 1; min-width: 320px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border-top: 6px solid #E53935; display: flex; flex-direction: column; position: relative; overflow: hidden;">
+            <!-- 방어 로직 호버 오버랩 -->
+            <div class="defense-hover" style="--defense-color: #E53935;">
+                <div class="defense-badge"><i class="bi bi-shield-fill-check"></i> 방어 로직</div>
+                <h4>Duplicate Cross-Check</h4>
+                <p>사용자가 지도에서 직접 선택한 <strong>GPS 좌표</strong>를 기반으로, <strong>최근 24시간 내 반경 50m 이내</strong>의 동일한 중복 제보는 시스템
+                    단에서 자동 승인 거절됩니다.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                <i class="bi bi-geo-alt-fill" style="font-size: 2.5rem; color: #E53935;"></i>
+                <h3 style="font-size: 1.9rem; color: #333; margin: 0; font-weight: 800;">정보 무결성 (어뷰징 차단)
+                </h3>
+            </div>
+            <p style="font-size: 1.25rem; color: #E53935; font-weight: 700; margin-bottom: 12px;"><i
+                    class="bi bi-exclamation-triangle">
+                </i> 우려: 매크로 및 포인트 파밍 목적의 허위 제보</p>
+            <p style="font-size: 1.45rem; color: #555; line-height: 1.6; word-break: keep-all; flex-grow: 1;">
+                특정 지역의 과거 사진을 재사용하여 반복적으로 제보를 넣거나, 의도적으로 포인트를 파밍하기 위해 허위 접수를 시도해 행정 예산을 낭비시킬 리스크가 있습니다.
+            </p>
+            <p style="font-size: 1.1rem; color: #aaa; text-align: center; margin-top: 16px; font-weight: 600;"><i
+                    class="bi bi-hand-index"></i> 마우스를 올리면 방어 로직을 확인할 수 있습니다</p>
+        </div>
+
+        <!-- 2. 개인정보 -->
+        <div class="risk-card"
+            style="flex: 1; min-width: 320px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border-top: 6px solid #1E88E5; display: flex; flex-direction: column; position: relative; overflow: hidden;">
+            <!-- 방어 로직 호버 오버랩 -->
+            <div class="defense-hover" style="--defense-color: #1E88E5;">
+                <div class="defense-badge"><i class="bi bi-shield-fill-check"></i> 방어 로직</div>
+                <h4>Data Minimization</h4>
+                <p>DB 보관 데이터를 최소화하기 위해 <strong>식별자 가명화(Pseudonymized ID)</strong>를 사용하며, 서버 전송 즉시 <strong>Python
+                        Pillow</strong>를 이용하여 사진의 EXIF 데이터를 물리적 파쇄한 뒤 클린본만 저장해 추적을 원천 차단합니다.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                <i class="bi bi-shield-lock-fill" style="font-size: 2.5rem; color: #1E88E5;"></i>
+                <h3 style="font-size: 1.9rem; color: #333; margin: 0; font-weight: 800;">개인정보 보호법</h3>
+            </div>
+            <p style="font-size: 1.25rem; color: #1E88E5; font-weight: 700; margin-bottom: 12px;"><i
+                    class="bi bi-exclamation-triangle"></i> 우려: 민원인 신상 및 사생활 노출</p>
+            <p style="font-size: 1.45rem; color: #555; line-height: 1.6; word-break: keep-all; flex-grow: 1;">
+                공공 피드에 신고자의 신원이 드러나거나, 사진 원본의 EXIF 메타데이터를 통해 개인의 이동 동선(집, 직장) 등이 분석되어 노출될 심각한 위험이 있습니다.
+            </p>
+            <p style="font-size: 1.1rem; color: #aaa; text-align: center; margin-top: 16px; font-weight: 600;"><i
+                    class="bi bi-hand-index"></i> 마우스를 올리면 방어 로직을 확인할 수 있습니다</p>
+        </div>
+
+        <!-- 3. 공무집행방해 -->
+        <div class="risk-card"
+            style="flex: 1; min-width: 320px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border-top: 6px solid #FDD835; display: flex; flex-direction: column; position: relative; overflow: hidden;">
+            <!-- 방어 로직 호버 오버랩 -->
+            <div class="defense-hover" style="--defense-color: #FBC02D;">
+                <div class="defense-badge"><i class="bi bi-shield-fill-check"></i> 방어 로직</div>
+                <h4>AI Filtering</h4>
+                <p><strong>YOLOv8s Vision AI</strong>가 사진을 스레드로 정밀 판독하여 도로 파손 특성이 발견되지 않는 경우, 사람이 직접 보기도 전에 <strong>자동으로
+                        반려(Rejected) 상태로 강등</strong> 처리해 행정 인력을 보호합니다.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                <i class="bi bi-robot" style="font-size: 2.5rem; color: #FBC02D;"></i>
+                <h3 style="font-size: 1.9rem; color: #333; margin: 0; font-weight: 800;">공무집행방해 (위계)</h3>
+            </div>
+            <p style="font-size: 1.25rem; color: #FBC02D; font-weight: 700; margin-bottom: 12px;"><i
+                    class="bi bi-exclamation-triangle"></i> 우려: 무의미한 민원 및 스팸 사진 테러</p>
+            <p style="font-size: 1.45rem; color: #555; line-height: 1.6; word-break: keep-all; flex-grow: 1;">
+                도로와 완전히 관계없는 일상 사진이나 밈(Meme) 등을 다량으로 접수하여 행정망을 혼란에 빠뜨리고 인력을 고갈시키는 디지털 테러 가능성이 있습니다.
+            </p>
+            <p style="font-size: 1.1rem; color: #aaa; text-align: center; margin-top: 16px; font-weight: 600;"><i
+                    class="bi bi-hand-index"></i> 마우스를 올리면 방어 로직을 확인할 수 있습니다</p>
+        </div>
+
+    </div>
+</div>

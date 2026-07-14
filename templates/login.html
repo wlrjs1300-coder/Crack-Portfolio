@@ -1,0 +1,324 @@
+{% extends 'layout.html' %}
+
+{% block title %}Login - Crack{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-brand">
+        <i class="bi bi-lightning-charge-fill"></i> CRACK
+    </div>
+
+    <div class="auth-card">
+        <h2 style="margin-bottom: 8px; font-size: 1.5rem;">로그인</h2>
+        <p style="margin-bottom: 30px; opacity: 0.5; font-size: 0.9rem;">신속한 도로 파손 신고와 확인을 위해<br>로그인이 필요합니다.</p>
+
+        {% if error %}
+        <p style="color: #FF4D4D; font-size: 0.85rem; margin-bottom: 15px; font-weight: 600;">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/login" style="display: flex; flex-direction: column; gap: 12px;">
+            <input type="text" name="username" placeholder="아이디" required
+                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s;">
+            <input type="password" name="password" placeholder="비밀번호" required
+                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; margin-bottom: 8px;">
+
+            <button type="submit" class="auth-btn" style="margin-bottom: 0;">
+                <i class="bi bi-box-arrow-in-right"></i> 로그인
+            </button>
+        </form>
+        <div class="auth-links">
+            <button type="button" class="link-btn" onclick="openModal('findIdModal')">아이디 찾기</button>
+            <span>|</span>
+            <button type="button" class="link-btn" onclick="openModal('findPwModal')">비밀번호 찾기</button>
+        </div>
+    </div>
+</div>
+
+<div id="findIdModal" class="modal-overlay">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('findIdModal')">&times;</button>
+        <h3>아이디 찾기</h3>
+        <p class="modal-desc">가입할 때 사용한 정보를 입력해주세요.</p>
+
+        <div id="find-id-result" style="margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; min-height: 20px;"></div>
+
+        <form id="find-id-form" class="modal-form">
+            <input type="text" id="find-name" name="name" placeholder="이름" required>
+            <input type="email" id="find-email" name="email" placeholder="이메일" required>
+            <button type="submit" class="auth-btn">아이디 찾기</button>
+        </form>
+    </div>
+</div>
+
+<div id="findPwModal" class="modal-overlay">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('findPwModal')">&times;</button>
+        <h3>비밀번호 찾기</h3>
+        <p class="modal-desc">가입한 아이디와 이메일을 입력해주세요.</p>
+
+        <div id="find-pw-result" style="margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; min-height: 20px;"></div>
+
+        <form id="find-pw-form" class="modal-form">
+            <input type="text" id="find-pw-username" name="username" placeholder="아이디" required>
+            <input type="email" id="find-pw-email" name="email" placeholder="이메일" required>
+            <button type="submit" class="auth-btn">비밀번호 찾기</button>
+        </form>
+    </div>
+</div>
+
+<div id="resetPwModal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('resetPwModal')">&times;</button>
+        <h3>비밀번호 재설정</h3>
+        <p class="modal-desc">새로운 비밀번호를 입력해주세요.</p>
+
+        <div id="reset-pw-msg" style="margin-bottom: 15px; font-size: 0.85rem; text-align: center;"></div>
+
+        <form id="reset-pw-form" class="modal-form">
+            <input type="hidden" id="reset-username">
+            <input type="password" id="new-password" placeholder="새로운 비밀번호" required>
+            <input type="password" id="confirm-password" placeholder="새로운 비밀번호 확인" required>
+            <button type="submit" class="auth-btn" style="background: #ff8a00;">비밀번호 변경하기</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .auth-links {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #bbb;
+    }
+
+    .link-btn {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 0.85rem;
+        cursor: pointer;
+        margin: 0 6px;
+        padding: 0;
+        transition: color 0.2s ease;
+    }
+
+    .link-btn:hover {
+        color: #111;
+        text-decoration: underline;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .modal-box {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        animation: modalFade 0.2s ease;
+    }
+
+    .modal-box h3 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .modal-desc {
+        margin-bottom: 18px;
+        font-size: 0.9rem;
+        color: #777;
+        line-height: 1.5;
+    }
+
+    .modal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .modal-form input {
+        padding: 14px;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .modal-form input:focus {
+        border-color: #666;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 2.5rem;
+        color: #888;
+        cursor: pointer;
+    }
+
+    .modal-close:hover {
+        color: #111;
+    }
+
+    @keyframes modalFade {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+
+
+<script>
+    // 전역 모달 열기/닫기 함수
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+
+        // 각 모달별 초기화 로직
+        if (modalId === 'findIdModal') {
+            document.getElementById('find-id-result').innerText = '';
+            document.getElementById('find-id-form').reset();
+        } else if (modalId === 'findPwModal') {
+            document.getElementById('find-pw-result').innerText = '';
+            document.getElementById('find-pw-form').reset();
+        } else if (modalId === 'resetPwModal') {
+            document.getElementById('reset-pw-msg').innerText = '';
+            document.getElementById('reset-pw-form').reset();
+        }
+
+        const firstInput = modal.querySelector('input');
+        if (firstInput) firstInput.focus();
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'none';
+    }
+
+    // 아이디 찾기 폼 제출
+    document.getElementById('find-id-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('find-name').value;
+        const email = document.getElementById('find-email').value;
+        const resultDiv = document.getElementById('find-id-result');
+
+        fetch('/api/find-id', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'name': name, 'email': email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                resultDiv.innerHTML = `<span style="color: #2D63FF;">${data.message}</span>`;
+            } else {
+                resultDiv.innerHTML = `<span style="color: #FF4D4D;">${data.message}</span>`;
+            }
+        })
+        .catch(err => {
+            resultDiv.innerHTML = `<span style="color: #FF4D4D;">서버 통신 중 오류가 발생했습니다.</span>`;
+        });
+    });
+
+    // 비밀번호 찾기(조회) 단계
+    document.getElementById('find-pw-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('find-pw-username').value;
+        const email = document.getElementById('find-pw-email').value;
+        const resultDiv = document.getElementById('find-pw-result');
+
+        fetch('/api/find-pw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'username': username, 'email': email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeModal('findPwModal');
+                setTimeout(() => {
+                    const resetUsernameInput = document.getElementById('reset-username');
+                    if(resetUsernameInput) resetUsernameInput.value = username;
+                    openModal('resetPwModal');
+                }, 100);
+            } else {
+                resultDiv.innerHTML = `<span style="color: #FF4D4D;">${data.message}</span>`;
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            resultDiv.innerHTML = `<span style="color: #FF4D4D;">서버 통신 오류가 발생했습니다.</span>`;
+        });
+    });
+
+    // 실제 비밀번호 변경 실행 단계 (Alert Box -> 커스텀 모달로 교체)
+    document.getElementById('reset-pw-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('reset-username').value;
+        const password = document.getElementById('new-password').value;
+        const confirm = document.getElementById('confirm-password').value;
+        const msgDiv = document.getElementById('reset-pw-msg');
+
+        if (password !== confirm) {
+            msgDiv.innerText = "비밀번호가 일치하지 않습니다.";
+            msgDiv.style.color = "#FF4D4D";
+            return;
+        }
+
+        fetch('/api/reset-pw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'username': username, 'password': password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // report.html 스타일의 커스텀 알림 모달 호출
+                if (typeof showNoticeModal === 'function') {
+                    showNoticeModal("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+                } else {
+                    // 혹시라도 함수가 없을 경우를 대비한 대체 메시지
+                    msgDiv.innerHTML = `<span style="color: #2D63FF;">변경 완료! 로그인 화면으로 이동합니다.</span>`;
+                }
+
+                // 확인 후 페이지 새로고침 (2초 여유)
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                msgDiv.innerText = data.message;
+                msgDiv.style.color = "#FF4D4D";
+            }
+        })
+        .catch(err => {
+            msgDiv.innerText = "서버 통신 오류가 발생했습니다.";
+            msgDiv.style.color = "#FF4D4D";
+        });
+    });
+</script>
+
+{% endblock %}

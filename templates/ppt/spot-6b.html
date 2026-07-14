@@ -1,0 +1,110 @@
+<div class="spot" id="spot-6b"
+    style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 1800px; height: 1050px; padding: 40px;">
+
+    <!-- Title Section -->
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-size: 5.5rem; font-weight: 950; color: #111; margin: 0; line-height: 1.1;">
+            <i class="bi bi-stack" style="color: var(--point-orange); margin-right: 20px;"></i>
+            FULL-STACK <span class="point" style="color: var(--point-orange);">TECHNOLOGIES</span>
+        </h2>
+        <p style="font-size: 1.8rem; color: #666; font-weight: 700; margin-top: 15px;">
+            Core competencies implemented in the CRACK platform
+        </p>
+    </div>
+
+    <!-- Tech Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%; flex: 1;">
+
+        <!-- Frontend Column -->
+        <div
+            style="background: rgba(255, 140, 0, 0.04); border: 2.5px solid rgba(255,140,0,0.15); border-radius: 45px; padding: 45px; position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; top: -30px; right: -30px; font-size: 15rem; color: rgba(255,140,0,0.05); transform: rotate(-15deg); z-index: 0;">
+                <i class="bi bi-window-sidebar"></i>
+            </div>
+            <h3
+                style="font-size: 2.8rem; font-weight: 900; color: #e67e00; margin-bottom: 35px; display: flex; align-items: center; gap: 20px; position: relative; z-index: 1;">
+                <i class="bi bi-window-stack"></i> Front-end <span
+                    style="font-weight: 400; opacity: 0.6; font-size: 1.8rem;">(Vanilla JS UI)</span>
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative; z-index: 1;">
+                <!-- items -->
+                <div class="tech-tag"><i class="bi bi-camera-video"></i> Vanilla ZUI System</div>
+                <div class="tech-tag"><i class="bi bi-cursor-fill"></i> SPA Dynamic Router</div>
+                <div class="tech-tag"><i class="bi bi-cpu"></i> GPU Accel Animation</div>
+                <div class="tech-tag"><i class="bi bi-file-earmark-code"></i> Jinja2 Fragmenting</div>
+                <div class="tech-tag"><i class="bi bi-phone-vibrate"></i> PWA Architecture</div>
+                <div class="tech-tag"><i class="bi bi-map"></i> Kakao Map Engine</div>
+                <div class="tech-tag"><i class="bi bi-bar-chart-line"></i> Chart.js Data UI</div>
+                <div class="tech-tag"><i class="bi bi-vector-pen"></i> Cubic-Bezier Interact</div>
+                <div class="tech-tag"><i class="bi bi-database"></i> Web Storage State</div>
+                <div class="tech-tag"><i class="bi bi-phone"></i> Adaptive Responsive UI</div>
+            </div>
+        </div>
+
+        <!-- Backend Column -->
+        <div
+            style="background: rgba(15, 23, 42, 0.04); border: 2.5px solid rgba(15,23,42,0.1); border-radius: 45px; padding: 45px; position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; top: -30px; right: -30px; font-size: 15rem; color: rgba(15,23,42,0.03); transform: rotate(-15deg); z-index: 0;">
+                <i class="bi bi-database-fill-gear"></i>
+            </div>
+            <h3
+                style="font-size: 2.8rem; font-weight: 900; color: #0f172a; margin-bottom: 35px; display: flex; align-items: center; gap: 20px; position: relative; z-index: 1;">
+                <i class="bi bi-terminal-fill"></i> Back-end <span
+                    style="font-weight: 400; opacity: 0.6; font-size: 1.8rem;">(Flask Logic)</span>
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative; z-index: 1;">
+                <div class="tech-tag dark"><i class="bi bi-diagram-3"></i> Blueprint Modules</div>
+                <div class="tech-tag dark"><i class="bi bi-bounding-box"></i> Spatial Clustering</div>
+                <div class="tech-tag dark"><i class="bi bi-trophy"></i> Urgency Scoring</div>
+                <div class="tech-tag dark"><i class="bi bi-geo-alt"></i> Reverse Geocoding</div>
+                <div class="tech-tag dark"><i class="bi bi-spellcheck"></i> Data Normalizer</div>
+                <div class="tech-tag dark"><i class="bi bi-table"></i> SQLAlchemy ORM</div>
+                <div class="tech-tag dark"><i class="bi bi-box-arrow-in-right"></i> Context Processor</div>
+                <div class="tech-tag dark"><i class="bi bi-shield-lock"></i> Session-based Auth</div>
+                <div class="tech-tag dark"><i class="bi bi-coin"></i> Reward Transaction</div>
+                <div class="tech-tag dark"><i class="bi bi-braces"></i> RESTful JSON API</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .tech-tag {
+            background: white;
+            padding: 18px 24px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tech-tag i {
+            color: var(--point-orange);
+            font-size: 1.6rem;
+        }
+
+        .tech-tag.dark i {
+            color: #0f172a;
+        }
+
+        .tech-tag:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(255, 140, 0, 0.12);
+            border-color: var(--point-orange);
+        }
+
+        .tech-tag.dark:hover {
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.1);
+            border-color: #0f172a;
+        }
+    </style>
+</div>

@@ -1,0 +1,302 @@
+<div class="spot" id="spot-5b" style="width: 1800px;">
+    <i class="bi bi-clouds-fill huge-icon" style="right: 50px; top: -80px; opacity: 0.05;"></i>
+    <h2 style="font-size: 5.5rem; margin-bottom: 10px;">Database <span class="point">Architecture</span>
+    </h2>
+    <p style="font-size: 2rem; margin-bottom: 50px; color: #666; font-weight: 600;">TiDB 기반의 관계도(ERD)</p>
+
+    <div style="position: relative; width: 1710px; height: 800px; margin: 0 auto;">
+        <div id="securityModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(10px);">
+            <div
+                style="background: white; width: 1100px; border-radius: 32px; padding: 60px; box-shadow: 0 40px 80px rgba(0,0,0,0.6); position: relative; border: 5px solid var(--point-orange); overflow: hidden;">
+                <div
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(90deg, #FF8C00, #FFD700);">
+                </div>
+                <h3
+                    style="font-size: 3rem; font-weight: 900; color: #333; margin-bottom: 35px; display: flex; align-items: center; gap: 15px;">
+                    <i class="bi bi-shield-lock-fill" style="color: var(--point-orange);"></i> PBKDF2 및 솔팅
+                    보안 메커니즘
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; text-align: left;">
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 20px;">
+                        <h4
+                            style="font-size: 1.6rem; color: var(--point-orange); margin-bottom: 12px; font-weight: 800;">
+                            1. 업계 표준 알고리즘</h4>
+                        <p style="font-size: 1.3rem; color: #555; line-height: 1.6; word-break: keep-all;">
+                            <strong>Werkzeug</strong>의 PBKDF2 사용. Django, Flask의 기본값으로 채택된 <strong>지극히 검증된
+                                보안 표준</strong>입니다. 60만 번의 반복 연산으로 무차별 공격을 무력화합니다.
+                        </p>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 20px;">
+                        <h4
+                            style="font-size: 1.6rem; color: var(--point-orange); margin-bottom: 12px; font-weight: 800;">
+                            2. 강력한 단방향 해싱</h4>
+                        <p style="font-size: 1.3rem; color: #555; line-height: 1.6; word-break: keep-all;">
+                            한 번 변환되면 <strong>복호화가 절대 불가능</strong>합니다. 서버 관리자조차 사용자의 원문 비밀번호를 알 수 없으며, 대조를 통한
+                            인증 방식으로만 사용됩니다.
+                        </p>
+                    </div>
+                    <div
+                        style="background: #f8f9fa; padding: 25px; border-radius: 20px; grid-column: span 2; width: 85%; justify-self: center; text-align: center;">
+                        <h4
+                            style="font-size: 1.6rem; color: var(--point-orange); margin-bottom: 12px; font-weight: 800;">
+                            3. 솔팅(Salting) 기술</h4>
+                        <p style="font-size: 1.3rem; color: #555; line-height: 1.6; word-break: keep-all;">
+                            동일한 비밀번호라도 사용자마다 고유한 <strong>솔트값</strong>을 섞어 다른 해시를 생성합니다. 레인보우 테이블 공격을 완벽히
+                            차단합니다.
+                        </p>
+                    </div>
+                    <div
+                        style="background: #fff3e0; padding: 25px; border-radius: 20px; border: 2px dashed var(--point-orange); grid-column: span 2;">
+                        <h4
+                            style="font-size: 2.2rem; color: var(--point-orange); margin-bottom: 15px; font-weight: 950; text-align: center;">
+                            4. TiDB 암호화 저장 데이터 샘플 (High Security)</h4>
+                        <div
+                            style="color: #222; font-family: 'Consolas', monospace; font-size: 2.2rem; font-weight: 900; text-align: center; word-break: break-all; line-height: 1.2; letter-spacing: 1px;">
+                            pbkdf2:sha256:600000$Np9XzJkL8vQ$...
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 20px; border-top: 1px solid #eee; text-align: center;">
+                    <button onclick="closeSecurityModal()"
+                        style="background: var(--point-orange); color: white; border: none; padding: 15px 60px; border-radius: 15px; font-size: 1.8rem; font-weight: 900; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 20px rgba(255,140,0,0.2);"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 30px rgba(255,140,0,0.3)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(255,140,0,0.2)';">
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- SVG Connectors Layer -->
+        <svg
+            style="position: absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; overflow:visible; z-index:1;">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orientation="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
+                </marker>
+            </defs>
+            <!-- Connections from members (Center) -->
+            <path id="link-report" d="M 640 142 Q 670 142, 700 157" stroke="#4CAF50" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <path id="link-points" d="M 1020 145 Q 1050 120, 1080 142" stroke="#FFC107" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <path id="link-settings" d="M 1020 200 Q 1050 250, 1080 492" stroke="#9C27B0" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <path id="link-notices" d="M 1020 170 Q 1240 300, 1420 247" stroke="#607D8B" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <path id="link-talk" d="M 840 595 Q 840 490, 840 385" stroke="#795548" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <!-- Connection from report to ai_results -->
+            <path id="link-ai" d="M 300 242 Q 330 242, 360 107" stroke="#2196F3" stroke-width="4" fill="none"
+                class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+            <!-- New: Connection from report to video_detections -->
+            <path id="link-video" d="M 360 107 C 320 107, 340 550, 300 550" stroke="#7b1fa2" stroke-width="4"
+                fill="none" class="link-path" style="animation: glow-path 2s infinite; opacity: 0.2;" />
+        </svg>
+
+        <!-- Row 1: Top (report, notices, point_logs) -->
+        <!-- Column 1: Leftmost (ai_results) -->
+        <div class="db-card" style="position: absolute; left: 20px; top: 150px; border-top: 6px solid #2196F3;">
+            <div class="db-card-header">ai_results <i class="bi bi-cpu-fill"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, 'AI 연산 결과의 고유 식별자')"><span class="db-col-name">id</span>
+                    <span class="db-col-type">PK, INT</span>
+                </div>
+                <div id="col-ai_results-report_id" class="db-col"
+                    onmouseover="syncHighlight(['col-ai_results-report_id','col-report-id'], 'link-ai')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: AI 분석 대상이 된 리포트 ID')">
+                    <span class="db-col-name">report_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '파손 유무 결과 (Boolean)')"><span
+                        class="db-col-name">is_damaged</span> <span class="db-col-type">BOOL</span></div>
+                <div class="db-col" onclick="showTooltip(event, 'AI 판독 신뢰도 점수 (0~1)')"><span
+                        class="db-col-name">confidence</span> <span class="db-col-type">FLOAT</span></div>
+                <div class="db-col" onclick="showTooltip(event, 'AI가 판독한 파손 종류 (Pothole, Crack 등)')"><span
+                        class="db-col-name">damage_type</span> <span class="db-col-type">STR(50)</span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, 'AI 판독 시점')"><span class="db-col-name">created_at</span>
+                    <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: video_detections card -->
+        <div class="db-card" style="position: absolute; left: 20px; top: 460px; border-top: 6px solid #7b1fa2;">
+            <div class="db-card-header">video_detections <i class="bi bi-camera-video-fill"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, '프레임별 검출 데이터 식별자')"><span class="db-col-name">id</span>
+                    <span class="db-col-type">PK, INT</span>
+                </div>
+                <div id="col-video_detections-report_id" class="db-col"
+                    onmouseover="syncHighlight(['col-video_detections-report_id','col-report-id'], 'link-video')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 분석 대상 동영상 리포트 ID')">
+                    <span class="db-col-name">report_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '검출 시점 (초 단위 정밀도)')"><span
+                        class="db-col-name">frame_time</span> <span class="db-col-type">FLOAT</span></div>
+                <div class="db-col" onclick="showTooltip(event, '검출된 객체 클래스 (Sinkhole 등)')"><span
+                        class="db-col-name">class_name</span> <span class="db-col-type">STR(100)</span></div>
+                <div class="db-col" onclick="showTooltip(event, 'BBox 및 생성 정보')"><span
+                        class="db-col-name">created_at</span> <span class="db-col-type">DATETIME</span></div>
+            </div>
+        </div>
+
+        <!-- Column 2: Intermediate (report) -->
+        <div class="db-card" style="position: absolute; left: 360px; top: 50px; border-top: 6px solid #4CAF50;">
+            <div class="db-card-header">report <i class="bi bi-geo-alt-fill"></i></div>
+            <div class="db-card-body">
+                <div id="col-report-id" class="db-col"
+                    onmouseover="syncHighlight(['col-report-id','col-ai_results-report_id','col-video_detections-report_id'], ['link-ai','link-video'])"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Primary Key: 신고 데이터의 고유 식별자입니다.')">
+                    <span class="db-col-name">id</span> <span class="db-col-type">PK, INT <span
+                            class="db-tag tag-pk">PK</span></span>
+                </div>
+                <div id="col-report-user_id" class="db-col"
+                    onmouseover="syncHighlight(['col-report-user_id','col-members-id'], 'link-report')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 신고를 작성한 사용자의 ID입니다.')">
+                    <span class="db-col-name">user_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '신고 사건의 제목입니다.')"><span class="db-col-name">title</span>
+                    <span class="db-col-type">STR(255)</span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, 'GPS 정보 및 주소 데이터')"><span
+                        class="db-col-name">address</span> <span class="db-col-type">STR(255)</span></div>
+                <div class="db-col" onclick="showTooltip(event, '업로드된 원본 파일 경로')"><span
+                        class="db-col-name">file_path</span> <span class="db-col-type">STR(512)</span></div>
+                <div class="db-col" onclick="showTooltip(event, 'AI가 생성한 대표 썸네일 이미지 경로')"><span
+                        class="db-col-name">thumbnail_path</span> <span class="db-col-type">STR(512)</span></div>
+                <div class="db-col" onclick="showTooltip(event, '신고 처리 상태 (접수, 처리중, 완료)')"><span
+                        class="db-col-name">status</span> <span class="db-col-type">STR(20)</span></div>
+                <div class="db-col" onclick="showTooltip(event, '신고 생성 및 관리 기준 일시')"><span
+                        class="db-col-name">created_at</span> <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3: Center (members, crack_talk) -->
+        <div class="db-card"
+            style="position: absolute; left: 700px; top: 100px; border-top: 8px solid var(--point-orange); width: 320px; box-shadow: 0 20px 60px rgba(255,140,0,0.15);">
+            <div class="db-card-header" style="background: #FFF3E0;">members <i class="bi bi-people-fill"></i></div>
+            <div class="db-card-body">
+                <div id="col-members-id" class="db-col"
+                    onmouseover="syncHighlight(['col-members-id','col-report-user_id','col-point_logs-user_id','col-user_settings-user_id','col-notices-author_id','col-crack_talk-author_id'], ['link-report','link-points','link-settings','link-talk','link-notices'], true)"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Primary Key: 사용자 고유 번호. 모든 관계의 중심입니다.')">
+                    <span class="db-col-name">id</span> <span class="db-col-type">PK, INT <span
+                            class="db-tag tag-pk">PK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '사용자 로그인 아이디 (Unique)')">
+                    <span class="db-col-name">username</span> <span class="db-col-type">STR(80) <span
+                            class="db-tag tag-un">UN</span></span>
+                </div>
+                <div class="db-col" onclick="showSecurityModal(event)">
+                    <span class="db-col-name">password_hash</span> <span class="db-col-type">STR(255) <span
+                            class="db-tag" style="background: #E91E63; color: white;">ENCRYPTED</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '사용자 이메일 주소')"><span class="db-col-name">email</span>
+                    <span class="db-col-type">STR(120)</span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '사용자 활동 지역 (시/구)')"><span
+                        class="db-col-name">region_*</span> <span class="db-col-type">STR(50)</span></div>
+                <div class="db-col" onclick="showTooltip(event, '보상 보인트 및 관리 권한 여부')"><span class="db-col-name">points,
+                        admin</span> <span class="db-col-type">INT/BOOL</span></div>
+                <div class="db-col" onclick="showTooltip(event, '계정 생성 일시')"><span class="db-col-name">created_at</span>
+                    <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="db-card" style="position: absolute; left: 700px; top: 520px; border-top: 6px solid #795548;">
+            <div class="db-card-header">crack_talk <i class="bi bi-chat-fill"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, '대화 메시지 고유 식별자')"><span class="db-col-name">id</span>
+                    <span class="db-col-type">PK, INT</span>
+                </div>
+                <div id="col-crack_talk-author_id" class="db-col"
+                    onmouseover="syncHighlight(['col-crack_talk-author_id','col-members-id'], 'link-talk')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 메시지 작성자 일력')">
+                    <span class="db-col-name">author_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '대화 내용 원문')"><span class="db-col-name">content</span>
+                    <span class="db-col-type">TEXT (NN)</span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '관리자에 의한 블라인드 처리 여부')"><span
+                        class="db-col-name">is_blinded</span> <span class="db-col-type">BOOL</span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '메시지 발송 일시')"><span
+                        class="db-col-name">created_at</span> <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 4: Right (point_logs, user_settings) -->
+        <div class="db-card" style="position: absolute; left: 1080px; top: 50px; border-top: 6px solid #FFC107;">
+            <div class="db-card-header">point_logs <i class="bi bi-coin"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, '포인트 변동 로그 식별자')"><span class="db-col-name">id</span>
+                    <span class="db-col-type">PK, INT</span>
+                </div>
+                <div id="col-point_logs-user_id" class="db-col"
+                    onmouseover="syncHighlight(['col-point_logs-user_id','col-members-id'], 'link-points')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 포인트가 변동된 사용자')">
+                    <span class="db-col-name">user_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '지급/차감된 포인트 액수 및 사유')"><span class="db-col-name">amount,
+                        reason</span> <span class="db-col-type">INT, STR</span></div>
+                <div class="db-col" onclick="showTooltip(event, '해당 포인트 증감 일시')"><span
+                        class="db-col-name">created_at</span> <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="db-card" style="position: absolute; left: 1080px; top: 400px; border-top: 6px solid #9C27B0;">
+            <div class="db-card-header" style="background: #F3E5F5;">user_settings <i class="bi bi-gear-fill"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, '설정값 고유 ID')"><span class="db-col-name">id</span> <span
+                        class="db-col-type">PK, INT</span></div>
+                <div id="col-user_settings-user_id" class="db-col"
+                    onmouseover="syncHighlight(['col-user_settings-user_id','col-members-id'], 'link-settings')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 설정을 보유한 사용자입니다. (1:1)')">
+                    <span class="db-col-name">user_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span>, <span class="db-tag tag-un">UN</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '알림 수신 여부 설정 및 기준 일시')"><span
+                        class="db-col-name">notification_enabled</span> <span class="db-col-type">BOOL</span></div>
+                <div class="db-col" onclick="showTooltip(event, '해당 세팅 생성/기준 일시')"><span
+                        class="db-col-name">created_at</span> <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 5: Rightmost (notices) -->
+        <div class="db-card" style="position: absolute; left: 1420px; top: 50px; border-top: 6px solid #607D8B;">
+            <div class="db-card-header">notices <i class="bi bi-megaphone-fill"></i></div>
+            <div class="db-card-body">
+                <div class="db-col" onclick="showTooltip(event, '공지사항 고유 번호')"><span class="db-col-name">id</span> <span
+                        class="db-col-type">PK, INT</span></div>
+                <div class="db-col" onclick="showTooltip(event, '공지사항 제목 및 카테고리')"><span class="db-col-name">title,
+                        category</span> <span class="db-col-type">STR</span></div>
+                <div class="db-col" onclick="showTooltip(event, '공지사항 상세 내용 원문')"><span
+                        class="db-col-name">content</span> <span class="db-col-type">TEXT</span></div>
+                <div id="col-notices-author_id" class="db-col"
+                    onmouseover="syncHighlight(['col-notices-author_id','col-members-id'], 'link-notices')"
+                    onmouseout="syncHighlight()" onclick="showTooltip(event, 'Foreign Key: 공지사항 작성자 ID')">
+                    <span class="db-col-name">author_id</span> <span class="db-col-type">FK, INT <span
+                            class="db-tag tag-fk">FK</span></span>
+                </div>
+                <div class="db-col" onclick="showTooltip(event, '공지 작성 일시')"><span class="db-col-name">created_at</span>
+                    <span class="db-col-type">DATETIME</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip Element -->
+    <div id="db-tooltip" class="db-tooltip"></div>
+</div>

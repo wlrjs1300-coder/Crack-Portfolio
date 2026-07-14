@@ -1,0 +1,17 @@
+Flask
+Flask-SQLAlchemy
+ultralytics
+Pillow
+piexif
+exifread
+pillow_heif
+python-dotenv
+PyMySQL
+cryptography
+certifi
+opencv-python
+numpy
+easyocr
+imageio-ffmpeg
+Flask-SocketIO
+eventlet

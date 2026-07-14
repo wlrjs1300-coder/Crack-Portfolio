@@ -1,0 +1,45 @@
+<div class="spot" id="spot-8c" style="width: 1450px; padding-top: 20px;">
+                <h2 style="font-size: 4.2rem; margin-bottom: 10px;">Phase 3: <span class="point">3차 세그먼트 고도화 (v7) 진행
+                        중</span></h2>
+                <p style="font-size: 1.8rem; margin-bottom: 30px; color: #666; font-weight: 500;">
+                    바운딩 박스(Bounding Box)의 한계를 넘어 폴리곤(Polygon) 방식의 정밀할 세그먼트 전환중 (현재 10/40 에포크 진행)
+                </p>
+                <div class="flex-row" style="gap: 30px; align-items: stretch;">
+                    <div
+                        style="flex: 1.1; background: white; padding: 35px; border-radius: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.06);">
+                        <h3 style="font-size: 2.0rem; color: #333; margin-bottom: 15px; font-weight: 800;"><i
+                                class="bi bi-bullseye point"></i> 세그먼트 마스크 검출 정확도 (Mask mAP50)</h3>
+                        <ul
+                            style="font-size: 1.5rem; color: #444; line-height: 1.9; text-align: left; padding-left: 15px;">
+                            <li><strong style="color: #4CAF50;">Pothole (포트홀):</strong> 86.9% — 형태가 명확하여 매우 안정적</li>
+                            <li><strong style="color: #9C27B0;">Sinkhole (싱크홀):</strong> 81.7% — 검증 표본 부족으로 추가 학습중</li>
+                            <li><strong style="color: #2196F3;">Road Asset (맨홀 등):</strong> 79.1% — 양호</li>
+                            <li><strong style="color: #FFC107;">Major Crack (대형 균열):</strong> 74.7% — 양호</li>
+                            <li><strong style="color: #F44336;">Minor Crack (미세 균열):</strong> 27.0% — 탐지율(Recall) 23.3%로
+                                저조</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1.6; display: flex; flex-direction: row; gap: 20px;">
+                        <div class="stat-card"
+                            style="flex: 1; padding: 30px; border-top: 8px solid #F44336; text-align: left;">
+                            <h3 style="font-size: 1.7rem; color: #F44336; font-weight: 800; margin-bottom: 10px;"><i
+                                    class="bi bi-exclamation-triangle-fill"></i> 현재 문제점 식별</h3>
+                            <p style="font-size: 1.25rem; color: #555; line-height: 1.5; word-break: keep-all;">픽셀 단위 정밀
+                                추론 과정에서 <strong>미세 균열(Minor Crack)</strong> 등 소실 현상 발견. 싱크홀셋 절대 표본 부재.</p>
+                        </div>
+                        <div class="stat-card"
+                            style="flex: 1.1; padding: 30px; border-top: 8px solid var(--point-orange); text-align: left;">
+                            <h3
+                                style="font-size: 1.7rem; color: var(--point-orange); font-weight: 800; margin-bottom: 10px;">
+                                <i class="bi bi-rocket-takeoff-fill"></i> 앞으로의 훈련 과제 전략
+                            </h3>
+                            <ul
+                                style="font-size: 1.25rem; color: #555; line-height: 1.6; padding-left: 20px; margin: 0;">
+                                <li style="margin-bottom: 8px;"><strong>이미지 해상도 상향 (800~1024)</strong> 추진</li>
+                                <li style="margin-bottom: 8px;">작은 객체 특화 <strong>Augmentation</strong> 도입</li>
+                                <li>싱크홀 데이터 추가 확보 및 학습 진행 필요</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>

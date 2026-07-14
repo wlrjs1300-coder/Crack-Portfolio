@@ -1,0 +1,587 @@
+<div class="spot" id="spot-5" style="width: 1800px; padding: 30px; box-sizing: border-box;">
+    <h2 style="font-size: 5rem; margin-bottom: 50px; text-align: center;">CRACK <span class="point">기술 스택</span></h2>
+
+    <div class="tech-grid"
+        style="display: flex; flex-direction: row; gap: 40px; justify-content: space-between; align-items: stretch; width: 100%; min-height: 650px;">
+        <!-- 1. Collaboration (Clickable -> Modal) -->
+        <div class="tech-card collab-clickable"
+            style="flex: 1; border: 4px solid #42a5f5; --shadow-color: rgba(66, 165, 245, 0.2); cursor: pointer;"
+            onclick="document.getElementById('collabModal').classList.add('active')">
+            <h3 style="color: #42a5f5; font-size: 2.5rem; margin-bottom: 25px;"><i class="bi bi-people-fill"></i>
+                Collaboration <i class="bi bi-box-arrow-up-right" style="font-size: 1.2rem; opacity: 0.5;"></i></h3>
+            <div class="tech-item">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png">
+                <div class="item-text">
+                    <span class="title">Notion</span>
+                    <span class="desc">문서화 및 협업</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png">
+                <div class="item-text">
+                    <span class="title">GitHub</span>
+                    <span class="desc">형상 관리 및 공유</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <img src="https://cdn.worldvectorlogo.com/logos/sourcetree-1.svg">
+                <div class="item-text">
+                    <span class="title">SourceTree</span>
+                    <span class="desc">Git 브랜치 관리</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <img src="https://www.vectorlogo.zone/logos/atlassian_jira/atlassian_jira-icon.svg">
+                <div class="item-text">
+                    <span class="title">Jira (Kanban)</span>
+                    <span class="desc">스프린트 백로그 및 이슈 관리</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Core Engine (Clickable -> Modal) -->
+        <div class="tech-card collab-clickable"
+            style="flex: 1; border: 4px solid #9c27b0; --shadow-color: rgba(156, 39, 176, 0.2); cursor: pointer;"
+            onclick="document.getElementById('coreEngineModal').classList.add('active')">
+            <h3 style="color: #9c27b0; font-size: 2.5rem; margin-bottom: 25px;"><i class="bi bi-cpu-fill"></i> Core
+                Engine <i class="bi bi-box-arrow-up-right" style="font-size: 1.2rem; opacity: 0.5;"></i></h3>
+            <div class="tech-item">
+                <i class="bi bi-filetype-py" style="color: #3776ab;"></i>
+                <div class="item-text">
+                    <span class="title">Python / Flask</span>
+                    <span class="desc">백엔드 API 로직</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-robot" style="color: #9c27b0;"></i>
+                <div class="item-text">
+                    <span class="title">YOLOv11n / YOLOv8s</span>
+                    <span class="desc">AI 객체 탐지 엔진</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-box-seam-fill" style="color: #ff9800;"></i>
+                <div class="item-text">
+                    <span class="title">Pillow / OpenCV</span>
+                    <span class="desc">이미지 전처리 및 데이터 관리</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-arrow-repeat" style="color: #43A047;"></i>
+                <div class="item-text">
+                    <span class="title">Threading</span>
+                    <span class="desc">비동기 AI 분석 처리</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Front + API -->
+        <div class="tech-card" style="flex: 1; border: 4px solid #e44d26; --shadow-color: rgba(228, 77, 38, 0.2);">
+            <h3 style="color: #e44d26; font-size: 2.5rem; margin-bottom: 25px;"><i class="bi bi-window-sidebar"></i>
+                Front + API</h3>
+            <div class="tech-item">
+                <i class="bi bi-filetype-html" style="color: #e44d26;"></i>
+                <div class="item-text">
+                    <span class="title">HTML5 / CSS3</span>
+                    <span class="desc">UI/UX 구조 및 반응형 디자인</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-filetype-js" style="color: #f7df1e;"></i>
+                <div class="item-text">
+                    <span class="title">Vanilla JS / PWA</span>
+                    <span class="desc">고성능 상호작용 및 오프라인 대비 모바일 접근성 확보</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-map-fill" style="color: #ffa000;"></i>
+                <div class="item-text">
+                    <span class="title">Kakao Map SDK</span>
+                    <span class="desc">인터랙티브 웹 앱 지도 클라이언트</span>
+                </div>
+            </div>
+            <div class="tech-item">
+                <i class="bi bi-geo-alt-fill" style="color: #ffc107;"></i>
+                <div class="item-text">
+                    <span class="title">Kakao Local API</span>
+                    <span class="desc">좌표-주소 실시간 통신 및 좌표 매핑 로직 처리</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== Collaboration Modal ======== -->
+    <div id="collabModal" class="collab-modal-overlay"
+        onclick="if(event.target===this) this.classList.remove('active')">
+        <div class="collab-modal-content">
+            <button class="collab-modal-close"
+                onclick="document.getElementById('collabModal').classList.remove('active')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 style="font-size: 3rem; font-weight: 900; margin-bottom: 30px; color: #42a5f5;">
+                <i class="bi bi-people-fill"></i> 협업 도구 상세
+            </h2>
+            <div class="collab-modal-grid">
+                <div class="collab-tool-card" style="border-left: 5px solid #000;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png"
+                        style="width:50px;height:50px;flex-shrink:0;">
+                    <div>
+                        <h4>Notion</h4>
+                        <p>프로젝트 전체 문서화, 회의록, API 명세서, WBS 일정표를 작성·관리합니다. 실시간 동시 편집으로 팀원 간 정보 격차를 완전히 해소합니다.</p>
+                    </div>
+                </div>
+                <div class="collab-tool-card" style="border-left: 5px solid #333;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+                        style="width:50px;height:50px;flex-shrink:0;">
+                    <div>
+                        <h4>GitHub</h4>
+                        <p>소스코드 원격 저장소 및 Pull Request 기반의 코드 리뷰를 진행합니다. 이슈 트래킹과 CI 연동으로 변경 이력을 투명하게 관리합니다.</p>
+                    </div>
+                </div>
+                <div class="collab-tool-card" style="border-left: 5px solid #205081;">
+                    <img src="https://cdn.worldvectorlogo.com/logos/sourcetree-1.svg"
+                        style="width:50px;height:50px;flex-shrink:0;">
+                    <div>
+                        <h4>SourceTree</h4>
+                        <p>시각적 GUI로 브랜치 흐름을 한눈에 파악하고, 커밋·병합·충돌 해결 등 로컬 Git 작업을 CLI 없이 직관적으로 수행합니다.</p>
+                    </div>
+                </div>
+                <div class="collab-tool-card" style="border-left: 5px solid #0052CC;">
+                    <img src="https://www.vectorlogo.zone/logos/atlassian_jira/atlassian_jira-icon.svg"
+                        style="width:50px;height:50px;flex-shrink:0;">
+                    <div>
+                        <h4>Jira (Kanban)</h4>
+                        <p>Epic(에픽)-Story(스토리)-Task(태스크) 기반으로 WBS 일정을 수립하고, 병목(Bottleneck) 구간 트래킹을 통해 스프린트 효율을 극대화합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== Core Engine / Image Pipeline Modal ======== -->
+    <div id="coreEngineModal" class="collab-modal-overlay"
+        onclick="if(event.target===this) this.classList.remove('active')">
+        <div class="collab-modal-content"
+            style="max-width: 1750px; width: 95%; max-height: 98vh; overflow-y: hidden; padding: 45px 55px;">
+            <button class="collab-modal-close"
+                onclick="document.getElementById('coreEngineModal').classList.remove('active')">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <h2 style="font-size: 3.2rem; font-weight: 900; margin-bottom: 10px; color: #9c27b0;">
+                <i class="bi bi-cpu-fill"></i> 이미지 처리 및 비동기 AI 파이프라인
+            </h2>
+            <p style="font-size: 1.35rem; color: #777; margin-bottom: 30px; line-height: 1.55; word-break: keep-all;">
+                사용자가 업로드한 <b style="color:#9c27b0">원본 데이터</b>의 메타데이터를 파쇄하고 규격을 정제하여,
+                <b style="color:#43A047">Threading</b>을 통해 메인 프로세스 중단 없이
+                지능형 AI 판독을 비동기로 수행합니다.
+            </p>
+
+            <!-- Pipeline Flow: Horizontal 3-Column -->
+            <div class="pipeline-flow-h">
+                <!-- Stage 1 -->
+                <div class="pipeline-stage" style="--stage-color: #7B1FA2;">
+                    <div class="stage-badge">STAGE 1</div>
+                    <h4><i class="bi bi-image-fill"></i> Pillow — 데이터 정제</h4>
+                    <div class="stage-items">
+                        <div class="stage-item">
+                            <i class="bi bi-shield-lock-fill" style="color: #AB47BC;"></i>
+                            <div>
+                                <strong>Metadata Shredding</strong>
+                                <span>개인정보 보호를 위해 촬영 기기 정보 및 EXIF 데이터를 즉시 파쇄</span>
+                            </div>
+                        </div>
+                        <div class="stage-item">
+                            <i class="bi bi-file-earmark-arrow-up-fill" style="color: #AB47BC;"></i>
+                            <div>
+                                <strong>Format Standard</strong>
+                                <span>HEIC/HEIF 등 모바일 전용 포맷을 AI 호환 JPG로 자동 변환 및 85% 압축</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pipeline-arrow-h"><i class="bi bi-chevron-double-right"></i></div>
+
+                <!-- Stage 2 -->
+                <div class="pipeline-stage" style="--stage-color: #0277BD;">
+                    <div class="stage-badge">STAGE 2</div>
+                    <h4><i class="bi bi-gear-wide-connected"></i> OpenCV/YOLO — AI 시각화</h4>
+                    <div class="stage-items">
+                        <div class="stage-item">
+                            <i class="bi bi-bounding-box" style="color: #039BE5;"></i>
+                            <div>
+                                <strong>Bounding Box Annotation</strong>
+                                <span>YOLO 추론 결과를 OpenCV를 통해 이미지/영상 위에 시각적 객체로 매핑</span>
+                            </div>
+                        </div>
+                        <div class="stage-item">
+                            <i class="bi bi-camera-video-fill" style="color: #039BE5;"></i>
+                            <div>
+                                <strong>Dynamic Frame Compute</strong>
+                                <span>영상의 프레임 단위 분해 및 박스가 합성된 고효율(H.264) 영상 재인코딩</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pipeline-arrow-h"><i class="bi bi-chevron-double-right"></i></div>
+
+                <!-- Stage 3 -->
+                <div class="pipeline-stage" style="--stage-color: #E65100;">
+                    <div class="stage-badge">STAGE 3</div>
+                    <h4><i class="bi bi-database-fill-gear"></i> Data — 정형화</h4>
+                    <div class="stage-items">
+                        <div class="stage-item">
+                            <i class="bi bi-grid-3x3-gap-fill" style="color: #FF6D00;"></i>
+                            <div>
+                                <strong>NumPy 배열화</strong>
+                                <span>이미지를 숫자 행렬(Matrix)로 변환, AI 모델 입력 데이터로 활용</span>
+                            </div>
+                        </div>
+                        <div class="stage-item">
+                            <i class="bi bi-geo-alt-fill" style="color: #FF6D00;"></i>
+                            <div>
+                                <strong>GPS 연동 & DB 저장</strong>
+                                <span>위치 좌표·이미지 매칭 후 TiDB에 저장, 구역별 쿼리 지원</span>
+                            </div>
+                        </div>
+                        <div class="stage-item">
+                            <i class="bi bi-sliders" style="color: #FF6D00;"></i>
+                            <div>
+                                <strong>정규화</strong>
+                                <span>픽셀 값(0~255)을 0~1 범위로 스케일링, YOLO 학습 최적 상태</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pipeline-arrow-h"><i class="bi bi-chevron-double-right"></i></div>
+
+                <!-- Stage 4: Threading -->
+                <div class="pipeline-stage" style="--stage-color: #2E7D32;">
+                    <div class="stage-badge">STAGE 4</div>
+                    <h4><i class="bi bi-arrow-repeat"></i> Threading — 비동기</h4>
+                    <div class="stage-items">
+                        <div class="stage-item">
+                            <i class="bi bi-lightning-charge-fill" style="color: #43A047;"></i>
+                            <div>
+                                <strong>Non-Blocking AI</strong>
+                                <span>사용자 제출 즉시 응답, 별도 스레드에서 YOLO 판독 수행</span>
+                            </div>
+                        </div>
+                        <div class="stage-item">
+                            <i class="bi bi-arrow-down-up" style="color: #43A047;"></i>
+                            <div>
+                                <strong>DB 자동 반영</strong>
+                                <span>AI 결과를 DB에 비동기 커밋, 사용자 경험 저해 없이 처리</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .tech-grid {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .grid-row {
+            display: flex;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .grid-row.three-cols .tech-card {
+            width: 32%;
+        }
+
+        .tech-item-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tech-item-row .tech-item {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .tech-card {
+            background: white;
+            padding: 25px;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            text-align: left;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+
+        .collab-clickable:hover {
+            filter: brightness(0.98);
+        }
+
+        /* ===== Pipeline Modal (Horizontal 3-Column) ===== */
+        .pipeline-flow-h {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            width: 100%;
+        }
+
+        .pipeline-arrow-h {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: #bbb;
+            padding: 0 10px;
+            flex-shrink: 0;
+            animation: arrowPulseH 1.5s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulseH {
+
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: translateX(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateX(5px);
+            }
+        }
+
+        .pipeline-stage {
+            flex: 1;
+            background: #fafafa;
+            border-radius: 22px;
+            padding: 24px 22px 20px;
+            border-left: 5px solid var(--stage-color);
+            position: relative;
+            min-width: 0;
+        }
+
+        .stage-badge {
+            position: absolute;
+            top: -12px;
+            left: 18px;
+            background: var(--stage-color);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 3px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .pipeline-stage h4 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--stage-color);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            word-break: keep-all;
+        }
+
+        .stage-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stage-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .stage-item i {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .stage-item strong {
+            display: block;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #222;
+            margin-bottom: 5px;
+        }
+
+        .stage-item span {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+
+        .tech-card h3 {
+            font-size: 2.22rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 900;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 20px;
+        }
+
+        .tech-item img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .tech-item i {
+            font-size: 45px;
+            width: 45px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .item-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-text .title {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: #222;
+            line-height: 1.2;
+            word-break: keep-all;
+        }
+
+        .item-text .desc {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #777;
+            word-break: keep-all;
+            line-height: 1.3;
+        }
+
+        /* ===== Collaboration Modal ===== */
+        .collab-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: transparent;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .collab-modal-overlay.active {
+            display: flex;
+            animation: modalFadeIn 0.4s ease forwards;
+        }
+
+        .collab-modal-content {
+            background: white;
+            border-radius: 30px;
+            padding: 50px;
+            max-width: 900px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .collab-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .collab-modal-close:hover {
+            color: #333;
+        }
+
+        .collab-modal-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .collab-tool-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+            background: #fafafa;
+            border-radius: 18px;
+        }
+
+        .collab-tool-card h4 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #222;
+            margin-bottom: 5px;
+        }
+
+        .collab-tool-card p {
+            font-size: 1.3rem;
+            color: #555;
+            line-height: 1.6;
+            word-break: keep-all;
+            margin: 0;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(40px) scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</div>

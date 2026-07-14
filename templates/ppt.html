@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRACK - Project Presentation</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* 사용자가 지정한 메인 컬러 팔레트 적용 */
+            --bg-main: #F2F0EB;
+            --text-asphalt: #333333;
+            --point-orange: #FF8C00;
+            --accent-soft: rgba(255, 140, 0, 0.1);
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+        }
+
+        body,
+        html {
+            background-color: var(--bg-main);
+            color: var(--text-asphalt);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overflow: hidden !important;
+            width: 100%;
+            height: 100vh;
+            overscroll-behavior: none;
+            /* [추가] 브라우저 바운스 및 흔들림 방지 */
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 부드러운 화이트 / 오렌지 액센트 플로팅 배경 */
+        .color-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: floatOrb 30s infinite alternate ease-in-out;
+        }
+
+        .orb-white1 {
+            width: 80vw;
+            height: 80vw;
+            background: var(--white);
+            top: -20vw;
+            left: -10vw;
+            opacity: 0.6;
+        }
+
+        .orb-accent {
+            width: 60vw;
+            height: 60vw;
+            background: var(--accent-soft);
+            bottom: -10vw;
+            right: -10vw;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatOrb {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(5vw, 5vh) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-5vw, -5vh) scale(0.9);
+            }
+        }
+
+        /* [PPT 추가 스타일] Risk Card & Code Hover */
+        .risk-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .risk-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .hover-fade-container:hover {
+            transform: scale(1.02);
+            z-index: 100 !important;
+        }
+
+        .hover-fade-container:hover .fade-front {
+            opacity: 0 !important;
+            z-index: 1;
+            pointer-events: none !important;
+        }
+
+        .hover-fade-container:hover .fade-back {
+            opacity: 1 !important;
+            z-index: 2;
+            pointer-events: auto !important;
+        }
+
+        .hover-fade-container {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+        }
+
+        #globalZoomOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+            flex-direction: column;
+            padding: 40px;
+            backdrop-filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            pointer-events: none;
+        }
+
+        #globalZoomOverlay.active {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #zoomImg {
+            max-width: 80%;
+            max-height: 70%;
+            object-fit: contain;
+            border-radius: 20px;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 30px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #globalZoomOverlay.active #zoomImg {
+            transform: scale(1);
+        }
+
+        #zoomDesc {
+            color: white;
+            font-size: 1.8rem;
+            max-width: 800px;
+            text-align: center;
+            line-height: 1.8;
+            font-weight: 500;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .code-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 20, 20, 0.96);
+            color: #dcdcdc;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 5;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            text-align: left;
+        }
+
+        .risk-card:hover .code-hover {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Defense Logic Hover Overlay */
+        .defense-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.99) 100%);
+            padding: 30px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 5;
+            text-align: left;
+            border-radius: 20px;
+            box-shadow: inset 0 0 0 3px var(--defense-color);
+        }
+
+        .risk-card:hover .defense-hover {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .defense-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--defense-color);
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 30px;
+            margin-bottom: 14px;
+            width: fit-content;
+        }
+
+        .defense-hover h4 {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: var(--defense-color);
+            margin-bottom: 12px;
+        }
+
+        .defense-hover>p {
+            font-size: 1.25rem;
+            color: #444;
+            line-height: 1.65;
+            word-break: keep-all;
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        .defense-hover>p strong {
+            color: #222;
+            font-weight: 800;
+        }
+
+        .defense-code {
+            background: rgba(20, 20, 20, 0.96);
+            border-radius: 14px;
+            padding: 18px 20px;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+        }
+
+        .defense-code code {
+            font-size: 1rem;
+            line-height: 1.55;
+            color: #DCDCDC;
+        }
+
+
+        /* Flip Card Base */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 750px;
+            perspective: 2000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+            background: #1b1b1b;
+            border: 1px solid #333;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            justify-content: center;
+        }
+
+        .code-hover code {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #DCDCDC;
+        }
+
+        .code-keyword {
+            color: #569CD6;
+        }
+
+        .code-func {
+            color: #DCDCAA;
+        }
+
+        .code-string {
+            color: #CE9178;
+        }
+
+        .code-comment {
+            color: #6A9955;
+            font-style: italic;
+        }
+
+        .code-header {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 전문 용어 툴팁 스타일 */
+        .term-tip {
+            border-bottom: 2px dashed rgba(255, 140, 0, 0.7);
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+        }
+
+        .term-tip[data-tooltip]::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            max-width: 400px;
+            background: rgba(30, 30, 30, 0.98);
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            font-weight: 500;
+            white-space: pre-wrap;
+            word-break: keep-all;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            text-align: left;
+        }
+
+        .term-tip[data-tooltip]::after {
+            content: '';
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: rgba(30, 30, 30, 0.98) transparent transparent transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .term-tip:hover[data-tooltip]::before,
+        .term-tip:hover[data-tooltip]::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .term-tip:hover[data-tooltip]::before {
+            bottom: 125%;
+        }
+
+        .term-tip:hover[data-tooltip]::after {
+            bottom: 100%;
+        }
+
+        /* 옅은 모눈종이 패턴 배경 */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none;
+            /* 그리드 무늬를 아주 아주 투명하게 변경 (기계만 인지 가능하도록) */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.005) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.005) 1px, transparent 1px);
+            background-size: 80px 80px;
+            opacity: 0.3;
+        }
+
+        /* 협업 툴 로고 전용 스타일 */
+        .collab-logo-container {
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .collab-logo {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.08));
+            cursor: pointer;
+            transform: rotate(var(--rot, 0deg));
+        }
+
+        .collab-logo:hover {
+            transform: scale(1.15) translateY(-10px) rotate(var(--rot, 0deg));
+            filter: drop-shadow(0 15px 30px rgba(255, 140, 0, 0.25));
+        }
+
+        .collab-logo.overlap {
+            position: absolute;
+        }
+
+        .viewport {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* 카메라 컨테이너: JS로 위치 보간 */
+        #camera {
+            position: absolute;
+            top: 50vh;
+            left: 50vw;
+            width: 0;
+            height: 0;
+            will-change: transform;
+            transition: none;
+        }
+
+        .spot {
+            position: absolute;
+            transform-origin: center center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 1400px;
+            transition: opacity 0.5s;
+            opacity: 0.2;
+        }
+
+        /* 오렌지 & 모던 타이포그래피 */
+        h1 {
+            font-size: 8rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            line-height: 1.1;
+            color: var(--text-asphalt);
+        }
+
+        h2 {
+            font-size: 5rem;
+            font-weight: 900;
+            margin-bottom: 3rem;
+            color: var(--text-asphalt);
+        }
+
+        h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-asphalt);
+        }
+
+        p {
+            font-size: 2rem;
+            font-weight: 400;
+            line-height: 1.6;
+            color: #555555;
+        }
+
+        .point {
+            color: var(--point-orange);
+        }
+
+        .flex-row {
+            display: flex;
+            width: 100%;
+            justify-content: space-evenly;
+            align-items: flex-start;
+            gap: 50px;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .team-cluster {
+            display: flex;
+            gap: 60px;
+            justify-content: center;
+            margin-top: 60px;
+            perspective: 1200px;
+        }
+
+
+        .avatar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* [DENSITY TUNING] 팀원 카드 크기 축소 (인디케이터 침범 방지) */
+        .avatar-3d {
+            position: relative;
+            width: 305px;
+            height: 404px;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 40px;
+            background: var(--white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 2px solid var(--point-orange);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .avatar-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #eee;
+            background-size: cover;
+            background-position: center;
+            z-index: 2;
+            transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+        }
+
+        .avatar-info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--point-orange);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .avatar-3d:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(255, 140, 0, 0.2);
+        }
+
+        .avatar-3d:hover .avatar-cover {
+            transform: translateY(-100%);
+        }
+
+        .avatar-name-label {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--text-asphalt);
+            letter-spacing: 1px;
+        }
+
+        .mega-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            font-size: 14rem;
+            font-weight: 900;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-asphalt);
+            letter-spacing: -15px;
+            /* 글자 사이 기본 간격 축소 */
+        }
+
+        .mega-logo .bolt {
+            color: var(--point-orange);
+            font-size: 1.1em;
+            margin: 0 -45px;
+            /* 번개 사이 간격 대폭 축소 */
+            filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.4));
+            animation: boltFlash 3s infinite;
+        }
+
+        @keyframes boltFlash {
+
+            0%,
+            100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.4));
+            }
+
+            50% {
+                opacity: 0.8;
+                filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.2));
+            }
+        }
+
+        .btn-exit {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--white);
+            color: var(--text-asphalt);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-exit:hover {
+            background: var(--point-orange);
+            color: var(--white);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        /* ===== Contextual Tip / Code Buttons ===== */
+        .ppt-ctx-btn-group {
+            position: fixed;
+            top: 25px;
+            right: 90px;
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+        }
+
+        .ppt-ctx-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--white);
+            color: var(--text-asphalt);
+            border: none;
+            cursor: pointer;
+            display: none;
+            /* 기본 숨김 */
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .ppt-ctx-btn.visible {
+            display: flex;
+            animation: ctxBtnAppear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .ppt-ctx-btn.visible::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 140, 0, 0.4);
+            animation: ctxGlow 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .ppt-ctx-btn:hover {
+            background: var(--point-orange);
+            color: var(--white);
+            transform: scale(1.15);
+            box-shadow: 0 8px 30px rgba(255, 140, 0, 0.35);
+        }
+
+        @keyframes ctxBtnAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.5) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes ctxGlow {
+
+            0%,
+            100% {
+                border-color: rgba(255, 140, 0, 0.15);
+                box-shadow: 0 0 8px rgba(255, 140, 0, 0.1);
+            }
+
+            50% {
+                border-color: rgba(255, 140, 0, 0.6);
+                box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+            }
+        }
+
+        /* ===== Pothole Mechanism Animations (for Tip Modal) ===== */
+        @keyframes float-water {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        @keyframes expand-ice {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes sink-ground {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(5px) scale(0.98);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px) rotate(-1deg);
+            }
+
+            75% {
+                transform: translateX(5px) rotate(1deg);
+            }
+        }
+
+        @keyframes drop-shock {
+            0% {
+                transform: translateY(0);
+            }
+
+            45% {
+                transform: translateY(-40px);
+            }
+
+            50% {
+                transform: translateY(0);
+            }
+
+            52% {
+                transform: translateY(-12px);
+            }
+
+            54% {
+                transform: translateY(0);
+            }
+
+            56% {
+                transform: translateY(-5px);
+            }
+
+            58% {
+                transform: translateY(0);
+            }
+
+            60% {
+                transform: translateX(-2px);
+            }
+
+            62% {
+                transform: translateX(2px);
+            }
+
+            64% {
+                transform: translateX(-1px);
+            }
+
+            66% {
+                transform: translateX(1px);
+            }
+
+            68%,
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== Contextual Modal ===== */
+        .ppt-ctx-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        .ppt-ctx-modal-backdrop.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .ppt-ctx-modal {
+            background: var(--bg-main);
+            border-radius: 30px;
+            padding: 50px 55px 40px;
+            max-width: 1600px;
+            width: 95%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.35);
+            transform: scale(0.85) translateY(30px);
+            transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .ppt-ctx-modal-backdrop.show .ppt-ctx-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .ppt-ctx-modal-close {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .ppt-ctx-modal-close:hover {
+            background: var(--point-orange);
+            color: white;
+            border-color: var(--point-orange);
+            transform: rotate(90deg);
+        }
+
+        .ppt-ctx-modal-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-asphalt);
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+        }
+
+        .ppt-ctx-modal-title .point {
+            color: var(--point-orange);
+        }
+
+        .ppt-ctx-modal-body {
+            font-size: 1.4rem;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .ppt-ctx-modal-body .stat-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .ppt-ctx-modal-body .stat-card {
+            width: 220px;
+            padding: 28px 20px;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            border: 2px solid #eee;
+            text-align: center;
+        }
+
+        .ppt-ctx-modal-body .stat-card .stat-number {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-asphalt);
+        }
+
+        .ppt-ctx-modal-body .stat-card .stat-unit {
+            font-size: 1.2rem;
+            color: #666;
+            font-weight: 700;
+        }
+
+        .ppt-ctx-modal-body .stat-card .stat-desc {
+            font-size: 1.1rem;
+            color: #222;
+            margin-top: 12px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .ppt-ctx-modal-body .stat-card.highlight {
+            border-color: var(--point-orange);
+            box-shadow: 0 12px 30px rgba(255, 140, 0, 0.12);
+            background: rgba(255, 140, 0, 0.03);
+        }
+
+        .ppt-ctx-modal ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ppt-ctx-modal ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+        }
+
+        .indicator-container {
+            position: fixed;
+            top: 50%;
+            left: 40px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 인디케이터 옆 페이지 번호 */
+        .indicator-dot::after {
+            content: attr(data-page);
+            position: absolute;
+            left: 20px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--point-orange);
+            display: none;
+            /* 평소에는 숨김 */
+            white-space: nowrap;
+        }
+
+        .indicator-dot.active::after {
+            display: block;
+            /* 활성 상태에서만 표시 */
+        }
+
+        .indicator-dot.active {
+            height: 40px;
+            width: 12px;
+            background: var(--point-orange);
+        }
+
+        .huge-icon {
+            font-size: 15rem;
+            line-height: 1;
+            opacity: 0.1;
+            position: absolute;
+            z-index: -1;
+        }
+
+        /* [MOBILE FRAME REFINEMENT] 베젤 축소 및 화면 극대화 */
+        .phone-frame {
+            flex: 0 0 420px;
+            height: 860px;
+            background: #1a1a1a;
+            border-radius: 44px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+            /* 얇고 세련된 베젤 */
+            padding: 0;
+            display: flex;
+        }
+
+        /* [NOTCH REMOVED] 상단 아이콘 가림 방지 */
+        .phone-frame::before {
+            display: none;
+        }
+
+        .phone-frame iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+            border-radius: 36px;
+            background: var(--bg-main);
+            flex: 1;
+        }
+
+        .desc-panel {
+            flex: 1;
+            text-align: left;
+            max-width: 700px;
+        }
+
+        .desc-block {
+            display: none;
+            animation: descFadeIn 0.5s ease;
+        }
+
+        .desc-block.active {
+            display: block;
+        }
+
+        @keyframes descFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ppt-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: linear-gradient(135deg, #fef9f0 0%, #fff5e6 50%, #fef0d5 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .ppt-loader.fade-out {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .ppt-loader-logo {
+            font-size: 5rem;
+            font-weight: 900;
+            color: var(--text-asphalt);
+            margin-bottom: 30px;
+            letter-spacing: -4px;
+        }
+
+        .ppt-loader-logo .loader-bolt {
+            color: var(--point-orange);
+            display: inline-block;
+            margin: 0 -22px;
+            /* 번개와 글자 사이 간격 대폭 축소 (한 글자처럼 보이게) */
+            animation: loaderBoltPulse 1.2s infinite;
+        }
+
+        @keyframes loaderBoltPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.15);
+            }
+        }
+
+        .ppt-loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.06);
+            border-top-color: var(--point-orange);
+            border-radius: 50%;
+            animation: loaderSpin 0.8s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes loaderSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ppt-loader-text {
+            font-size: 1.1rem;
+            color: rgba(0, 0, 0, 0.35);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .spot.scatter-init {
+            opacity: 0;
+            transform: translate(0, 0) scale(0.3);
+            transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .spot.scatter-done {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+
+        /* 통계 카드 스타일 */
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 28px 30px;
+            box-shadow: 0 12px 40px rgba(139, 69, 19, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: default;
+            width: 340px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 20px 60px rgba(255, 140, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 3.5rem;
+            color: var(--point-orange);
+            margin-bottom: 16px;
+        }
+
+        .stat-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--point-orange);
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .stat-unit {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-asphalt);
+        }
+
+        .stat-desc {
+            font-size: 1.4rem;
+            color: #888;
+            margin-top: 12px;
+            line-height: 1.5;
+            word-break: keep-all;
+        }
+
+        /* 기사 카드 스타일 */
+        .article-card {
+            background: white;
+            border-radius: 24px;
+            padding: 36px 40px;
+            box-shadow: 0 10px 35px rgba(139, 69, 19, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--point-orange);
+            border-radius: 0 4px 4px 0;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .article-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .article-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(255, 140, 0, 0.12);
+        }
+
+        .article-card .article-source {
+            font-size: 1.1rem;
+            color: var(--point-orange);
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .article-card .article-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-asphalt);
+            line-height: 1.4;
+            margin-bottom: 12px;
+            word-break: keep-all;
+        }
+
+        .article-card .article-summary {
+            font-size: 1.2rem;
+            color: #777;
+            line-height: 1.5;
+            word-break: keep-all;
+        }
+
+        .article-card .article-link-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.4rem;
+            color: #ccc;
+            transition: color 0.3s;
+        }
+
+        .article-card:hover .article-link-icon {
+            color: var(--point-orange);
+        }
+
+        @keyframes pulse-orange {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 12px 40px rgba(255, 140, 0, 0.1);
+            }
+
+            50% {
+                transform: scale(1.03);
+                box-shadow: 0 24px 60px rgba(255, 140, 0, 0.25);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 12px 40px rgba(255, 140, 0, 0.1);
+            }
+        }
+
+        @keyframes index-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border-color: #eee;
+                z-index: 5;
+            }
+
+            5% {
+                transform: scale(1.22);
+                box-shadow: 0 0 70px rgba(255, 140, 0, 0.8), 0 0 30px rgba(255, 140, 0, 0.4);
+                border-color: var(--point-orange);
+                background: #fff;
+                z-index: 50;
+            }
+
+            12% {
+                transform: scale(1);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+                border-color: #eee;
+                z-index: 5;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .index-flow-container {
+            width: 100%;
+            height: 1080px;
+            margin-top: 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+            transform: translateY(100px);
+        }
+
+        .index-card {
+            width: 240px;
+            height: 240px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f7f7 100%);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--point-orange);
+            border-radius: 55px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .index-card.auto-active {
+            transform: scale(1.15) translateY(-80px) !important;
+            box-shadow: 0 40px 100px rgba(255, 140, 0, 0.4), 0 15px 40px rgba(255, 140, 0, 0.2);
+            border-color: var(--point-orange);
+            background: #fff;
+            z-index: 500;
+        }
+
+        .index-card i {
+            font-size: 5.5rem;
+            margin-bottom: 22px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+        }
+
+        .index-card span.num {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #919191;
+            /* 찐한 회색으로 변경 */
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+        }
+
+        .index-card span.txt {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #222;
+            text-align: center;
+            word-break: keep-all;
+            line-height: 1.3;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px) rotate(-1deg);
+            }
+
+            75% {
+                transform: translateX(5px) rotate(1deg);
+            }
+        }
+
+        @keyframes float-water {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        @keyframes expand-ice {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes sink-ground {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(5px) scale(0.98);
+            }
+        }
+
+        @keyframes drop-shock {
+            0% {
+                transform: translateY(0);
+            }
+
+            45% {
+                transform: translateY(-40px);
+            }
+
+            50% {
+                transform: translateY(0);
+            }
+
+            52% {
+                transform: translateY(-12px);
+            }
+
+            54% {
+                transform: translateY(0);
+            }
+
+            56% {
+                transform: translateY(-5px);
+            }
+
+            58% {
+                transform: translateY(0);
+            }
+
+            60% {
+                transform: translateX(-2px);
+            }
+
+            62% {
+                transform: translateX(2px);
+            }
+
+            64% {
+                transform: translateX(-1px);
+            }
+
+            66% {
+                transform: translateX(1px);
+            }
+
+            68% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* DB ERD 전용 스타일 */
+        .db-card {
+            width: 280px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid #eee;
+            text-align: left;
+            z-index: 10;
+        }
+
+        .db-card-header {
+            background: #f8f9fa;
+            padding: 12px 18px;
+            border-bottom: 2px solid #eee;
+            font-weight: 900;
+            color: var(--point-orange);
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .db-card-body {
+            padding: 10px 18px;
+        }
+
+        .db-col {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+            padding: 6px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .db-col:last-child {
+            border: none;
+        }
+
+        .db-col-name {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .db-col-type {
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .db-tag {
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            margin-left: 4px;
+        }
+
+        .tag-pk {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .tag-fk {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .tag-un {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        @keyframes glow-path {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 2px currentColor);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 8px currentColor);
+            }
+        }
+
+        /* ERD 인터랙션 스타일 */
+        .db-col {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .db-col.highlight {
+            background: #FFF3E0 !important;
+            border-left: 4px solid var(--point-orange);
+            color: var(--point-orange);
+            font-weight: 800;
+            z-index: 10;
+        }
+
+        .db-col.grow {
+            transform: scale(1.08);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.25);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .db-tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 250px;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+
+        .link-path {
+            transition: stroke-width 0.3s, opacity 0.3s, filter 0.3s;
+        }
+
+        /* Flip Card Styles (spot-6b 복구) */
+        .flip-card {
+            background-color: transparent;
+            width: 305px;
+            height: 360px;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+        }
+
+        .flip-card-front {
+            background: white;
+            border-top: 8px solid var(--point-orange);
+        }
+
+        .flip-card-back {
+            background: var(--point-orange);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        @keyframes pulse-orange {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(255, 140, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
+            }
+        }
+
+        /* [DB SECURITY MODAL & ZOOM OVERLAY] */
+        #securityModal,
+        #globalZoomOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #globalZoomOverlay {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            /* 호버 시 마우스 아웃 방지 */
+        }
+
+        #securityModal {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+        }
+
+        #securityModal.active,
+        #globalZoomOverlay.active {
+            opacity: 1;
+        }
+
+        #securityModal>div,
+        #globalZoomOverlay>img {
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #securityModal.active>div,
+        #globalZoomOverlay.active>img {
+            transform: scale(1);
+        }
+
+        #globalZoomOverlay img {
+            max-width: 90%;
+            max-height: 80%;
+            object-fit: contain;
+            border-radius: 20px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #zoomDesc {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 140, 0, 0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 15px 35px rgba(255, 140, 0, 0.3);
+            max-width: 80%;
+            text-align: center;
+            line-height: 1.6;
+            word-break: keep-all;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ppt-loader" id="ppt-loader">
+        <div class="ppt-loader-logo">CR<span class="loader-bolt">⚡</span>CK</div>
+        <div class="ppt-loader-spinner"></div>
+        <div class="ppt-loader-text">PRESENTATION LOADING</div>
+    </div>
+
+    <div class="color-orbs">
+        <div class="orb orb-accent"></div>
+        <div class="orb orb-white1"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <!-- Contextual Tip / Code Buttons -->
+    <div class="ppt-ctx-btn-group">
+        <button class="ppt-ctx-btn" id="btnCtxTip" title="💡 팁 보기" onclick="openCtxModal('tip')">
+            <i class="bi bi-lightbulb-fill"></i>
+        </button>
+        <button class="ppt-ctx-btn" id="btnCtxCode" title="💻 코드 보기" onclick="openCtxModal('code')">
+            <i class="bi bi-code-slash"></i>
+        </button>
+    </div>
+
+    <a href="/admin/dashboard" class="btn-exit" title="대시보드로 복귀"><i class="bi bi-door-open-fill"></i></a>
+
+    <!-- Contextual Modal -->
+    <div class="ppt-ctx-modal-backdrop" id="ctxModalBackdrop" onclick="closeCtxModal(event)">
+        <div class="ppt-ctx-modal" onclick="event.stopPropagation()">
+            <button class="ppt-ctx-modal-close" onclick="closeCtxModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="ppt-ctx-modal-title" id="ctxModalTitle"></div>
+            <div class="ppt-ctx-modal-body" id="ctxModalBody"></div>
+        </div>
+    </div>
+    <div class="indicator-container" id="indicators"></div>
+
+    <div class="viewport">
+        <div id="camera">
+
+            <!-- 17 Spots (0 ~ 16) -->
+            {% include 'ppt/spot-0.html' %}
+
+            {% include 'ppt/spot-1.html' %}
+
+            {% include 'ppt/spot-2.html' %}
+
+            {% include 'ppt/spot-3.html' %}
+
+            <!-- spot-3b: 일반도로·골목길 통계 -->
+            {% include 'ppt/spot-3b.html' %}
+
+            <!-- spot-3c: 결론 빌드업 → CRACK -->
+            {% include 'ppt/spot-3c.html' %}
+
+
+            <!-- spot-5: 크랙팀 기술 스택 -->
+            {% include 'ppt/spot-5.html' %}
+
+            <!-- spot-5b: TiDB ERD (Entity Relationship Diagram) -->
+            {% include 'ppt/spot-5b.html' %}
+
+            {% include 'ppt/spot-6.html' %}
+
+
+
+            <!-- spot-6a: 법적/운영 리스크 방어 -->
+            {% include 'ppt/spot-6a.html' %}
+
+
+
+            <!-- Phase 1: 1차 모델 학습 (v5) -->
+            {% include 'ppt/spot-8a.html' %}
+
+
+
+            <!-- Phase 2: 2차 싱크홀 통합 보강 학습 (v6) -->
+            {% include 'ppt/spot-8b.html' %}
+
+            <!-- Phase 3: 3차 세그먼트 고도화 현황 (v7) -->
+            {% include 'ppt/spot-8c.html' %}
+
+            <!-- YOLO Metrics Multi-Graph Slide -->
+            {% include 'ppt/spot-8a-2.html' %}
+
+            {% include 'ppt/spot-9.html' %}
+
+            {% include 'ppt/spot-10.html' %}
+
+            {% include 'ppt/spot-11.html' %}
+
+            {% include 'ppt/spot-12.html' %}
+
+            {% include 'ppt/spot-13.html' %}
+
+            <!-- spot-14: 원클릭 실행 환경 (Portable Runtime) -->
+            {% include 'ppt/spot-14.html' %}
+
+
+            {% include 'ppt/spot-16.html' %}
+
+        </div>
+    </div>
+
+    <script>
+        // [PPT BLUEPRINT: DYNAMIC SLIDE SYSTEM]
+        // -----------------------------------------------------------------
+        // 1. DATA SOURCE: 'spotsCoord' array (below) is the absolute source of truth.
+        // 2. ADAPTIVE NUMBERING:
+        //    - Total slide count is 'spotsCoord.length'.
+        //    - Page numbers (1 to N) are automatically calculated as (Index + 1).
+        //    - Indicators (left) and active state tracking (activeIdx) sync automatically.
+        // 3. SCALABILITY: To add/remove slides, simply update this array and corresponding .spot divs.
+        //    - Mismatch between array length and .spot divs will cause JS errors.
+        // 4. CURRENT STATUS: 22 Slides (v1.7.7)
+        // -----------------------------------------------------------------
+        const spotsCoord = [
+            { x: 0, y: 0, scale: 1, rot: 0 },         // 0: Cover
+            { x: 4000, y: 0, scale: 0.8, rot: 3 },     // 1: Team
+            { x: 8000, y: 2000, scale: 1.1, rot: -3 },  // 2: Index
+            { x: 4000, y: 4000, scale: 1, rot: 0 },     // 3: 왜 포트홀? + 통계
+            { x: 0, y: 7000, scale: 0.7, rot: -2 },     // 3b: 골목길 통계
+            { x: -3000, y: 5500, scale: 0.9, rot: 3 },  // 3c: 결론 빌드업
+            { x: -2000, y: 3000, scale: 1.1, rot: 5 },  // 5: 기술 스택
+            { x: -4500, y: 1000, scale: 1, rot: -3 },    // 5b: TiDB ERD
+            { x: -5000, y: -2000, scale: 1, rot: 0 },    // 6: 아키텍쳐
+
+            { x: -3000, y: -3000, scale: 0.9, rot: -2 }, // 6a: 리스크 방어
+
+            // { x: -1000, y: -4000, scale: 1.1, rot: 3 },  // 7: 스택 (DELETED)
+
+            { x: 4000, y: -7000, scale: 1.1, rot: 2 },   // 8a: Phase 1 (v1~v4) (New Index 12)
+            { x: 8000, y: -7000, scale: 1.1, rot: -2 },  // 8b: Phase 2 (v5 Hardlink/MP)
+            { x: 8000, y: -4500, scale: 1.2, rot: 3 },   // 8c: Phase 3 (v6 Sinkhole Analysis)
+            { x: 6000, y: -8500, scale: 1.0, rot: 0 },   // 8a-2: Metrics Dashboard (MOVED HERE)
+            { x: 8000, y: -2000, scale: 1, rot: 0 },     // 9: 서비스로직1
+            { x: 12000, y: -2000, scale: 1, rot: 3 },    // 10: 서비스로직2
+            { x: 12000, y: 2000, scale: 1, rot: -3 },    // 11: 서비스로직3
+            { x: 16000, y: 2000, scale: 1, rot: 0 },     // 12: 서비스로직4
+            { x: 16000, y: -2000, scale: 0.93, rot: 0 },  // 13: 서비스로직5 (Admin Dashboard)
+            { x: 20000, y: 0, scale: 1.0, rot: 3 },      // 14: Portable Runtime
+            { x: 10000, y: 500, scale: 0.12, rot: 0 }    // 16: Q&A
+        ];
+
+        const totalSpots = spotsCoord.length;
+        const camera = document.getElementById('camera');
+        const indicators = document.getElementById('indicators');
+        const spots = document.querySelectorAll('.spot');
+
+        const maxScroll = (totalSpots - 1) * 1000;
+        let currentPPTScroll = 0;
+        let targetPPTScroll = 0;
+        let velPPT = 0; // 물리 엔진용 속도
+        let activeIdx = -1; // 초기 업데이트 강제 수행
+
+        let targetX = 0, targetY = 0, targetScale = 1, targetRot = 0;
+        let cX = 0, cY = 0, cScale = 1, cRot = 0;
+
+        // [ANIMATION STATE]
+        let animStartTime = null;
+        let animStartScroll = 0;
+        let animTargetScroll = 0;
+        const animDuration = 2000;
+
+        const lerp = (s, e, a) => s + (e - s) * a;
+
+        // 초기 배치
+        for (let i = 0; i < totalSpots; i++) {
+            const data = spotsCoord[i];
+            spots[i].style.transform = `translate(-50%, -50%) translate(${data.x}px, ${data.y}px) scale(${data.scale}) rotate(${data.rot}deg)`;
+            const dot = document.createElement('div');
+            dot.className = 'indicator-dot';
+            dot.setAttribute('data-page', i + 1); // 페이지 번호 속성 추가
+            dot.addEventListener('click', () => jumpToSlide(i));
+            indicators.appendChild(dot);
+        }
+        const dots = document.querySelectorAll('.indicator-dot');
+
+        function jumpToSlide(i) {
+            const loader = document.getElementById('ppt-loader');
+            loader.querySelector('.ppt-loader-text').innerText = "MOVING TO SLIDE " + (i + 1);
+            loader.classList.remove('fade-out');
+
+            setTimeout(() => {
+                currentPPTScroll = i * 1000;
+                animTargetScroll = i * 1000;
+                animStartTime = null; // 진행 중인 애니메이션 중단
+
+                setTimeout(() => {
+                    loader.classList.add('fade-out');
+                }, 400);
+            }, 300);
+        }
+
+
+
+
+        function render(time) {
+            if (animStartTime !== null) {
+                const elapsed = time - animStartTime;
+                const progress = Math.min(elapsed / animDuration, 1);
+                // Quintic Ease-In-Out: 매우 부드러운 가속과 감속
+                const ease = progress < 0.5 ? 16 * Math.pow(progress, 5) : 1 - Math.pow(-2 * progress + 2, 5) / 2;
+                currentPPTScroll = animStartScroll + (animTargetScroll - animStartScroll) * ease;
+                if (progress >= 1) animStartTime = null;
+            }
+
+            // [LINEAR CAMERA SYNC] 지연(Lag) 제거 -> 어지러움 해결 핵심
+            const globalProgress = Math.max(0, Math.min(totalSpots - 1, currentPPTScroll / 1000));
+            const idx1 = Math.floor(globalProgress);
+            const idx2 = Math.min(totalSpots - 1, idx1 + 1);
+            const localRatio = globalProgress - idx1;
+
+            const s1 = spotsCoord[idx1], s2 = spotsCoord[idx2];
+
+            // 두 지점 사이를 현재 스크롤 위치에 맞춰 즉각 선형 보간
+            const curX = -(s1.x + (s2.x - s1.x) * localRatio);
+            const curY = -(s1.y + (s2.y - s1.y) * localRatio);
+            const curScale = (1 / s1.scale) + ((1 / s2.scale) - (1 / s1.scale)) * localRatio;
+            const curRot = -(s1.rot + (s2.rot - s1.rot) * localRatio);
+
+            // Active Index & Indicator Update
+            const active = Math.round(globalProgress);
+            if (active !== activeIdx) {
+                activeIdx = active;
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === activeIdx);
+                    spots[i].classList.toggle('active', i === activeIdx);
+                    spots[i].style.opacity = (i === activeIdx) ? '1' : '0.2';
+                });
+                if (activeIdx !== 1) document.querySelectorAll('.avatar-3d.active').forEach(c => c.classList.remove('active'));
+
+                // [INDEX AUTO HOVER]
+                handleIndexAutoHover(activeIdx === 2);
+
+                // [ADMIN DASHBOARD RELAYOUT]
+                if (activeIdx === 19) {
+                    const iframe = document.querySelector('#spot-13 iframe');
+                    if (iframe && iframe.contentWindow) {
+                        setTimeout(() => iframe.contentWindow.postMessage('ppt_relayout', '*'), 300);
+                        setTimeout(() => iframe.contentWindow.postMessage('ppt_relayout', '*'), 1000);
+                    }
+                }
+
+                // [CONTEXTUAL BUTTONS] 슬라이드별 팁/코드 버튼 표시
+                updateContextButtons(activeIdx);
+            }
+
+            const fitScale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            camera.style.transform = `translate(-50%, -50%) scale(${curScale * fitScale}) rotate(${curRot}deg) translate(${curX}px, ${curY}px)`;
+            requestAnimationFrame(render);
+        }
+
+        window.addEventListener('wheel', (e) => { if (!e.target.closest('iframe')) e.preventDefault(); }, { passive: false });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') moveSlide(1);
+            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') moveSlide(-1);
+        });
+
+        function moveSlide(dir) {
+            let nextIdx = Math.round(animTargetScroll / 1000) + dir;
+            if (nextIdx < 0) nextIdx = 0;
+            if (nextIdx >= totalSpots) nextIdx = totalSpots - 1;
+
+            animStartScroll = currentPPTScroll;
+            animTargetScroll = nextIdx * 1000;
+            animStartTime = performance.now();
+        }
+
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('ppt-loader');
+            const spots = document.querySelectorAll('.spot');
+
+            // [FIX] 초기 수축 현상 방지: 렌더 루프 시작 전 fitScale 우선 적용
+            const fit = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            camera.style.transform = `translate(-50%, -50%) scale(${fit}) rotate(0deg) translate(0px, 0px)`;
+
+            spots.forEach(s => s.classList.add('scatter-init'));
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                setTimeout(() => {
+                    spots.forEach(s => { s.classList.remove('scatter-init'); s.classList.add('scatter-done'); });
+                    setTimeout(() => {
+                        requestAnimationFrame(render);
+                        initCharts(); // 차트 초기화 함수 호출
+                    }, 400);
+                }, 100);
+            }, 800);
+        });
+
+        window.addEventListener('message', (e) => {
+            if (!e.data || e.data.type !== 'PPT_STATE_CHANGE') return;
+            const { page, state } = e.data;
+            const panelId = page === 'alert' ? 'desc-alert' : (page === 'status' ? 'desc-status' : null);
+            if (!panelId) return;
+            const panel = document.getElementById(panelId);
+            panel.querySelectorAll('.desc-block').forEach(b => b.classList.remove('active'));
+            const target = panel.querySelector(`.desc-block[data-desc="${state}"]`);
+            if (target) target.classList.add('active');
+        });
+
+        // Demo return
+        function startDemoReturn() {
+            document.body.style.transition = 'transform 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.8s ease';
+            document.body.style.transform = 'scale(0.3)'; document.body.style.opacity = '0';
+            sessionStorage.setItem('ppt_return', 'active');
+            setTimeout(() => { window.location.href = '/'; }, 900);
+        }
+
+        function syncHighlight(colIds, linkIds, isMultiple = false) {
+            // Remove all existing highlights
+            document.querySelectorAll('.db-col').forEach(el => el.classList.remove('highlight', 'grow'));
+            document.querySelectorAll('.link-path').forEach(el => {
+                el.classList.remove('highlight');
+                el.style.opacity = "0.2";
+            });
+
+            if (!colIds) return;
+
+            // Apply column highlights
+            const cIds = Array.isArray(colIds) ? colIds : [colIds];
+            cIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('highlight');
+                    if (isMultiple) el.classList.add('grow');
+                }
+            });
+
+            // Apply link highlights
+            if (linkIds) {
+                const lIds = Array.isArray(linkIds) ? linkIds : [linkIds];
+                lIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.classList.add('highlight');
+                        el.style.opacity = "1";
+                    }
+                });
+            }
+        }
+
+        function showTooltip(e, text) {
+            const tt = document.getElementById('db-tooltip');
+            tt.innerHTML = text;
+
+            // Get local coordinates relative to the relative container (#spot-6 > div)
+            const container = tt.parentElement;
+            const rect = container.getBoundingClientRect();
+
+            // Calculate scale ratio because container might be ZUI scaled
+            const scaleX = rect.width / container.offsetWidth;
+            const scaleY = rect.height / container.offsetHeight;
+
+            // Convert pageX/pageY (screen) to local coordinate
+            const localX = (e.clientX - rect.left) / scaleX;
+            const localY = (e.clientY - rect.top) / scaleY;
+
+            tt.style.left = (localX + 15) + 'px';
+            tt.style.top = (localY + 15) + 'px';
+            tt.style.opacity = '1';
+
+            // Auto hide after 3 seconds
+            if (tt.timer) clearTimeout(tt.timer);
+            tt.timer = setTimeout(() => {
+                tt.style.opacity = '0';
+            }, 3000);
+        }
+
+        // [DB SECURITY MODAL LOGIC]
+        function showSecurityModal(e) {
+            if (e) e.stopPropagation();
+            const modal = document.getElementById('securityModal');
+            if (!modal) return;
+
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        function closeSecurityModal() {
+            const modal = document.getElementById('securityModal');
+            if (!modal) return;
+
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 400);
+        }
+
+        // [INDEX AUTO HOVER LOGIC]
+        let indexAutoTimer = null;
+        let indexAutoIdx = 0;
+        function handleIndexAutoHover(isRunning) {
+            const container = document.querySelector('.index-flow-container');
+            if (!container) return;
+            const cards = container.querySelectorAll('.index-card');
+
+            // 초기화: 다른 페이지로 이동 시 타이머 중단 및 효과 제거
+            if (!isRunning) {
+                if (indexAutoTimer) clearInterval(indexAutoTimer);
+                indexAutoTimer = null;
+                cards.forEach(c => c.classList.remove('auto-active'));
+                indexAutoIdx = 0;
+                return;
+            }
+
+            // 이미 실행 중이면 중복 생성 방지
+            if (indexAutoTimer) return;
+
+            // 3페이지 진입 시 즉시 시작 및 1.5초 간격 순차 실행
+            const runStep = () => {
+                cards.forEach((c, i) => {
+                    c.classList.toggle('auto-active', i === indexAutoIdx);
+                });
+                indexAutoIdx = (indexAutoIdx + 1) % cards.length;
+            };
+
+            runStep(); // 즉시 첫 번째 카드 실행
+            indexAutoTimer = setInterval(runStep, 1500);
+        }
+
+        function zoomChart(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (canvas) {
+                // [FIX] 차트를 이미지로 변환하여 줌 오버레이에 표시
+                const dataUrl = canvas.toDataURL('image/png');
+                openGlobalZoom(dataUrl, ''); // 확대 시 설명 제거 (사용자 요청 반영)
+            }
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('trainingChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['mAP50', 'mAP50-95', 'Recall'],
+                    datasets: [
+                        {
+                            label: 'v5 (Road Damage)',
+                            data: [0.8688, 0.6504, 0.8075],
+                            backgroundColor: 'rgba(51, 51, 51, 0.1)',
+                            borderColor: '#333333',
+                            borderWidth: 2,
+                            borderRadius: 10,
+                            barThickness: 50
+                        },
+                        {
+                            label: 'v6 (Sinkhole Integrated)',
+                            data: [0.9017, 0.6528, 0.8484],
+                            backgroundColor: 'rgba(255, 140, 0, 0.8)',
+                            borderColor: '#FF8C00',
+                            borderWidth: 2,
+                            borderRadius: 10,
+                            barThickness: 50
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 0.6,
+                            max: 1.0,
+                            ticks: {
+                                font: { size: 14, family: 'Outfit' },
+                                color: '#999'
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 16, family: 'Outfit', weight: 'bold' },
+                                color: '#333'
+                            },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14, family: 'Outfit', weight: 'bold' },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#FFFFFF',
+                            titleColor: '#333',
+                            titleFont: { size: 16, weight: 'bold' },
+                            bodyColor: '#666',
+                            bodyFont: { size: 14 },
+                            borderColor: '#FF8C00',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: true,
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) label += (context.parsed.y * 100).toFixed(2) + '%';
+                                    return label;
+                                },
+                                afterLabel: function (context) {
+                                    if (context.datasetIndex === 1) {
+                                        return 'v6 적용 시 이전 버전 대비 유의미한 성능 향상 달성';
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+    </script>
+
+    <!-- 글로벌 줌 오버레이 요소 (클릭 시 닫힘) -->
+    <div id="globalZoomOverlay" onclick="closeGlobalZoom()">
+        <img id="zoomImg" src="" alt="Zoomed Metric">
+        <div id="zoomDesc"></div>
+    </div>
+
+    <script>
+        function openGlobalZoom(src, desc) {
+            console.log('Opening zoom for:', src);
+            const overlay = document.getElementById('globalZoomOverlay');
+            if (src && src !== '') {
+                overlay.innerHTML = `<img src="${src}" alt="Zoomed View"><div id="zoomDesc">${desc}</div>`;
+                overlay.style.display = 'flex';
+                setTimeout(() => {
+                    overlay.classList.add('active');
+                }, 10);
+            }
+        }
+
+        function openGlobalZoomUI(id, desc) {
+            const overlay = document.getElementById('globalZoomOverlay');
+            const target = document.getElementById(id);
+            if (!target) return;
+
+            const clone = target.cloneNode(true);
+            clone.id = id + "-cloned";
+            clone.style.width = "70%";
+            clone.style.height = "auto";
+            clone.style.transform = "scale(1)";
+            clone.style.background = "white";
+            clone.style.padding = "40px";
+            clone.style.border = "5px solid var(--point-orange)";
+            clone.style.boxShadow = "0 30px 100px rgba(0,0,0,0.5)";
+            clone.style.cursor = "default";
+            clone.style.display = "flex";
+
+            // 시인성 개선을 위한 글자 크기 조정
+            clone.querySelectorAll('span').forEach(s => s.style.fontSize = "1.8rem");
+            clone.querySelectorAll('div').forEach(d => {
+                if (d.style.height === '8px') d.style.height = '20px';
+                if (d.style.fontSize === '0.9rem') d.style.fontSize = '1.8rem';
+            });
+
+            overlay.innerHTML = "";
+            overlay.appendChild(clone);
+            const descDiv = document.createElement('div');
+            descDiv.id = "zoomDesc";
+            descDiv.innerText = desc;
+            overlay.appendChild(descDiv);
+
+            overlay.style.display = "flex";
+            setTimeout(() => {
+                overlay.classList.add('active');
+            }, 10);
+        }
+
+        function closeGlobalZoom() {
+            const overlay = document.getElementById('globalZoomOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.innerHTML = `<img id="zoomImg" src="" alt="Zoomed Metric"><div id="zoomDesc"></div>`;
+            }, 400);
+        }
+
+        // [YOLO HOVER EFFECT]
+        // 전역으로 이동하여 모든 YOLO 관련 요소에 적용
+        function setupYoloHoverEffect() {
+            document.querySelectorAll('.yolo-box').forEach(box => {
+                box.addEventListener('mouseenter', () => {
+                    const targetId = box.dataset.target;
+                    if (targetId) {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.classList.add('highlight');
+                        }
+                    }
+                });
+                box.addEventListener('mouseleave', () => {
+                    const targetId = box.dataset.target;
+                    if (targetId) {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.classList.remove('highlight');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Portable Runtime 상세 기술 슬라이드 (spot-14b) 추가
+        // 이 함수는 해당 슬라이드가 활성화될 때 호출되어야 합니다.
+        function handlePortableRuntimeSlide(isActive) {
+            const slide = document.getElementById('spot-14b'); // 가정: spot-14b는 해당 슬라이드의 ID
+            if (!slide) return;
+
+            if (isActive) {
+                // 슬라이드 활성화 시 필요한 로직 (예: 애니메이션 시작, 특정 요소 표시)
+                slide.classList.add('active');
+                // 추가적인 초기화 또는 애니메이션 로직
+            } else {
+                // 슬라이드 비활성화 시 필요한 로직 (예: 애니메이션 중단, 요소 숨김)
+                slide.classList.remove('active');
+            }
+        }
+
+        // 내비게이션 좌표 수정 (예시: 특정 슬라이드의 위치를 업데이트)
+        // 이 함수는 전체 내비게이션 시스템에 통합되어야 합니다.
+        function updateNavigationCoordinates(slideId, newCoords) {
+            // 실제 내비게이션 시스템에 따라 구현 방식이 달라질 수 있습니다.
+            // 예: 전역 설정 객체 업데이트, 특정 UI 요소의 data-attribute 변경 등
+            console.log(`Updating coordinates for ${slideId} to ${JSON.stringify(newCoords)}`);
+            // 예시: if (navigationConfig[slideId]) navigationConfig[slideId] = newCoords;
+        }
+
+        // ===================================================================
+        // [CONTEXTUAL TIP / CODE BUTTON SYSTEM]
+        // ===================================================================
+        // slideContextData: 슬라이드 인덱스 → { tip, code } 데이터 매핑
+        // tip/code가 있는 슬라이드에서만 해당 버튼이 나타남
+        const slideContextData = {
+            // Index 3 = Page 4 (spot-3: 왜 포트홀인가) → Tip = 포트홀 발생 메커니즘 (기존 Page 4, spot-2a 내용)
+            3: {
+                tip: {
+                    title: '💡 포트홀은 어떻게 <span class="point">생겨날까요?</span>',
+                    body: `
+                        <p style="font-size:1.3rem; color:#777; margin-bottom:28px; font-weight:600; text-align:center;">
+                            도로 위의 지뢰 이렇게 생긴다!
+                        </p>
+                        <div class="stat-row" style="gap:16px;">
+                            <div class="stat-card" style="border-top:5px solid #2196F3; width:200px; animation: float-water 3s infinite ease-in-out;">
+                                <div style="font-size:2rem; color:#2196F3; margin-bottom:10px;"><i class="bi bi-droplet-fill"></i></div>
+                                <div class="stat-number" style="font-size:1.6rem;">01. 침투</div>
+                                <div class="stat-desc" style="font-size:1rem;">아스팔트 균열 사이로<br><strong>빗물이나 눈</strong>이 침투합니다.</div>
+                            </div>
+                            <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
+                            <div class="stat-card" style="border-top:5px solid #03A9F4; width:200px; animation: expand-ice 2.5s infinite ease-in-out;">
+                                <div style="font-size:2rem; color:#03A9F4; margin-bottom:10px;"><i class="bi bi-snow"></i></div>
+                                <div class="stat-number" style="font-size:1.6rem;">02. 팽창</div>
+                                <div class="stat-desc" style="font-size:1rem;">기온이 낮아지면 물이 얼어<br><strong>부피가 9% 팽창</strong>하며 균열을 넓힙니다.</div>
+                            </div>
+                            <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
+                            <div class="stat-card" style="border-top:5px solid #FF9800; width:200px; animation: sink-ground 2s infinite ease-in-out;">
+                                <div style="font-size:2rem; color:#FF9800; margin-bottom:10px;"><i class="bi bi-water"></i></div>
+                                <div class="stat-number" style="font-size:1.6rem;">03. 공동 발생</div>
+                                <div class="stat-desc" style="font-size:1rem;">얼음이 녹으며 아스팔트 아래<br><strong>빈 공간(공동)</strong>이 생깁니다.</div>
+                            </div>
+                            <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
+                            <div class="stat-card" style="border-top:5px solid #F44336; width:200px; animation: shake 2s infinite ease-in-out;">
+                                <div style="font-size:2rem; color:#F44336; margin-bottom:10px;"><i class="bi bi-car-front-fill"></i></div>
+                                <div class="stat-number" style="font-size:1.6rem;">04. 파손</div>
+                                <div class="stat-desc" style="font-size:1rem;">노면이 <strong>반복적인 하중</strong>을<br>이기지 못하고 결국 무너집니다.</div>
+                            </div>
+                            <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-plus-lg"></i></div>
+                            <div class="stat-card" style="border-top:5px solid #546E7A; width:220px; background:#FAFAFA; animation: drop-shock 3s infinite ease-in-out;">
+                                <div style="font-size:2rem; color:#546E7A; margin-bottom:10px;"><i class="bi bi-truck"></i></div>
+                                <div class="stat-number" style="font-size:1.4rem;">[특이사항] 가속화 요인</div>
+                                <div class="stat-desc" style="font-size:0.95rem; text-align:left;"><strong>대형차량 하중:</strong> 지반 약화 및 압력 집중으로 파손 직결<br><strong>제설제의 부식:</strong> 아스팔트 부식 및 동결 융해로 내구 소모</div>
+                            </div>
+                        </div>
+                    `
+                }
+            },
+            4: {
+                tip: {
+                    title: '📂 주제 채택 <span class="point">근거 자료 및 출처</span>',
+                    body: `
+                        <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px; align-items: stretch;">
+                            <p style="font-size: 1.1rem; font-weight: 800; color: #666; margin-bottom: 8px; text-align:left;">
+                                <i class="bi bi-link-45deg"></i> 공식 보도자료 및 통계 시스템
+                            </p>
+                            <a href="https://www.speconomy.com/news/articleView.html?idxno=406621" target="_blank" class="ref-link">
+                                <i class="bi bi-newspaper"></i> 스페셜경제 — 고속도로 포트홀 5년간 2만6천건
+                            </a>
+                            <a href="https://www.ikld.kr/news/articleView.html?idxno=322141" target="_blank" class="ref-link">
+                                <i class="bi bi-newspaper"></i> 국토일보 — 피해 배상 건수 3배 급증
+                            </a>
+                            <a href="https://www.safetynews.co.kr/news/articleView.html?idxno=231854" target="_blank" class="ref-link">
+                                <i class="bi bi-newspaper"></i> 안전신문 — 서울시 포트홀 15만개
+                            </a>
+                            <a href="https://www.yna.co.kr/view/AKR20191001144800063" target="_blank" class="ref-link">
+                                <i class="bi bi-link-45deg"></i> 연합뉴스 — 전국 포트홀 65만개 집계
+                            </a>
+                            <a href="https://www.rsis.kr/statistics_road_year.htm" target="_blank" class="ref-link" style="border-color:#7986CB;">
+                                <i class="bi bi-link-45deg" style="color:#3F51B5;"></i> RSIS — 도로 보수 현황 시스템 (연도별 통계)
+                            </a>
+                        </div>
+                        <style>
+                            .ref-link {
+                                display:flex; align-items:center; gap:12px; padding:14px 20px; 
+                                background:white; border-radius:16px; box-shadow:0 4px 16px rgba(0,0,0,0.04); 
+                                text-decoration:none; color:#333; font-size:1.1rem; font-weight:700; 
+                                transition:all 0.3s; border:1px solid #eee;
+                            }
+                            .ref-link:hover {
+                                transform:translateX(8px);
+                                box-shadow:0 8px 24px rgba(255,140,0,0.15);
+                                border-color:var(--point-orange);
+                            }
+                            .ref-link i {
+                                color:var(--point-orange); font-size:1.3rem;
+                            }
+                        </style>
+                    `
+                }
+            }
+        };
+
+        const btnCtxTip = document.getElementById('btnCtxTip');
+        const btnCtxCode = document.getElementById('btnCtxCode');
+        const ctxModalBackdrop = document.getElementById('ctxModalBackdrop');
+        const ctxModalTitle = document.getElementById('ctxModalTitle');
+        const ctxModalBody = document.getElementById('ctxModalBody');
+
+        let currentCtxData = null;
+
+        function updateContextButtons(slideIdx) {
+            const data = slideContextData[slideIdx];
+            currentCtxData = data || null;
+
+            // Tip 버튼
+            if (data && data.tip) {
+                btnCtxTip.classList.add('visible');
+            } else {
+                btnCtxTip.classList.remove('visible');
+            }
+
+            // Code 버튼
+            if (data && data.code) {
+                btnCtxCode.classList.add('visible');
+            } else {
+                btnCtxCode.classList.remove('visible');
+            }
+        }
+
+        function openCtxModal(type) {
+            if (!currentCtxData || !currentCtxData[type]) return;
+            const content = currentCtxData[type];
+            ctxModalTitle.innerHTML = content.title;
+            ctxModalBody.innerHTML = content.body;
+
+            ctxModalBackdrop.style.display = 'flex';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    ctxModalBackdrop.classList.add('show');
+                });
+            });
+        }
+
+        function closeCtxModal(event) {
+            // event가 있으면 backdrop 클릭인지 확인
+            if (event && event.target !== ctxModalBackdrop) return;
+            ctxModalBackdrop.classList.remove('show');
+            setTimeout(() => {
+                ctxModalBackdrop.style.display = 'none';
+            }, 350);
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && ctxModalBackdrop.classList.contains('show')) {
+                closeCtxModal();
+            }
+        });
+
+        // 페이지 로드 시 YOLO 호버 효과 설정
+        document.addEventListener('DOMContentLoaded', setupYoloHoverEffect);
+    </script>
+</body>
+
+</html>

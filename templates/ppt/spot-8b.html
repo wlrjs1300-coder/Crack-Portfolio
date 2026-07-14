@@ -1,0 +1,34 @@
+<div class="spot" id="spot-8b" style="width: 1500px;">
+                <h2 style="font-size: 5rem; margin-bottom: 40px;">Phase 2: <span class="point">2차 싱크홀 통합 보강 학습
+                        (v6)</span></h2>
+                <div class="flex-row" style="align-items: stretch; gap: 60px;">
+                    <!-- Chart Area -->
+                    <div onclick="zoomChart('trainingChart')"
+                        style="flex: 1.5; background: white; padding: 40px; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.05); position: relative; cursor: pointer;">
+                        <!-- 그래프(앱에서 자동 렌더링) -->
+                        <canvas id="trainingChart" style="max-height: 500px; pointer-events: none;"></canvas>
+                    </div>
+                    <!-- Stats Area -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
+                        <div class="stat-card" style="width: 100%; text-align: left; padding: 30px;">
+                            <h3 class="point" style="font-size: 2rem; margin-bottom: 10px;"><i
+                                    class="bi bi-database-fill-add"></i> New Dataset</h3>
+                            <p style="font-size: 1.4rem; color: #333; font-weight: 700;">'Sinkhole' 1,500장 자체 수급</p>
+                            <p style="font-size: 1.1rem; color: #777;">치명적 위험 요소인 씽크홀(지반 침하) 데이터를 웹 스크래핑하여 보강 조치</p>
+                        </div>
+                        <div class="stat-card" style="width: 100%; text-align: left; padding: 30px;">
+                            <h3 class="point" style="font-size: 2rem; margin-bottom: 10px;"><i
+                                    class="bi bi-gear-wide-connected"></i> Method</h3>
+                            <p style="font-size: 1.4rem; color: #333; font-weight: 700;">전이 학습(TL)</p>
+                            <p style="font-size: 1.1rem; color: #777;">v5 베스트 가중치를 이어받아 초기 손실율을 대폭 낮추고 수렴 속도 제고</p>
+                        </div>
+                        <div class="stat-card" style="width: 100%; text-align: left; padding: 30px;">
+                            <h3 class="point" style="font-size: 2rem; margin-bottom: 10px;"><i
+                                    class="bi bi-graph-up-arrow"></i> Improvement</h3>
+                            <p style="font-size: 1.4rem; color: #333; font-weight: 700;">mAP50: 90.1% (+3.8%) / Recall:
+                                84.8% (+4.1%)</p>
+                            <p style="font-size: 1.1rem; color: #777;">미검출(False Negative) 이슈를 최소화하고 안정적인 통합 관제망 입증</p>
+                        </div>
+                    </div>
+                </div>
+            </div>

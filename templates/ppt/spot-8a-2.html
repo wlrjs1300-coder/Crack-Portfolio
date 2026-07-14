@@ -1,0 +1,175 @@
+<div class="spot" id="spot-8a-2"
+                style="width: 1600px; height: 1080px; display: flex; flex-direction: column; justify-content: center;">
+                <h2 style="font-size: 3.2rem; margin-bottom: 10px;"><span style="color: #666;">YOLOv8</span> <span
+                        class="point">Training Metrics Analysis</span></h2>
+                <p style="font-size: 1.6rem; margin-bottom: 120px; color: #666; font-weight: 500;">
+                    전 구간(1차~3차) Loss 및 정밀도(Precision/Recall/mAP) 지표 변화 추이 (전체 측정 데이터 가시화)
+                </p>
+                <style>
+                    .stat-card {
+                        transition: all 0.3s ease;
+                    }
+
+                    .stat-card:hover {
+                        z-index: 10;
+                        transform: translateY(-5px);
+                        border-color: var(--point-orange) !important;
+                    }
+
+                    .zoomable-img {
+                        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                        cursor: pointer;
+                        z-index: 1;
+                    }
+
+                    /* 브라우저 정중앙 확대 오버레이 스타일 */
+                    #globalZoomOverlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        background: rgba(0, 0, 0, 0.85);
+                        display: none;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 100000;
+                        backdrop-filter: blur(10px);
+                        cursor: pointer;
+
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
+
+                    #globalZoomOverlay img {
+                        max-width: 90%;
+                        max-height: 80%;
+                        object-fit: contain;
+                        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+                        border-radius: 15px;
+                        border: 3px solid rgba(255, 255, 255, 0.2);
+                        transform: scale(0.8);
+                        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                    }
+
+                    #globalZoomOverlay.active {
+                        display: flex;
+                        opacity: 1;
+                    }
+
+                    #globalZoomOverlay.active img {
+                        transform: scale(1);
+                    }
+
+                    #zoomDesc {
+                        position: absolute;
+                        bottom: 40px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        color: white;
+                        font-size: 1.5rem;
+                        background: rgba(0, 0, 0, 0.6);
+                        padding: 15px 30px;
+                        border-radius: 50px;
+                        max-width: 80%;
+                        text-align: center;
+                    }
+
+                    .analysis-text {
+                        font-size: 1.35rem;
+                        color: #444;
+                        line-height: 1.7;
+                        margin-top: 15px;
+                        word-break: keep-all;
+                        text-align: left;
+                        border-left: 44px solid #eee;
+                        padding-left: 15px;
+                    }
+                </style>
+                <div class="flex-row" style="gap: 25px; align-items: stretch; width: 100%; padding: 0 20px;">
+                    <!-- Phase 1: 포트홀 전용 학습 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; flex-direction: column; border: 1.5px solid #eee;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 10px; color: #1E88E5; font-weight: 800;"><i
+                                class="bi bi-graph-up"></i> Phase 1: 1차 분석</h3>
+                        <img src="/static/images/yolo/v5/results.png" class="zoomable-img"
+                            onclick="openGlobalZoom(this.src, '')"
+                            style="width: 100%; height: 160px; object-fit: contain; border-radius: 10px; border: 1px solid #f5f5f5; background: #fafafa; margin-bottom: 10px;"
+                            alt="">
+                        <div class="analysis-text"
+                            style="font-size: 1.1rem; border-left-width: 25px; line-height: 1.5;">
+                            <strong>[학습 성과]</strong> 100 Epoch 완주, 21,421장의 검증 데이터셋에서 Loss가 매끄럽게 하락하며 수렴되었습니다.
+                            최종 mAP <strong>86%</strong>를 상회하는 결과를 달성했습니다.
+                        </div>
+                    </div>
+
+                    <!-- Phase 2: 싱크홀 통합 보강 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; flex-direction: column; border: 1.5px solid #eee;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 10px; color: #FF8C00; font-weight: 800;"><i
+                                class="bi bi-plus-circle-fill"></i> Phase 2: 보강 학습</h3>
+                        <div id="phase2-stats" class="zoomable-img"
+                            onclick="openGlobalZoomUI('phase2-stats', 'Phase 2: 보강 학습 - 탐지 사각지대(Sinkhole) 제거 및 mAP 90% 달성')"
+                            style="background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 10px; flex: 1; display: flex; flex-direction: column; justify-content: center; border: 1px solid #eee;">
+                            <div style="margin-bottom: 12px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;">
+                                    <span>mAP50 (정밀도)</span>
+                                    <span style="color: #FF8C00; font-weight: 800;">90.1% (+3.3%)</span>
+                                </div>
+                                <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 90.1%; height: 100%; background: #FF8C00;"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 5px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;">
+                                    <span>Recall (검출률)</span>
+                                    <span style="color: #4CAF50; font-weight: 800;">84.8% (+4.1%)</span>
+                                </div>
+                                <div style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: 84.8%; height: 100%; background: #4CAF50;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="analysis-text"
+                            style="font-size: 1.1rem; border-left-width: 25px; line-height: 1.5; margin-top: 0;">
+                            <strong>[데이터 보강]</strong> 위험 요소인 <strong>'Sinkhole'</strong> 데이터를 통합하여
+                            mAP를 <strong>90%대</strong>로 고도화했습니다. (recall 4.1% 개선)
+                        </div>
+                    </div>
+
+                    <!-- Phase 3: 세그먼트 고도화 -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 20px; border: 1.5px solid #eee; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; flex-direction: column;">
+                        <h3 style="font-size: 1.5rem; color: #2E7D32; margin-bottom: 10px; font-weight: 800;">
+                            <i class="bi bi-bullseye"></i> Phase 3: 세그먼트
+                        </h3>
+                        <img src="/static/images/yolo/v7/results.png" class="zoomable-img"
+                            onclick="openGlobalZoom(this.src, '')"
+                            style="width: 100%; height: 160px; object-fit: contain; border-radius: 10px; border: 1px solid #f5f5f5; background: #fafafa; margin-bottom: 10px;"
+                            alt="">
+                        <div class="analysis-text"
+                            style="font-size: 1.1rem; border-left-width: 25px; line-height: 1.5; margin-top: 0;">
+                            <strong>[정밀 산출]</strong> 단순 탐지를 넘어 파손 부위의 <strong>실제 면적</strong>을 계산할 수 있는
+                            기반을 마련했습니다. (Mask Loss 급강하)
+                        </div>
+                    </div>
+
+                    <!-- Matrix -->
+                    <div class="stat-card"
+                        style="flex: 1; background: white; border-radius: 20px; border: 1.5px solid #eee; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); display: flex; flex-direction: column;">
+                        <h3 style="font-size: 1.5rem; color: #6a1b9a; margin-bottom: 10px; font-weight: 800;"><i
+                                class="bi bi-grid-3x3"></i> Matrix 분석</h3>
+                        <img src="/static/images/yolo/v7/confusion_matrix.png" class="zoomable-img"
+                            onclick="openGlobalZoom(this.src, '')"
+                            style="width: 100%; height: 160px; object-fit: contain; border-radius: 10px; border: 1px solid #f5f5f5; background: #fafafa; margin-bottom: 10px;"
+                            onerror="this.src='/static/images/yolo/v5/confusion_matrix.png'" alt="">
+                        <div class="analysis-text"
+                            style="font-size: 1.1rem; border-left-width: 25px; line-height: 1.5; margin-top: 0;">
+                            <strong>[학습 정보]</strong> YOLOv8s Segmentation / Dataset v7 (100 Epochs) 학습 완료 / Test Data
+                            12,421건 검증을 통해 <strong>안정적 분류 성능</strong>을 증명했습니다.
+                        </div>
+                    </div>
+                </div>
+            </div>

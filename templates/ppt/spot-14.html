@@ -1,0 +1,177 @@
+<!-- spot-14: Portable Runtime (원클릭 실행 환경) -->
+<div class="spot" id="spot-14"
+    style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 1600px; height: 900px; padding-top: 100px; margin: 0 auto; box-sizing: border-box;">
+
+    <!-- [Header] 상단 제목 (높이와 간격 충분히 확보) -->
+    <div style="text-align: center; margin-bottom: 70px; width: 100%;">
+        <h2
+            style="font-size: 5.5rem; font-weight: 950; color: #111; margin: 0; line-height: 1.1; letter-spacing: -2px;">
+            Portable Runtime: <span style="color: var(--point-orange);">원클릭 실행 환경</span>
+        </h2>
+        <div
+            style="width: 100px; height: 6px; background: var(--point-orange); margin: 25px auto 15px; border-radius: 3px;">
+        </div>
+        <p style="font-size: 1.8rem; color: #666; font-weight: 800; margin: 0;">가상환경 기반의 독립형 프로젝트 구동 및 배포 최적화</p>
+    </div>
+
+    <!-- [Main Content] 1:1 대칭 구조 (가로폭 확장) -->
+    <div style="display: flex; gap: 50px; width: 1450px; justify-content: center; align-items: stretch; height: 500px;">
+
+        <!-- [LEFT] 3개 기능 카드 -->
+        <div style="width: 600px; display: flex; flex-direction: column; gap: 25px;">
+
+            <!-- Card 1 -->
+            <div class="s14-f-card"
+                style="height: 150px; background: #ffffff; border: 2px solid #eee; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+                <h3 style="font-size: 2.1rem; font-weight: 950; color: #111; margin-bottom: 8px;">보안 정책 우회</h3>
+                <p style="font-size: 1.55rem; color: #555; margin: 0; font-weight: 700;">파이썬 미설치 환경에서도 즉시 구동 가능</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="s14-f-card"
+                style="height: 150px; background: #ffffff; border: 2px solid #eee; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+                <h3 style="font-size: 2.1rem; font-weight: 950; color: #111; margin-bottom: 8px;">의존성 무결성</h3>
+                <p style="font-size: 1.55rem; color: #555; margin: 0; font-weight: 700;">전용 라이브러리 번들링으로 환경 독립성 확보</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="s14-f-card"
+                style="height: 150px; background: #ffffff; border: 2px solid #eee; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+                <h3 style="font-size: 2.1rem; font-weight: 950; color: #111; margin-bottom: 8px;">원클릭 자동화</h3>
+                <p style="font-size: 1.55rem; color: #555; margin: 0; font-weight: 700;">`BAT` 실행만으로 가상환경 구축 및 서버 가동</p>
+            </div>
+
+        </div>
+
+        <!-- [RIGHT]Interactive Box (가로폭 800px로 확장) -->
+        <div class="s14-i-box"
+            style="width: 800px; height: 100%; position: relative; border-radius: 25px; cursor: default;">
+
+            <!-- [FRONT] 구조 테이블 -->
+            <div class="s14-i-front"
+                style="position: absolute; inset: 0; background: white; border: 2.5px solid #eee; padding: 40px; border-radius: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.05); display: flex; flex-direction: column; z-index: 2; opacity: 1; transition: opacity 0.3s ease;">
+                <h3
+                    style="font-size: 2.3rem; font-weight: 950; color: #111; margin-bottom: 30px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <i class="bi bi-folder-fill" style="color: #FFCA28;"></i> 프로젝트 패키징 구조
+                </h3>
+
+                <table
+                    style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; flex: 1; overflow: hidden; border-radius: 12px; border: 1px solid #f0f0f0;">
+                    <tr style="background: #fdfdfd; font-weight: 900; font-size: 1.5rem; height: 60px; color: #444;">
+                        <th style="padding: 15px; border-bottom: 2px solid #f0f0f0; text-align: center;">파일명 / 폴더명</th>
+                        <th style="padding: 15px; border-bottom: 2px solid #f0f0f0; text-align: center;">역할 및 배포 용도</th>
+                    </tr>
+                    <tr style="height: 60px;">
+                        <td
+                            style="padding: 15px; border-bottom: 1px solid #f8f8f8; font-size: 1.5rem; font-weight: 950; color: #e67e22;">
+                            ONE_CLICK_START.bat</td>
+                        <td
+                            style="padding: 15px; border-bottom: 1px solid #f8f8f8; font-size: 1.4rem; color: #666; font-weight: 700;">
+                            배포 및 실행 자동화 스크립트</td>
+                    </tr>
+                    <tr style="height: 60px;">
+                        <td
+                            style="padding: 15px; border-bottom: 1px solid #f8f8f8; font-size: 1.5rem; font-weight: 950; color: #333;">
+                            .venv /</td>
+                        <td
+                            style="padding: 15px; border-bottom: 1px solid #f8f8f8; font-size: 1.4rem; color: #666; font-weight: 700;">
+                            전용 종속 라이브러리 격리 공간</td>
+                    </tr>
+                    <tr style="height: 60px;">
+                        <td style="padding: 15px; font-size: 1.5rem; font-weight: 950; color: #333;">requirements.txt
+                        </td>
+                        <td style="padding: 15px; font-size: 1.4rem; color: #666; font-weight: 700;">의존성 패키지 버전 데이터</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- [BACK (Hover Visible)] 코드 박스 -->
+            <div class="s14-i-back"
+                style="position: absolute; inset: 0; background: #0f172a; padding: 35px; border-radius: 25px; border: 3px solid #1e293b; z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; flex-direction: column;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
+                    <span
+                        style="color: #38bdf8; font-family: 'Consolas', monospace; font-size: 1.35rem; font-weight: 900;">BAT_BUILD_ENGINE_CORE</span>
+                    <div style="display: flex; gap: 6px;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56;"></div>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f;"></div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Terminal (가로폭 확장 및 스크롤 억제) -->
+                <div
+                    style="flex: 1; overflow-y: auto; overflow-x: hidden; background: #000; border-radius: 12px; padding: 25px; font-family: 'Consolas', monospace; font-size: 1.35rem; line-height: 1.7; color: #e2e8f0; border: 1px solid #1e222e;">
+                    <p style="margin-bottom: 10px; color: #6a9955;">:: [System] 경로 확보 및 가상환경 검증</p>
+                    <p style="margin: 0; color: #f1c40f;">set <span style="color: #9cdcfe;">"PROJECT_ROOT=%~dp0"</span>
+                    </p>
+
+                    <p style="margin: 20px 0 10px 0; color: #6a9955;">:: [Action] 가상환경 자동 생성 로직</p>
+                    <p style="margin: 0; font-weight: bold; color: #c586c0;">if not exist <span
+                            style="color: #9cdcfe;">"%PROJECT_ROOT%.venv"</span> (</p>
+                    <p style="margin: 0; padding-left: 20px; color: #ce9178;">echo 가상환경 빌드를 시작합니다...</p>
+                    <p style="margin: 0; padding-left: 20px; color: #dcdcaa;">python -m venv "%PROJECT_ROOT%.venv"</p>
+                    <p style="margin: 0; color: #c586c0;">)</p>
+
+                    <p style="margin: 20px 0 10px 0; color: #6a9955;">:: [Action] 활성화 및 라이브러리 동기화</p>
+                    <p style="margin: 0; color: #f1c40f;">call <span
+                            style="color: #9cdcfe;">"%PROJECT_ROOT%.venv\Scripts\activate.bat"</span></p>
+                    <p style="margin: 0; color: #dcdcaa;">pip install --upgrade pip</p>
+                    <p style="margin: 0; color: #dcdcaa;">pip install -r "%PROJECT_ROOT%requirements.txt"</p>
+
+                    <p style="margin: 20px 0 10px 0; color: #6a9955;">:: [Run] Flask 서버 즉시 가동</p>
+                    <p style="margin: 0; color: #dcdcaa;">python app.py</p>
+
+                    <div style="margin-top: 30px; border-top: 1px solid #334155; padding-top: 25px;">
+                        <h4 style="color: #38bdf8; font-size: 1.55rem; font-weight: 900; margin-bottom: 12px;">작동 원리
+                            (Logic Insight)</h4>
+                        <p
+                            style="font-size: 1.3rem; line-height: 1.5; color: #94a3b8; word-break: keep-all; font-family: 'Pretendard', sans-serif;">
+                            Embedded Python을 통해 사용자 시스템 환경에 관계없이 <strong>격리된 연산 공간</strong>을 확보합니다. 실행 시마다 패키지 무결성을 검증하여
+                            최상의 구동 환경을 보장합니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [Style] 호버 동작 및 픽셀 단위 대칭 보정 레이어 -->
+    <style>
+        .s14-i-box:hover .s14-i-front {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .s14-i-box:hover .s14-i-back {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .s14-f-card {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .s14-f-card:hover {
+            transform: scale(1.03);
+            border-color: var(--point-orange) !important;
+            box-shadow: 0 15px 40px rgba(230, 126, 34, 0.08) !important;
+        }
+
+        /* Custom Scrollbar for terminal logic */
+        .s14-i-back div::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .s14-i-back div::-webkit-scrollbar-track {
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .s14-i-back div::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+            border: 1px solid #1e293b;
+        }
+    </style>
+</div>

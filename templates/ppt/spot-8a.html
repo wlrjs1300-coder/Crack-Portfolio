@@ -1,0 +1,51 @@
+<div class="spot" id="spot-8a" style="width: 1400px;">
+                <h2 style="font-size: 4.5rem; margin-bottom: 20px;">Phase 1: <span class="point">1차 초기 학습 (v5, Bounding
+                        Box)</span></h2>
+                <p style="font-size: 2.2rem; margin-bottom: 60px; color: #666; font-weight: 500;">
+                    기본 도로 파손 데이터셋(AI-Hub) 100 Epoch 완주 및 하이퍼파라미터 튜닝
+                </p>
+                <div class="flex-row" style="gap: 40px; justify-content: space-between;">
+                    <div class="stat-card" style="flex: 1; padding: 40px; border-top: 10px solid #8E24AA;">
+                        <div style="font-size: 4rem; margin-bottom: 20px; color: #8E24AA;"><i
+                                class="bi bi-shield-check"></i></div>
+                        <h3 style="font-size: 2.5rem; color: #333; margin-bottom: 15px;">Training Metrics</h3>
+                        <p
+                            style="font-size: 1.6rem; color: #555; line-height: 1.6; word-break: keep-all; text-align: left; margin-bottom: 15px;">
+                            Test Set 없이 Val 10% 할당으로 과적합(Overfitting) 모니터링망 구축
+                        </p>
+                        <ul
+                            style="font-size: 1.4rem; color: #444; text-align: left; padding-left: 20px; line-height: 1.8;">
+                            <li><strong>에포크:</strong> 총 100 Epoch 완주</li>
+                            <li><strong>검증용(Val) 데이터:</strong> 매 에포크당 21,421장 검증</li>
+                            <li><strong>훈련용(Train) 데이터:</strong> 매 에포크당 192,798장 학습</li>
+                            <li><strong>100 에포크 누적:</strong> 약 74시간(3일) 구동</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card" style="flex: 1; padding: 40px; border-top: 10px solid #1E88E5;">
+                        <div style="font-size: 4rem; margin-bottom: 20px; color: #1E88E5;"><i
+                                class="bi bi-graph-up"></i>
+                        </div>
+                        <h3 style="font-size: 2.5rem; color: #333; margin-bottom: 15px;">1차 학습 결과 및 문제점</h3>
+                        <p
+                            style="font-size: 1.5rem; color: #555; line-height: 1.6; word-break: keep-all; text-align: left; margin-bottom: 15px;">
+                            포트홀 부분에서 높은 성능을 달성했으나, 가장 치명적 위협인 <strong>싱크홀(Sinkhole)</strong> 데이터가 없는 21만장의 사진이므로, 씽크홀과
+                            포트홀의 학습이 필요했습니다.
+                        </p>
+                        <table
+                            style="width: 100%; border-collapse: collapse; text-align: left; font-size: 1.4rem; color: #333;">
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 10px 0; color: #1E88E5;">실측 정확도 (mAP50)</th>
+                                <td style="padding: 10px 0; font-weight: bold;">86.88%</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 10px 0; color: #1E88E5;">재현율 (Recall)</th>
+                                <td style="padding: 10px 0; font-weight: bold;">80.75%</td>
+                            </tr>
+                            <tr>
+                                <th style="padding: 10px 0; color: #1E88E5;">정밀도 (Precision)</th>
+                                <td style="padding: 10px 0; font-weight: bold;">82.96%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
