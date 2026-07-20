@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -9,10 +9,10 @@
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Noto+Sans+KR:wght@300;400;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            /* 사용자가 지정한 메인 컬러 팔레트 적용 */
+            /* ?ъ슜?먭? 吏?뺥븳 硫붿씤 而щ윭 ?붾젅???곸슜 */
             --bg-main: #F2F0EB;
             --text-asphalt: #333333;
             --point-orange: #FF8C00;
@@ -37,14 +37,14 @@
             width: 100%;
             height: 100vh;
             overscroll-behavior: none;
-            /* [추가] 브라우저 바운스 및 흔들림 방지 */
+            /* [異붽?] 釉뚮씪?곗? 諛붿슫??諛??붾뱾由?諛⑹? */
         }
 
         body::-webkit-scrollbar {
             display: none;
         }
 
-        /* 부드러운 화이트 / 오렌지 액센트 플로팅 배경 */
+        /* 遺?쒕윭???붿씠??/ ?ㅻ젋吏 ?≪꽱???뚮줈??諛곌꼍 */
         .color-orbs {
             position: fixed;
             top: 0;
@@ -95,7 +95,7 @@
             }
         }
 
-        /* [PPT 추가 스타일] Risk Card & Code Hover */
+        /* [PPT 異붽? ?ㅽ??? Risk Card & Code Hover */
         .risk-card {
             position: relative;
             overflow: hidden;
@@ -360,7 +360,7 @@
             justify-content: space-between;
         }
 
-        /* 전문 용어 툴팁 스타일 */
+        /* ?꾨Ц ?⑹뼱 ?댄똻 ?ㅽ???*/
         .term-tip {
             border-bottom: 2px dashed rgba(255, 140, 0, 0.7);
             cursor: pointer;
@@ -422,7 +422,7 @@
             bottom: 100%;
         }
 
-        /* 옅은 모눈종이 패턴 배경 */
+        /* ?낆? 紐⑤늿醫낆씠 ?⑦꽩 諛곌꼍 */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -431,14 +431,14 @@
             height: 100vh;
             z-index: 2;
             pointer-events: none;
-            /* 그리드 무늬를 아주 아주 투명하게 변경 (기계만 인지 가능하도록) */
+            /* 洹몃━??臾대뒳瑜??꾩＜ ?꾩＜ ?щ챸?섍쾶 蹂寃?(湲곌퀎留??몄? 媛?ν븯?꾨줉) */
             background-image: linear-gradient(rgba(0, 0, 0, 0.005) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.005) 1px, transparent 1px);
             background-size: 80px 80px;
             opacity: 0.3;
         }
 
-        /* 협업 툴 로고 전용 스타일 */
+        /* ?묒뾽 ??濡쒓퀬 ?꾩슜 ?ㅽ???*/
         .collab-logo-container {
             width: 250px;
             height: 250px;
@@ -475,7 +475,7 @@
             z-index: 10;
         }
 
-        /* 카메라 컨테이너: JS로 위치 보간 */
+        /* 移대찓??而⑦뀒?대꼫: JS濡??꾩튂 蹂닿컙 */
         #camera {
             position: absolute;
             top: 50vh;
@@ -499,7 +499,7 @@
             opacity: 0.2;
         }
 
-        /* 오렌지 & 모던 타이포그래피 */
+        /* ?ㅻ젋吏 & 紐⑤뜕 ??댄룷洹몃옒??*/
         h1 {
             font-size: 8rem;
             font-weight: 900;
@@ -563,7 +563,7 @@
             gap: 15px;
         }
 
-        /* [DENSITY TUNING] 팀원 카드 크기 축소 (인디케이터 침범 방지) */
+        /* [DENSITY TUNING] ???移대뱶 ?ш린 異뺤냼 (?몃뵒耳?댄꽣 移⑤쾾 諛⑹?) */
         .avatar-3d {
             position: relative;
             width: 305px;
@@ -637,14 +637,14 @@
             font-family: 'Outfit', sans-serif;
             color: var(--text-asphalt);
             letter-spacing: -15px;
-            /* 글자 사이 기본 간격 축소 */
+            /* 湲???ъ씠 湲곕낯 媛꾧꺽 異뺤냼 */
         }
 
         .mega-logo .bolt {
             color: var(--point-orange);
             font-size: 1.1em;
             margin: 0 -45px;
-            /* 번개 사이 간격 대폭 축소 */
+            /* 踰덇컻 ?ъ씠 媛꾧꺽 ???異뺤냼 */
             filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.4));
             animation: boltFlash 3s infinite;
         }
@@ -707,7 +707,7 @@
             border: none;
             cursor: pointer;
             display: none;
-            /* 기본 숨김 */
+            /* 湲곕낯 ?④? */
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
@@ -1024,7 +1024,7 @@
             position: relative;
         }
 
-        /* 인디케이터 옆 페이지 번호 */
+        /* ?몃뵒耳?댄꽣 ???섏씠吏 踰덊샇 */
         .indicator-dot::after {
             content: attr(data-page);
             position: absolute;
@@ -1033,13 +1033,13 @@
             font-weight: 800;
             color: var(--point-orange);
             display: none;
-            /* 평소에는 숨김 */
+            /* ?됱냼?먮뒗 ?④? */
             white-space: nowrap;
         }
 
         .indicator-dot.active::after {
             display: block;
-            /* 활성 상태에서만 표시 */
+            /* ?쒖꽦 ?곹깭?먯꽌留??쒖떆 */
         }
 
         .indicator-dot.active {
@@ -1056,7 +1056,7 @@
             z-index: -1;
         }
 
-        /* [MOBILE FRAME REFINEMENT] 베젤 축소 및 화면 극대화 */
+        /* [MOBILE FRAME REFINEMENT] 踰좎젮 異뺤냼 諛??붾㈃ 洹밸???*/
         .phone-frame {
             flex: 0 0 420px;
             height: 860px;
@@ -1066,12 +1066,12 @@
             overflow: hidden;
             position: relative;
             border: 8px solid #333;
-            /* 얇고 세련된 베젤 */
+            /* ?뉕퀬 ?몃젴??踰좎젮 */
             padding: 0;
             display: flex;
         }
 
-        /* [NOTCH REMOVED] 상단 아이콘 가림 방지 */
+        /* [NOTCH REMOVED] ?곷떒 ?꾩씠肄?媛由?諛⑹? */
         .phone-frame::before {
             display: none;
         }
@@ -1142,7 +1142,7 @@
             color: var(--point-orange);
             display: inline-block;
             margin: 0 -22px;
-            /* 번개와 글자 사이 간격 대폭 축소 (한 글자처럼 보이게) */
+            /* 踰덇컻? 湲???ъ씠 媛꾧꺽 ???異뺤냼 (??湲?먯쿂??蹂댁씠寃? */
             animation: loaderBoltPulse 1.2s infinite;
         }
 
@@ -1192,7 +1192,7 @@
             transform: translate(0, 0) scale(1);
         }
 
-        /* 통계 카드 스타일 */
+        /* ?듦퀎 移대뱶 ?ㅽ???*/
         .stat-card {
             background: white;
             border-radius: 28px;
@@ -1238,7 +1238,7 @@
             word-break: keep-all;
         }
 
-        /* 기사 카드 스타일 */
+        /* 湲곗궗 移대뱶 ?ㅽ???*/
         .article-card {
             background: white;
             border-radius: 24px;
@@ -1409,7 +1409,7 @@
             font-size: 1.5rem;
             font-weight: 900;
             color: #919191;
-            /* 찐한 회색으로 변경 */
+            /* 李먰븳 ?뚯깋?쇰줈 蹂寃?*/
             letter-spacing: 4px;
             margin-bottom: 5px;
         }
@@ -1529,7 +1529,7 @@
             }
         }
 
-        /* DB ERD 전용 스타일 */
+        /* DB ERD ?꾩슜 ?ㅽ???*/
         .db-card {
             width: 280px;
             background: white;
@@ -1622,7 +1622,7 @@
             }
         }
 
-        /* ERD 인터랙션 스타일 */
+        /* ERD ?명꽣?숈뀡 ?ㅽ???*/
         .db-col {
             cursor: pointer;
             transition: background 0.2s;
@@ -1663,7 +1663,7 @@
             transition: stroke-width 0.3s, opacity 0.3s, filter 0.3s;
         }
 
-        /* Flip Card Styles (spot-6b 복구) */
+        /* Flip Card Styles (spot-6b 蹂듦뎄) */
         .flip-card {
             background-color: transparent;
             width: 305px;
@@ -1745,7 +1745,7 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
             pointer-events: none;
-            /* 호버 시 마우스 아웃 방지 */
+            /* ?몃쾭 ??留덉슦???꾩썐 諛⑹? */
         }
 
         #securityModal {
@@ -1802,7 +1802,7 @@
 <body>
 
     <div class="ppt-loader" id="ppt-loader">
-        <div class="ppt-loader-logo">CR<span class="loader-bolt">⚡</span>CK</div>
+        <div class="ppt-loader-logo">CR<span class="loader-bolt">??/span>CK</div>
         <div class="ppt-loader-spinner"></div>
         <div class="ppt-loader-text">PRESENTATION LOADING</div>
     </div>
@@ -1815,15 +1815,15 @@
 
     <!-- Contextual Tip / Code Buttons -->
     <div class="ppt-ctx-btn-group">
-        <button class="ppt-ctx-btn" id="btnCtxTip" title="💡 팁 보기" onclick="openCtxModal('tip')">
+        <button class="ppt-ctx-btn" id="btnCtxTip" title="?뮕 ??蹂닿린" onclick="openCtxModal('tip')">
             <i class="bi bi-lightbulb-fill"></i>
         </button>
-        <button class="ppt-ctx-btn" id="btnCtxCode" title="💻 코드 보기" onclick="openCtxModal('code')">
+        <button class="ppt-ctx-btn" id="btnCtxCode" title="?뮲 肄붾뱶 蹂닿린" onclick="openCtxModal('code')">
             <i class="bi bi-code-slash"></i>
         </button>
     </div>
 
-    <a href="/admin/dashboard" class="btn-exit" title="대시보드로 복귀"><i class="bi bi-door-open-fill"></i></a>
+    <a href="/admin/dashboard" class="btn-exit" title="??쒕낫?쒕줈 蹂듦?"><i class="bi bi-door-open-fill"></i></a>
 
     <!-- Contextual Modal -->
     <div class="ppt-ctx-modal-backdrop" id="ctxModalBackdrop" onclick="closeCtxModal(event)">
@@ -1849,14 +1849,14 @@
 
             {% include 'ppt/spot-3.html' %}
 
-            <!-- spot-3b: 일반도로·골목길 통계 -->
+            <!-- spot-3b: ?쇰컲?꾨줈쨌怨⑤ぉ湲??듦퀎 -->
             {% include 'ppt/spot-3b.html' %}
 
-            <!-- spot-3c: 결론 빌드업 → CRACK -->
+            <!-- spot-3c: 寃곕줎 鍮뚮뱶????CRACK -->
             {% include 'ppt/spot-3c.html' %}
 
 
-            <!-- spot-5: 크랙팀 기술 스택 -->
+            <!-- spot-5: ?щ옓? 湲곗닠 ?ㅽ깮 -->
             {% include 'ppt/spot-5.html' %}
 
             <!-- spot-5b: TiDB ERD (Entity Relationship Diagram) -->
@@ -1866,20 +1866,20 @@
 
 
 
-            <!-- spot-6a: 법적/운영 리스크 방어 -->
+            <!-- spot-6a: 踰뺤쟻/?댁쁺 由ъ뒪??諛⑹뼱 -->
             {% include 'ppt/spot-6a.html' %}
 
 
 
-            <!-- Phase 1: 1차 모델 학습 (v5) -->
+            <!-- Phase 1: 1李?紐⑤뜽 ?숈뒿 (v5) -->
             {% include 'ppt/spot-8a.html' %}
 
 
 
-            <!-- Phase 2: 2차 싱크홀 통합 보강 학습 (v6) -->
+            <!-- Phase 2: 2李??깊겕? ?듯빀 蹂닿컯 ?숈뒿 (v6) -->
             {% include 'ppt/spot-8b.html' %}
 
-            <!-- Phase 3: 3차 세그먼트 고도화 현황 (v7) -->
+            <!-- Phase 3: 3李??멸렇癒쇳듃 怨좊룄???꾪솴 (v7) -->
             {% include 'ppt/spot-8c.html' %}
 
             <!-- YOLO Metrics Multi-Graph Slide -->
@@ -1895,7 +1895,7 @@
 
             {% include 'ppt/spot-13.html' %}
 
-            <!-- spot-14: 원클릭 실행 환경 (Portable Runtime) -->
+            <!-- spot-14: ?먰겢由??ㅽ뻾 ?섍꼍 (Portable Runtime) -->
             {% include 'ppt/spot-14.html' %}
 
 
@@ -1904,7 +1904,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         // [PPT BLUEPRINT: DYNAMIC SLIDE SYSTEM]
         // -----------------------------------------------------------------
         // 1. DATA SOURCE: 'spotsCoord' array (below) is the absolute source of truth.
@@ -1920,26 +1920,25 @@
             { x: 0, y: 0, scale: 1, rot: 0 },         // 0: Cover
             { x: 4000, y: 0, scale: 0.8, rot: 3 },     // 1: Team
             { x: 8000, y: 2000, scale: 1.1, rot: -3 },  // 2: Index
-            { x: 4000, y: 4000, scale: 1, rot: 0 },     // 3: 왜 포트홀? + 통계
-            { x: 0, y: 7000, scale: 0.7, rot: -2 },     // 3b: 골목길 통계
-            { x: -3000, y: 5500, scale: 0.9, rot: 3 },  // 3c: 결론 빌드업
-            { x: -2000, y: 3000, scale: 1.1, rot: 5 },  // 5: 기술 스택
+            { x: 4000, y: 4000, scale: 1, rot: 0 },     // 3: ???ы듃?? + ?듦퀎
+            { x: 0, y: 7000, scale: 0.7, rot: -2 },     // 3b: 怨⑤ぉ湲??듦퀎
+            { x: -3000, y: 5500, scale: 0.9, rot: 3 },  // 3c: 寃곕줎 鍮뚮뱶??            { x: -2000, y: 3000, scale: 1.1, rot: 5 },  // 5: 湲곗닠 ?ㅽ깮
             { x: -4500, y: 1000, scale: 1, rot: -3 },    // 5b: TiDB ERD
-            { x: -5000, y: -2000, scale: 1, rot: 0 },    // 6: 아키텍쳐
+            { x: -5000, y: -2000, scale: 1, rot: 0 },    // 6: ?꾪궎?띿퀜
 
-            { x: -3000, y: -3000, scale: 0.9, rot: -2 }, // 6a: 리스크 방어
+            { x: -3000, y: -3000, scale: 0.9, rot: -2 }, // 6a: 由ъ뒪??諛⑹뼱
 
-            // { x: -1000, y: -4000, scale: 1.1, rot: 3 },  // 7: 스택 (DELETED)
+            // { x: -1000, y: -4000, scale: 1.1, rot: 3 },  // 7: ?ㅽ깮 (DELETED)
 
             { x: 4000, y: -7000, scale: 1.1, rot: 2 },   // 8a: Phase 1 (v1~v4) (New Index 12)
             { x: 8000, y: -7000, scale: 1.1, rot: -2 },  // 8b: Phase 2 (v5 Hardlink/MP)
             { x: 8000, y: -4500, scale: 1.2, rot: 3 },   // 8c: Phase 3 (v6 Sinkhole Analysis)
             { x: 6000, y: -8500, scale: 1.0, rot: 0 },   // 8a-2: Metrics Dashboard (MOVED HERE)
-            { x: 8000, y: -2000, scale: 1, rot: 0 },     // 9: 서비스로직1
-            { x: 12000, y: -2000, scale: 1, rot: 3 },    // 10: 서비스로직2
-            { x: 12000, y: 2000, scale: 1, rot: -3 },    // 11: 서비스로직3
-            { x: 16000, y: 2000, scale: 1, rot: 0 },     // 12: 서비스로직4
-            { x: 16000, y: -2000, scale: 0.93, rot: 0 },  // 13: 서비스로직5 (Admin Dashboard)
+            { x: 8000, y: -2000, scale: 1, rot: 0 },     // 9: ?쒕퉬?ㅻ줈吏?
+            { x: 12000, y: -2000, scale: 1, rot: 3 },    // 10: ?쒕퉬?ㅻ줈吏?
+            { x: 12000, y: 2000, scale: 1, rot: -3 },    // 11: ?쒕퉬?ㅻ줈吏?
+            { x: 16000, y: 2000, scale: 1, rot: 0 },     // 12: ?쒕퉬?ㅻ줈吏?
+            { x: 16000, y: -2000, scale: 0.93, rot: 0 },  // 13: ?쒕퉬?ㅻ줈吏? (Admin Dashboard)
             { x: 20000, y: 0, scale: 1.0, rot: 3 },      // 14: Portable Runtime
             { x: 10000, y: 500, scale: 0.12, rot: 0 }    // 16: Q&A
         ];
@@ -1952,8 +1951,8 @@
         const maxScroll = (totalSpots - 1) * 1000;
         let currentPPTScroll = 0;
         let targetPPTScroll = 0;
-        let velPPT = 0; // 물리 엔진용 속도
-        let activeIdx = -1; // 초기 업데이트 강제 수행
+        let velPPT = 0; // 臾쇰━ ?붿쭊???띾룄
+        let activeIdx = -1; // 珥덇린 ?낅뜲?댄듃 媛뺤젣 ?섑뻾
 
         let targetX = 0, targetY = 0, targetScale = 1, targetRot = 0;
         let cX = 0, cY = 0, cScale = 1, cRot = 0;
@@ -1966,13 +1965,13 @@
 
         const lerp = (s, e, a) => s + (e - s) * a;
 
-        // 초기 배치
+        // 珥덇린 諛곗튂
         for (let i = 0; i < totalSpots; i++) {
             const data = spotsCoord[i];
             spots[i].style.transform = `translate(-50%, -50%) translate(${data.x}px, ${data.y}px) scale(${data.scale}) rotate(${data.rot}deg)`;
             const dot = document.createElement('div');
             dot.className = 'indicator-dot';
-            dot.setAttribute('data-page', i + 1); // 페이지 번호 속성 추가
+            dot.setAttribute('data-page', i + 1); // ?섏씠吏 踰덊샇 ?띿꽦 異붽?
             dot.addEventListener('click', () => jumpToSlide(i));
             indicators.appendChild(dot);
         }
@@ -1986,7 +1985,7 @@
             setTimeout(() => {
                 currentPPTScroll = i * 1000;
                 animTargetScroll = i * 1000;
-                animStartTime = null; // 진행 중인 애니메이션 중단
+                animStartTime = null; // 吏꾪뻾 以묒씤 ?좊땲硫붿씠??以묐떒
 
                 setTimeout(() => {
                     loader.classList.add('fade-out');
@@ -2001,13 +2000,13 @@
             if (animStartTime !== null) {
                 const elapsed = time - animStartTime;
                 const progress = Math.min(elapsed / animDuration, 1);
-                // Quintic Ease-In-Out: 매우 부드러운 가속과 감속
+                // Quintic Ease-In-Out: 留ㅼ슦 遺?쒕윭??媛?띻낵 媛먯냽
                 const ease = progress < 0.5 ? 16 * Math.pow(progress, 5) : 1 - Math.pow(-2 * progress + 2, 5) / 2;
                 currentPPTScroll = animStartScroll + (animTargetScroll - animStartScroll) * ease;
                 if (progress >= 1) animStartTime = null;
             }
 
-            // [LINEAR CAMERA SYNC] 지연(Lag) 제거 -> 어지러움 해결 핵심
+            // [LINEAR CAMERA SYNC] 吏??Lag) ?쒓굅 -> ?댁??ъ? ?닿껐 ?듭떖
             const globalProgress = Math.max(0, Math.min(totalSpots - 1, currentPPTScroll / 1000));
             const idx1 = Math.floor(globalProgress);
             const idx2 = Math.min(totalSpots - 1, idx1 + 1);
@@ -2015,7 +2014,7 @@
 
             const s1 = spotsCoord[idx1], s2 = spotsCoord[idx2];
 
-            // 두 지점 사이를 현재 스크롤 위치에 맞춰 즉각 선형 보간
+            // ??吏???ъ씠瑜??꾩옱 ?ㅽ겕濡??꾩튂??留욎떠 利됯컖 ?좏삎 蹂닿컙
             const curX = -(s1.x + (s2.x - s1.x) * localRatio);
             const curY = -(s1.y + (s2.y - s1.y) * localRatio);
             const curScale = (1 / s1.scale) + ((1 / s2.scale) - (1 / s1.scale)) * localRatio;
@@ -2044,7 +2043,7 @@
                     }
                 }
 
-                // [CONTEXTUAL BUTTONS] 슬라이드별 팁/코드 버튼 표시
+                // [CONTEXTUAL BUTTONS] ?щ씪?대뱶蹂???肄붾뱶 踰꾪듉 ?쒖떆
                 updateContextButtons(activeIdx);
             }
 
@@ -2073,7 +2072,7 @@
             const loader = document.getElementById('ppt-loader');
             const spots = document.querySelectorAll('.spot');
 
-            // [FIX] 초기 수축 현상 방지: 렌더 루프 시작 전 fitScale 우선 적용
+            // [FIX] 珥덇린 ?섏텞 ?꾩긽 諛⑹?: ?뚮뜑 猷⑦봽 ?쒖옉 ??fitScale ?곗꽑 ?곸슜
             const fit = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
             camera.style.transform = `translate(-50%, -50%) scale(${fit}) rotate(0deg) translate(0px, 0px)`;
 
@@ -2084,7 +2083,7 @@
                     spots.forEach(s => { s.classList.remove('scatter-init'); s.classList.add('scatter-done'); });
                     setTimeout(() => {
                         requestAnimationFrame(render);
-                        initCharts(); // 차트 초기화 함수 호출
+                        initCharts(); // 李⑦듃 珥덇린???⑥닔 ?몄텧
                     }, 400);
                 }, 100);
             }, 800);
@@ -2199,7 +2198,7 @@
             if (!container) return;
             const cards = container.querySelectorAll('.index-card');
 
-            // 초기화: 다른 페이지로 이동 시 타이머 중단 및 효과 제거
+            // 珥덇린?? ?ㅻⅨ ?섏씠吏濡??대룞 ????대㉧ 以묐떒 諛??④낵 ?쒓굅
             if (!isRunning) {
                 if (indexAutoTimer) clearInterval(indexAutoTimer);
                 indexAutoTimer = null;
@@ -2208,10 +2207,10 @@
                 return;
             }
 
-            // 이미 실행 중이면 중복 생성 방지
+            // ?대? ?ㅽ뻾 以묒씠硫?以묐났 ?앹꽦 諛⑹?
             if (indexAutoTimer) return;
 
-            // 3페이지 진입 시 즉시 시작 및 1.5초 간격 순차 실행
+            // 3?섏씠吏 吏꾩엯 ??利됱떆 ?쒖옉 諛?1.5珥?媛꾧꺽 ?쒖감 ?ㅽ뻾
             const runStep = () => {
                 cards.forEach((c, i) => {
                     c.classList.toggle('auto-active', i === indexAutoIdx);
@@ -2219,16 +2218,16 @@
                 indexAutoIdx = (indexAutoIdx + 1) % cards.length;
             };
 
-            runStep(); // 즉시 첫 번째 카드 실행
+            runStep(); // 利됱떆 泥?踰덉㎏ 移대뱶 ?ㅽ뻾
             indexAutoTimer = setInterval(runStep, 1500);
         }
 
         function zoomChart(canvasId) {
             const canvas = document.getElementById(canvasId);
             if (canvas) {
-                // [FIX] 차트를 이미지로 변환하여 줌 오버레이에 표시
+                // [FIX] 李⑦듃瑜??대?吏濡?蹂?섑븯??以??ㅻ쾭?덉씠???쒖떆
                 const dataUrl = canvas.toDataURL('image/png');
-                openGlobalZoom(dataUrl, ''); // 확대 시 설명 제거 (사용자 요청 반영)
+                openGlobalZoom(dataUrl, ''); // ?뺣? ???ㅻ챸 ?쒓굅 (?ъ슜???붿껌 諛섏쁺)
             }
         }
 
@@ -2310,7 +2309,7 @@
                                 },
                                 afterLabel: function (context) {
                                     if (context.datasetIndex === 1) {
-                                        return 'v6 적용 시 이전 버전 대비 유의미한 성능 향상 달성';
+                                        return 'v6 ?곸슜 ???댁쟾 踰꾩쟾 ?鍮??좎쓽誘명븳 ?깅뒫 ?μ긽 ?ъ꽦';
                                     }
                                     return '';
                                 }
@@ -2326,13 +2325,13 @@
         }
     </script>
 
-    <!-- 글로벌 줌 오버레이 요소 (클릭 시 닫힘) -->
+    <!-- 湲濡쒕쾶 以??ㅻ쾭?덉씠 ?붿냼 (?대┃ ???ロ옒) -->
     <div id="globalZoomOverlay" onclick="closeGlobalZoom()">
         <img id="zoomImg" src="" alt="Zoomed Metric">
         <div id="zoomDesc"></div>
     </div>
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         function openGlobalZoom(src, desc) {
             console.log('Opening zoom for:', src);
             const overlay = document.getElementById('globalZoomOverlay');
@@ -2362,7 +2361,7 @@
             clone.style.cursor = "default";
             clone.style.display = "flex";
 
-            // 시인성 개선을 위한 글자 크기 조정
+            // ?쒖씤??媛쒖꽑???꾪븳 湲???ш린 議곗젙
             clone.querySelectorAll('span').forEach(s => s.style.fontSize = "1.8rem");
             clone.querySelectorAll('div').forEach(d => {
                 if (d.style.height === '8px') d.style.height = '20px';
@@ -2392,7 +2391,7 @@
         }
 
         // [YOLO HOVER EFFECT]
-        // 전역으로 이동하여 모든 YOLO 관련 요소에 적용
+        // ?꾩뿭?쇰줈 ?대룞?섏뿬 紐⑤뱺 YOLO 愿???붿냼???곸슜
         function setupYoloHoverEffect() {
             document.querySelectorAll('.yolo-box').forEach(box => {
                 box.addEventListener('mouseenter', () => {
@@ -2416,74 +2415,72 @@
             });
         }
 
-        // Portable Runtime 상세 기술 슬라이드 (spot-14b) 추가
-        // 이 함수는 해당 슬라이드가 활성화될 때 호출되어야 합니다.
+        // Portable Runtime ?곸꽭 湲곗닠 ?щ씪?대뱶 (spot-14b) 異붽?
+        // ???⑥닔???대떦 ?щ씪?대뱶媛 ?쒖꽦?붾맆 ???몄텧?섏뼱???⑸땲??
         function handlePortableRuntimeSlide(isActive) {
-            const slide = document.getElementById('spot-14b'); // 가정: spot-14b는 해당 슬라이드의 ID
+            const slide = document.getElementById('spot-14b'); // 媛?? spot-14b???대떦 ?щ씪?대뱶??ID
             if (!slide) return;
 
             if (isActive) {
-                // 슬라이드 활성화 시 필요한 로직 (예: 애니메이션 시작, 특정 요소 표시)
+                // ?щ씪?대뱶 ?쒖꽦?????꾩슂??濡쒖쭅 (?? ?좊땲硫붿씠???쒖옉, ?뱀젙 ?붿냼 ?쒖떆)
                 slide.classList.add('active');
-                // 추가적인 초기화 또는 애니메이션 로직
+                // 異붽??곸씤 珥덇린???먮뒗 ?좊땲硫붿씠??濡쒖쭅
             } else {
-                // 슬라이드 비활성화 시 필요한 로직 (예: 애니메이션 중단, 요소 숨김)
+                // ?щ씪?대뱶 鍮꾪솢?깊솕 ???꾩슂??濡쒖쭅 (?? ?좊땲硫붿씠??以묐떒, ?붿냼 ?④?)
                 slide.classList.remove('active');
             }
         }
 
-        // 내비게이션 좌표 수정 (예시: 특정 슬라이드의 위치를 업데이트)
-        // 이 함수는 전체 내비게이션 시스템에 통합되어야 합니다.
+        // ?대퉬寃뚯씠??醫뚰몴 ?섏젙 (?덉떆: ?뱀젙 ?щ씪?대뱶???꾩튂瑜??낅뜲?댄듃)
+        // ???⑥닔???꾩껜 ?대퉬寃뚯씠???쒖뒪?쒖뿉 ?듯빀?섏뼱???⑸땲??
         function updateNavigationCoordinates(slideId, newCoords) {
-            // 실제 내비게이션 시스템에 따라 구현 방식이 달라질 수 있습니다.
-            // 예: 전역 설정 객체 업데이트, 특정 UI 요소의 data-attribute 변경 등
-            console.log(`Updating coordinates for ${slideId} to ${JSON.stringify(newCoords)}`);
-            // 예시: if (navigationConfig[slideId]) navigationConfig[slideId] = newCoords;
+            // ?ㅼ젣 ?대퉬寃뚯씠???쒖뒪?쒖뿉 ?곕씪 援ы쁽 諛⑹떇???щ씪吏????덉뒿?덈떎.
+            // ?? ?꾩뿭 ?ㅼ젙 媛앹껜 ?낅뜲?댄듃, ?뱀젙 UI ?붿냼??data-attribute 蹂寃???            console.log(`Updating coordinates for ${slideId} to ${JSON.stringify(newCoords)}`);
+            // ?덉떆: if (navigationConfig[slideId]) navigationConfig[slideId] = newCoords;
         }
 
         // ===================================================================
         // [CONTEXTUAL TIP / CODE BUTTON SYSTEM]
         // ===================================================================
-        // slideContextData: 슬라이드 인덱스 → { tip, code } 데이터 매핑
-        // tip/code가 있는 슬라이드에서만 해당 버튼이 나타남
-        const slideContextData = {
-            // Index 3 = Page 4 (spot-3: 왜 포트홀인가) → Tip = 포트홀 발생 메커니즘 (기존 Page 4, spot-2a 내용)
+        // slideContextData: ?щ씪?대뱶 ?몃뜳????{ tip, code } ?곗씠??留ㅽ븨
+        // tip/code媛 ?덈뒗 ?щ씪?대뱶?먯꽌留??대떦 踰꾪듉???섑???        const slideContextData = {
+            // Index 3 = Page 4 (spot-3: ???ы듃??멸?) ??Tip = ?ы듃? 諛쒖깮 硫붿빱?덉쬁 (湲곗〈 Page 4, spot-2a ?댁슜)
             3: {
                 tip: {
-                    title: '💡 포트홀은 어떻게 <span class="point">생겨날까요?</span>',
+                    title: '?뮕 ?ы듃?? ?대뼸寃?<span class="point">?앷꺼?좉퉴??</span>',
                     body: `
                         <p style="font-size:1.3rem; color:#777; margin-bottom:28px; font-weight:600; text-align:center;">
-                            도로 위의 지뢰 이렇게 생긴다!
+                            ?꾨줈 ?꾩쓽 吏猶??대젃寃??앷릿??
                         </p>
                         <div class="stat-row" style="gap:16px;">
                             <div class="stat-card" style="border-top:5px solid #2196F3; width:200px; animation: float-water 3s infinite ease-in-out;">
                                 <div style="font-size:2rem; color:#2196F3; margin-bottom:10px;"><i class="bi bi-droplet-fill"></i></div>
-                                <div class="stat-number" style="font-size:1.6rem;">01. 침투</div>
-                                <div class="stat-desc" style="font-size:1rem;">아스팔트 균열 사이로<br><strong>빗물이나 눈</strong>이 침투합니다.</div>
+                                <div class="stat-number" style="font-size:1.6rem;">01. 移⑦닾</div>
+                                <div class="stat-desc" style="font-size:1rem;">?꾩뒪?뷀듃 洹좎뿴 ?ъ씠濡?br><strong>鍮쀫Ъ?대굹 ??/strong>??移⑦닾?⑸땲??</div>
                             </div>
                             <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
                             <div class="stat-card" style="border-top:5px solid #03A9F4; width:200px; animation: expand-ice 2.5s infinite ease-in-out;">
                                 <div style="font-size:2rem; color:#03A9F4; margin-bottom:10px;"><i class="bi bi-snow"></i></div>
-                                <div class="stat-number" style="font-size:1.6rem;">02. 팽창</div>
-                                <div class="stat-desc" style="font-size:1rem;">기온이 낮아지면 물이 얼어<br><strong>부피가 9% 팽창</strong>하며 균열을 넓힙니다.</div>
+                                <div class="stat-number" style="font-size:1.6rem;">02. ?쎌갹</div>
+                                <div class="stat-desc" style="font-size:1rem;">湲곗삩????븘吏硫?臾쇱씠 ?쇱뼱<br><strong>遺?쇨? 9% ?쎌갹</strong>?섎ŉ 洹좎뿴???볧옓?덈떎.</div>
                             </div>
                             <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
                             <div class="stat-card" style="border-top:5px solid #FF9800; width:200px; animation: sink-ground 2s infinite ease-in-out;">
                                 <div style="font-size:2rem; color:#FF9800; margin-bottom:10px;"><i class="bi bi-water"></i></div>
-                                <div class="stat-number" style="font-size:1.6rem;">03. 공동 발생</div>
-                                <div class="stat-desc" style="font-size:1rem;">얼음이 녹으며 아스팔트 아래<br><strong>빈 공간(공동)</strong>이 생깁니다.</div>
+                                <div class="stat-number" style="font-size:1.6rem;">03. 怨듬룞 諛쒖깮</div>
+                                <div class="stat-desc" style="font-size:1rem;">?쇱쓬???뱀쑝硫??꾩뒪?뷀듃 ?꾨옒<br><strong>鍮?怨듦컙(怨듬룞)</strong>???앷퉩?덈떎.</div>
                             </div>
                             <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-arrow-right"></i></div>
                             <div class="stat-card" style="border-top:5px solid #F44336; width:200px; animation: shake 2s infinite ease-in-out;">
                                 <div style="font-size:2rem; color:#F44336; margin-bottom:10px;"><i class="bi bi-car-front-fill"></i></div>
-                                <div class="stat-number" style="font-size:1.6rem;">04. 파손</div>
-                                <div class="stat-desc" style="font-size:1rem;">노면이 <strong>반복적인 하중</strong>을<br>이기지 못하고 결국 무너집니다.</div>
+                                <div class="stat-number" style="font-size:1.6rem;">04. ?뚯넀</div>
+                                <div class="stat-desc" style="font-size:1rem;">?몃㈃??<strong>諛섎났?곸씤 ?섏쨷</strong>??br>?닿린吏 紐삵븯怨?寃곌뎅 臾대꼫吏묐땲??</div>
                             </div>
                             <div style="display:flex; align-items:center; font-size:1.5rem; color:#ccc;"><i class="bi bi-plus-lg"></i></div>
                             <div class="stat-card" style="border-top:5px solid #546E7A; width:220px; background:#FAFAFA; animation: drop-shock 3s infinite ease-in-out;">
                                 <div style="font-size:2rem; color:#546E7A; margin-bottom:10px;"><i class="bi bi-truck"></i></div>
-                                <div class="stat-number" style="font-size:1.4rem;">[특이사항] 가속화 요인</div>
-                                <div class="stat-desc" style="font-size:0.95rem; text-align:left;"><strong>대형차량 하중:</strong> 지반 약화 및 압력 집중으로 파손 직결<br><strong>제설제의 부식:</strong> 아스팔트 부식 및 동결 융해로 내구 소모</div>
+                                <div class="stat-number" style="font-size:1.4rem;">[?뱀씠?ы빆] 媛?랁솕 ?붿씤</div>
+                                <div class="stat-desc" style="font-size:0.95rem; text-align:left;"><strong>??뺤감???섏쨷:</strong> 吏諛??쏀솕 諛??뺣젰 吏묒쨷?쇰줈 ?뚯넀 吏곴껐<br><strong>?쒖꽕?쒖쓽 遺??</strong> ?꾩뒪?뷀듃 遺??諛??숆껐 ?듯빐濡??닿뎄 ?뚮え</div>
                             </div>
                         </div>
                     `
@@ -2491,26 +2488,25 @@
             },
             4: {
                 tip: {
-                    title: '📂 주제 채택 <span class="point">근거 자료 및 출처</span>',
+                    title: '?뱛 二쇱젣 梨꾪깮 <span class="point">洹쇨굅 ?먮즺 諛?異쒖쿂</span>',
                     body: `
                         <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px; align-items: stretch;">
                             <p style="font-size: 1.1rem; font-weight: 800; color: #666; margin-bottom: 8px; text-align:left;">
-                                <i class="bi bi-link-45deg"></i> 공식 보도자료 및 통계 시스템
-                            </p>
-                            <a href="https://www.speconomy.com/news/articleView.html?idxno=406621" target="_blank" class="ref-link">
-                                <i class="bi bi-newspaper"></i> 스페셜경제 — 고속도로 포트홀 5년간 2만6천건
+                                <i class="bi bi-link-45deg"></i> 怨듭떇 蹂대룄?먮즺 諛??듦퀎 ?쒖뒪??                            </p>
+                            <a href="https://www.speconomy.com/news/articleView.html?idxno=406621" target="_blank" rel="noopener noreferrer" class="ref-link">
+                                <i class="bi bi-newspaper"></i> ?ㅽ럹?쒓꼍????怨좎냽?꾨줈 ?ы듃? 5?꾧컙 2留?泥쒓굔
                             </a>
-                            <a href="https://www.ikld.kr/news/articleView.html?idxno=322141" target="_blank" class="ref-link">
-                                <i class="bi bi-newspaper"></i> 국토일보 — 피해 배상 건수 3배 급증
+                            <a href="https://www.ikld.kr/news/articleView.html?idxno=322141" target="_blank" rel="noopener noreferrer" class="ref-link">
+                                <i class="bi bi-newspaper"></i> 援?넗?쇰낫 ???쇳빐 諛곗긽 嫄댁닔 3諛?湲됱쬆
                             </a>
-                            <a href="https://www.safetynews.co.kr/news/articleView.html?idxno=231854" target="_blank" class="ref-link">
-                                <i class="bi bi-newspaper"></i> 안전신문 — 서울시 포트홀 15만개
+                            <a href="https://www.safetynews.co.kr/news/articleView.html?idxno=231854" target="_blank" rel="noopener noreferrer" class="ref-link">
+                                <i class="bi bi-newspaper"></i> ?덉쟾?좊Ц ???쒖슱???ы듃? 15留뚭컻
                             </a>
-                            <a href="https://www.yna.co.kr/view/AKR20191001144800063" target="_blank" class="ref-link">
-                                <i class="bi bi-link-45deg"></i> 연합뉴스 — 전국 포트홀 65만개 집계
+                            <a href="https://www.yna.co.kr/view/AKR20191001144800063" target="_blank" rel="noopener noreferrer" class="ref-link">
+                                <i class="bi bi-link-45deg"></i> ?고빀?댁뒪 ???꾧뎅 ?ы듃? 65留뚭컻 吏묎퀎
                             </a>
-                            <a href="https://www.rsis.kr/statistics_road_year.htm" target="_blank" class="ref-link" style="border-color:#7986CB;">
-                                <i class="bi bi-link-45deg" style="color:#3F51B5;"></i> RSIS — 도로 보수 현황 시스템 (연도별 통계)
+                            <a href="https://www.rsis.kr/statistics_road_year.htm" target="_blank" rel="noopener noreferrer" class="ref-link" style="border-color:#7986CB;">
+                                <i class="bi bi-link-45deg" style="color:#3F51B5;"></i> RSIS ???꾨줈 蹂댁닔 ?꾪솴 ?쒖뒪??(?곕룄蹂??듦퀎)
                             </a>
                         </div>
                         <style>
@@ -2546,14 +2542,14 @@
             const data = slideContextData[slideIdx];
             currentCtxData = data || null;
 
-            // Tip 버튼
+            // Tip 踰꾪듉
             if (data && data.tip) {
                 btnCtxTip.classList.add('visible');
             } else {
                 btnCtxTip.classList.remove('visible');
             }
 
-            // Code 버튼
+            // Code 踰꾪듉
             if (data && data.code) {
                 btnCtxCode.classList.add('visible');
             } else {
@@ -2576,7 +2572,7 @@
         }
 
         function closeCtxModal(event) {
-            // event가 있으면 backdrop 클릭인지 확인
+            // event媛 ?덉쑝硫?backdrop ?대┃?몄? ?뺤씤
             if (event && event.target !== ctxModalBackdrop) return;
             ctxModalBackdrop.classList.remove('show');
             setTimeout(() => {
@@ -2584,16 +2580,17 @@
             }, 350);
         }
 
-        // ESC 키로 모달 닫기
+        // ESC ?ㅻ줈 紐⑤떖 ?リ린
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && ctxModalBackdrop.classList.contains('show')) {
                 closeCtxModal();
             }
         });
 
-        // 페이지 로드 시 YOLO 호버 효과 설정
+        // ?섏씠吏 濡쒕뱶 ??YOLO ?몃쾭 ?④낵 ?ㅼ젙
         document.addEventListener('DOMContentLoaded', setupYoloHoverEffect);
     </script>
 </body>
 
 </html>
+

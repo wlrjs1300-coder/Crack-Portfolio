@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}CRACK 관리자{% endblock %}</title>
+  <title>{% block title %}CRACK 愿由ъ옄{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <script src="{{ url_for('static', filename='security.js') }}"></script>
 
   <style>
     :root {
@@ -431,9 +433,9 @@
           <div class="topbar-left">
             <a href="/admin/dashboard" class="header-brand js-page-transition-link">
               <div class="header-brand-row">
-                <span class="logo-icon">⚡</span>
+                <span class="logo-icon">??/span>
                 <span class="header-brand-main">CRACK</span>
-                <span class="header-brand-badge">관리자용</span>
+                <span class="header-brand-badge">愿由ъ옄??/span>
               </div>
               <div class="header-brand-sub">Admin Monitoring System</div>
             </a>
@@ -447,19 +449,16 @@
             <nav class="topbar-menu">
               <a href="/admin/dashboard"
                  class="menu-item js-page-transition-link {% if request.path == '/admin/dashboard' %}active{% endif %}">
-                대시보드
-              </a>
+                ??쒕낫??              </a>
               <a href="/admin/incidents"
                  class="menu-item js-page-transition-link {% if request.path.startswith('/admin/incidents') %}active{% endif %}">
-                신고관리
-              </a>
+                ?좉퀬愿由?              </a>
               <a href="/admin/members"
                   class="menu-item js-page-transition-link {% if request.path.startswith('/admin/members') %}active{% endif %}">
-                회원관리
-              </a>
+                ?뚯썝愿由?              </a>
               <a href="/admin/statistics"
                  class="menu-item js-page-transition-link {% if request.path.startswith('/admin/statistics') %}active{% endif %}">
-                통계
+                ?듦퀎
               </a>
             </nav>
 
@@ -469,10 +468,10 @@
                 href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
                 class="account-chip js-page-transition-link"
               >
-                <strong>{{ session.get('user_name', '관리자') }}</strong>
+                <strong>{{ session.get('user_name', '愿由ъ옄') }}</strong>
                 <span>{{ session.get('role', 'admin') }}</span>
               </a>
-              <a href="/logout" class="logout-pill js-page-transition-link">로그아웃</a>
+              <a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
               {% endblock %}
             </div>
           </div>
@@ -487,7 +486,7 @@
 
 <div class="page-transition-overlay" id="pageTransitionOverlay" aria-hidden="true"></div>
 
-<script>
+<script nonce="{{ csp_nonce }}">
 (function () {
   const overlay = document.getElementById('pageTransitionOverlay');
 
@@ -575,12 +574,12 @@
 })();
 </script>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
+<script nonce="{{ csp_nonce }}">
 (function() {
     window.adminSocket = io();
     window.adminSocket.on('new_report', function(data) {
         if (typeof showToast === 'function') {
-            showToast('📍 ' + data.address + ' 새 제보 접수');
+            showToast('?뱧 ' + data.address + ' ???쒕낫 ?묒닔');
         }
     });
 })();
@@ -588,3 +587,4 @@
 {% block extra_script %}{% endblock %}
 </body>
 </html>
+

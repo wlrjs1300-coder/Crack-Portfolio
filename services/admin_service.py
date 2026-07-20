@@ -4,9 +4,11 @@ from datetime import datetime, timedelta
 
 from services.region_service import normalize_region_name, parse_region_hierarchy
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, current_app
-from sqlalchemy import text
+from sqlalchemy import or_, text
 
 from extensions import db, socketio
+from models import Report, AiResult, Member
+from services.report_workflow import normalize_status, transition_report
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -74,30 +76,7 @@ def haversine_m(lat1, lon1, lat2, lon2):
 
 
 def _current_user_role():
-    role = session.get('user_role') or session.get('role')
-    if role:
-        return role
-    user_id = session.get('user_id')
-    if not user_id:
-        return 'user'
-    row = db.session.execute(text("""
-        SELECT
-            COALESCE(role, CASE WHEN is_admin = 1 THEN 'admin' ELSE 'user' END) AS role_value,
-            is_admin,
-            nickname,
-            username
-        FROM members
-        WHERE id = :user_id
-        LIMIT 1
-    """), {'user_id': user_id}).mappings().first()
-    if not row:
-        return 'user'
-    role_value = row.get('role_value') or ('admin' if _safe_int(row.get('is_admin')) == 1 else 'user')
-    session['user_role'] = role_value
-    session['role'] = role_value
-    session['is_admin'] = role_value == 'admin' or _safe_int(row.get('is_admin')) == 1
-    session['user_name'] = row.get('nickname') or row.get('username') or '관리자'
-    return role_value
+    return session.get('user_role', 'user')
 
 
 def _require_admin():
@@ -572,7 +551,11 @@ def incident_update_status():
         new_status = (request.form.get('new_status') or '').strip()
         reject_reason = (request.form.get('reject_reason') or '').strip()
 
-    if not incident_id or new_status not in ('관리자 확인중', '접수완료', '처리중', '처리완료', '처리중', '처리 완료', '반려'):
+    try:
+        new_status = normalize_status(new_status)
+    except ValueError:
+        new_status = None
+    if not incident_id or not new_status:
         if request.is_json:
             return jsonify({'ok': False, 'message': '잘못된 요청입니다.'}), 400
         return redirect(request.referrer or url_for('admin.admin_dashboard'))
@@ -585,23 +568,20 @@ def incident_update_status():
         return redirect(request.referrer or url_for('admin.admin_dashboard'))
 
     target_ids = group_map.get(incident_id, {}).get('group_ids', [incident_id])
-    placeholders = ','.join([f':id{i}' for i in range(len(target_ids))])
-    params = {f'id{i}': rid for i, rid in enumerate(target_ids)}
-    params.update({'new_status': new_status, 'reject_reason': reject_reason if new_status == '반려' else None, 'last_checked_at': datetime.now()})
-    sql = text(f"""
-        UPDATE report
-        SET status = :new_status,
-            reject_reason = :reject_reason,
-            last_checked_at = :last_checked_at
-        WHERE id IN ({placeholders})
-    """)
-    db.session.execute(sql, params)
+    for report in Report.query.filter(Report.id.in_(target_ids)).all():
+        transition_report(report, new_status, reject_reason)
     db.session.commit()
 
     if request.is_json:
-        socketio.emit('status_update', {'incident_id': incident_id, 'new_status': new_status}, namespace='/')
+        socketio.emit(
+            'status_update', {'incident_id': incident_id, 'new_status': new_status},
+            namespace='/', to='authenticated'
+        )
         return jsonify({'ok': True, 'message': '상태가 변경되었습니다.'})
-    socketio.emit('status_update', {'incident_id': incident_id, 'new_status': new_status}, namespace='/')
+    socketio.emit(
+        'status_update', {'incident_id': incident_id, 'new_status': new_status},
+        namespace='/', to='authenticated'
+    )
     return redirect(request.referrer or url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/admin/incidents/bulk-update', methods=['POST'])
@@ -618,7 +598,9 @@ def bulk_update_incidents():
     if not incident_ids:
         return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
-    if new_status not in ('관리자 확인중', '접수완료', '처리중', '처리완료', '반려'):
+    try:
+        new_status = normalize_status(new_status)
+    except ValueError:
         return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
     incident_ids = [_safe_int(i) for i in incident_ids if _safe_int(i) > 0]
@@ -637,26 +619,15 @@ def bulk_update_incidents():
     if not target_ids:
         return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
-    placeholders = ','.join([f':id{i}' for i in range(len(target_ids))])
-    params = {f'id{i}': rid for i, rid in enumerate(target_ids)}
-    params.update({
-        'new_status': new_status,
-        'reject_reason': reject_reason if new_status == '반려' else None,
-        'last_checked_at': datetime.now()
-    })
-
-    sql = text(f"""
-        UPDATE report
-        SET status = :new_status,
-            reject_reason = :reject_reason,
-            last_checked_at = :last_checked_at
-        WHERE id IN ({placeholders})
-    """)
-    db.session.execute(sql, params)
+    for report in Report.query.filter(Report.id.in_(target_ids)).all():
+        transition_report(report, new_status, reject_reason)
     db.session.commit()
 
     for rid in target_ids:
-        socketio.emit('status_update', {'incident_id': _safe_int(rid), 'new_status': new_status}, namespace='/')
+        socketio.emit(
+            'status_update', {'incident_id': _safe_int(rid), 'new_status': new_status},
+            namespace='/', to='authenticated'
+        )
 
     return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
@@ -668,15 +639,14 @@ def admin_reanalyze_report(report_id):
     if denied:
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    import threading
-    from models import Report, AiResult
-
-    report = Report.query.get(report_id)
+    report = db.session.get(Report, report_id)
     if not report:
         return jsonify({'success': False, 'message': '신고를 찾을 수 없습니다.'}), 404
 
     if not report.file_path:
         return jsonify({'success': False, 'message': '분석할 파일이 없습니다.'}), 400
+    if not current_app.config.get('AI_AVAILABLE', False):
+        return jsonify({'success': False, 'message': 'AI 모델이 설정되지 않아 재분석할 수 없습니다.'}), 503
 
     # 기존 AI 결과 삭제
     existing_ai = AiResult.query.filter_by(report_id=report_id).all()
@@ -684,7 +654,7 @@ def admin_reanalyze_report(report_id):
         db.session.delete(ai)
 
     # 상태를 'AI 분석중'으로 변경
-    report.status = '관리자 확인중'
+    report.status = 'AI 분석중'
     db.session.commit()
 
     # 파일 타입 판별
@@ -692,9 +662,11 @@ def admin_reanalyze_report(report_id):
     file_type = 'video' if ext_video else (report.file_type or 'image')
 
     # AI 분석을 백그라운드 스레드로 실행 (app.run_ai_analysis 사용)
-    run_ai = current_app.run_ai_analysis
-    thread = threading.Thread(target=run_ai, args=(report_id, report.file_path, file_type))
-    thread.start()
+    if not current_app.submit_ai_analysis(report_id, report.file_path, file_type):
+        report.status = '관리자 확인중'
+        report.reject_reason = 'AI 분석 대기열이 가득 차 관리자 수동 확인으로 전환되었습니다.'
+        db.session.commit()
+        return jsonify({'success': False, 'message': 'AI 분석 대기열이 가득 찼습니다.'}), 503
 
     return jsonify({'success': True, 'message': 'AI 재분석이 시작되었습니다.'})
 
@@ -899,10 +871,19 @@ def admin_member_change_role(member_id):
     new_role = (request.form.get('role') or '').strip()
     if new_role not in ('admin', 'manager', 'user'):
         return _member_detail_redirect(member_id)
+    if member_id == session.get('user_id') and new_role != 'admin':
+        return _member_detail_redirect(member_id)
+    target = db.session.get(Member, member_id)
+    if not target:
+        return _member_detail_redirect(member_id)
+    if (target.is_admin or target.role == 'admin') and new_role != 'admin':
+        admin_count = Member.query.filter(or_(Member.is_admin.is_(True), Member.role == 'admin')).count()
+        if admin_count <= 1:
+            return _member_detail_redirect(member_id)
 
     db.session.execute(
-        text("UPDATE members SET role = :role WHERE id = :member_id"),
-        {'role': new_role, 'member_id': member_id}
+        text("UPDATE members SET role = :role, is_admin = :is_admin WHERE id = :member_id"),
+        {'role': new_role, 'is_admin': new_role == 'admin', 'member_id': member_id}
     )
     db.session.commit()
 
@@ -914,6 +895,8 @@ def admin_member_suspend(member_id):
     denied = _require_admin()
     if denied:
         return denied
+    if member_id == session.get('user_id'):
+        return _member_detail_redirect(member_id)
 
     db.session.execute(
         text("UPDATE members SET active = 0 WHERE id = :member_id"),

@@ -1,20 +1,20 @@
-{% extends "admin_layout.html" %}
+﻿{% extends "admin_layout.html" %}
 
-{% block title %}CRACK 관리자 대시보드{% endblock %}
+{% block title %}CRACK 愿由ъ옄 ??쒕낫??% endblock %}
 
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="알림">🔔</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="?뚮┝">?뵒</a>
 </div>
 {% endblock %}
 
 {% block account_area %}
 <a href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
   class="account-chip js-page-transition-link">
-  <strong>{{ session.get('user_name', '관리자') }}님</strong>
+  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </a>
-<a href="/logout" class="logout-pill js-page-transition-link">로그아웃</a>
+<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -481,7 +481,7 @@
     color: #64748b;
   }
 
-  /* 관리자 확인중 */
+  /* 愿由ъ옄 ?뺤씤以?*/
   .status-checking {
     background: #f3e8ff;
     color: #6d28d9;
@@ -1194,50 +1194,49 @@
 <div class="summary-grid" id="dashboardSummaryGrid">
   <a href="/admin/dashboard?tab=urgent"
     class="summary-card js-summary-card urgent {{ 'active' if selected_tab == 'urgent' else '' }}">
-    <div class="summary-label">긴급</div>
-    <div class="summary-value"><strong>{{ summary.urgent_count|default(0) }}</strong>건</div>
-    <div class="summary-meta">우선 조치가 필요한 신고</div>
+    <div class="summary-label">湲닿툒</div>
+    <div class="summary-value"><strong>{{ summary.urgent_count|default(0) }}</strong>嫄?/div>
+    <div class="summary-meta">?곗꽑 議곗튂媛 ?꾩슂???좉퀬</div>
     {% if selected_tab == 'urgent' %}
     <div class="urgent-guide-text">
-      Ai 80%↑ · 반복 제보 · 24시간 이상 미처리
-    </div>
+      Ai 80%??쨌 諛섎났 ?쒕낫 쨌 24?쒓컙 ?댁긽 誘몄쿂由?    </div>
     {% endif %}
   </a>
 
   <a href="/admin/dashboard?tab=today"
     class="summary-card js-summary-card today {{ 'active' if selected_tab == 'today' else '' }}">
-    <div class="summary-label">오늘 접수</div>
-    <div class="summary-value"><strong>{{ summary.today_count|default(0) }}</strong>건</div>
-    <div class="summary-meta">오늘 등록된 위험 지점 수</div>
+    <div class="summary-label">?ㅻ뒛 ?묒닔</div>
+    <div class="summary-value"><strong>{{ summary.today_count|default(0) }}</strong>嫄?/div>
+    <div class="summary-meta">?ㅻ뒛 ?깅줉???꾪뿕 吏????/div>
   </a>
 
   <a href="/admin/dashboard?tab=pending"
     class="summary-card js-summary-card pending-strong {{ 'active' if selected_tab == 'pending' else '' }}">
-    <div class="summary-label">미처리</div>
-    <div class="summary-value"><strong>{{ summary.pending_count|default(0) }}</strong>건</div>
-    <div class="summary-meta">아직 검토 전인 위험 지점</div>
+    <div class="summary-label">誘몄쿂由?/div>
+    <div class="summary-value"><strong>{{ summary.pending_count|default(0) }}</strong>嫄?/div>
+    <div class="summary-meta">?꾩쭅 寃???꾩씤 ?꾪뿕 吏??/div>
   </a>
 
   <a href="/admin/dashboard?tab=long_pending"
     class="summary-card js-summary-card long-pending {{ 'active' if selected_tab == 'long_pending' else '' }}">
-    <div class="summary-label">처리중</div>
-    <div class="summary-value"><strong>{{ summary.processing_count|default(0) }}</strong>건</div>
-    <div class="summary-meta">현재 처리중인 신고</div>
+    <div class="summary-label">泥섎━以?/div>
+    <div class="summary-value"><strong>{{ summary.processing_count|default(0) }}</strong>嫄?/div>
+    <div class="summary-meta">?꾩옱 泥섎━以묒씤 ?좉퀬</div>
   </a>
 
   <a href="/admin/dashboard?tab=rejected"
     class="summary-card js-summary-card rejected {{ 'active' if selected_tab == 'rejected' else '' }}">
-    <div class="summary-label">반려</div>
-    <div class="summary-value"><strong>{{ summary.rejected_count|default(0) }}</strong>건</div>
-    <div class="summary-meta">관리 기준에 따라 반려된 신고</div>
+    <div class="summary-label">諛섎젮</div>
+    <div class="summary-value"><strong>{{ summary.rejected_count|default(0) }}</strong>嫄?/div>
+    <div class="summary-meta">愿由?湲곗????곕씪 諛섎젮???좉퀬</div>
   </a>
 </div>
 
 <section class="section dashboard-panel" id="dashboardPanel">
   <div class="section-header">
     <div class="section-title-wrap">
-      <div class="section-title">{{ dashboard_section_title|default('운영 현황') }}</div>
-      <div class="section-subtitle">{{ dashboard_section_subtitle|default('현재 선택된 신고 목록입니다.') }}</div>
+      <div class="section-title">{{ dashboard_section_title|default('?댁쁺 ?꾪솴') }}</div>
+      <div class="section-subtitle">{{ dashboard_section_subtitle|default('?꾩옱 ?좏깮???좉퀬 紐⑸줉?낅땲??') }}</div>
     </div>
   </div>
 
@@ -1253,20 +1252,20 @@
           <div class="urgent-location">{{ incident.location|default('-', true) }}</div>
 
           <div class="urgent-meta">
-            {% if incident.status == '접수완료' %}
-            <span class="badge status-received">접수완료</span>
-            {% elif incident.status == '처리중' %}
-            <span class="badge status-processing">처리중</span>
-            {% elif incident.status == '처리완료' %}
-            <span class="badge status-done">처리완료</span>
-            {% elif incident.status == '반려' %}
-            <span class="badge status-rejected">반려</span>
-            {% elif incident.status == '관리자 확인중' %}
-            <span class="badge status-checking">관리자 확인중</span>
-            {% elif incident.status == 'AI 분석중' %}
-            <span class="badge status-checking">관리자 확인중</span>
-            {% elif incident.status == '담당자 확인중' %}
-            <span class="badge status-checking">관리자 확인중</span>
+            {% if incident.status == '?묒닔?꾨즺' %}
+            <span class="badge status-received">?묒닔?꾨즺</span>
+            {% elif incident.status == '泥섎━以? %}
+            <span class="badge status-processing">泥섎━以?/span>
+            {% elif incident.status == '泥섎━?꾨즺' %}
+            <span class="badge status-done">泥섎━?꾨즺</span>
+            {% elif incident.status == '諛섎젮' %}
+            <span class="badge status-rejected">諛섎젮</span>
+            {% elif incident.status == '愿由ъ옄 ?뺤씤以? %}
+            <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
+            {% elif incident.status == 'AI 遺꾩꽍以? %}
+            <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
+            {% elif incident.status == '?대떦???뺤씤以? %}
+            <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
             {% else %}
             <span class="badge">{{ incident.status|default('-', true) }}</span>
             {% endif %}
@@ -1284,14 +1283,13 @@
         <div class="urgent-item-bottom">
           <div class="urgent-subinfo">
             <div class="urgent-reason-text">
-              {{ incident.urgent_reason.replace(',', ' ·') if incident.urgent_reason else '확인 필요' }}
+              {{ incident.urgent_reason.replace(',', ' 쨌') if incident.urgent_reason else '?뺤씤 ?꾩슂' }}
             </div>
 
             <div class="urgent-count-badge">
               {% if report_count >= 2 %}
-              반복 {{ report_count }}건
-              {% else %}
-              단일 신고
+              諛섎났 {{ report_count }}嫄?              {% else %}
+              ?⑥씪 ?좉퀬
               {% endif %}
             </div>
           </div>
@@ -1305,13 +1303,19 @@
               {% endif %}
             </div>
 
-            <button class="mini-btn" type="button" onclick="openDashboardDetailModal(
-                '{{ incident.id|default('', true) }}',
-                '{{ incident.title|default(" 신고 상세")|e }}', '{{ incident.location|default("-", true)|e }}'
-              , '{{ incident.status|default("-", true)|e }}' , '{{ incident.first_created_at.strftime('%m-%d %H:%M') if incident.first_created_at else '-' }}', '{{ incident.risk_score|default(0) }}'
-              , '{{ incident.group_reporter_count|default(1) }}' , '{{ incident.image_path|default('', true)|e }}'
-              , '{{ incident.latitude|default('', true) }}' , '{{ incident.longitude|default('', true) }}' )">
-              상세보기
+            <button class="mini-btn" type="button"
+              data-id="{{ incident.id|default('', true) }}"
+              data-title="{{ incident.title|default('?좉퀬 ?곸꽭', true) }}"
+              data-location="{{ incident.location|default('-', true) }}"
+              data-status="{{ incident.status|default('-', true) }}"
+              data-time="{{ incident.first_created_at.strftime('%m-%d %H:%M') if incident.first_created_at else '-' }}"
+              data-risk="{{ incident.risk_score|default(0) }}"
+              data-count="{{ incident.group_reporter_count|default(1) }}"
+              data-image="{{ incident.image_path|default('', true) }}"
+              data-lat="{{ incident.latitude|default('', true) }}"
+              data-lng="{{ incident.longitude|default('', true) }}"
+              onclick="openDashboardDetailModal(this.dataset.id, this.dataset.title, this.dataset.location, this.dataset.status, this.dataset.time, this.dataset.risk, this.dataset.count, this.dataset.image, this.dataset.lat, this.dataset.lng)">
+              ?곸꽭蹂닿린
             </button>
           </div>
         </div>
@@ -1329,14 +1333,14 @@
       {% endif %}
 
       {% if dashboard_items|default([], true)|length == 0 %}
-      <div class="urgent-empty">표시할 신고가 없습니다.</div>
+      <div class="urgent-empty">?쒖떆???좉퀬媛 ?놁뒿?덈떎.</div>
       {% endif %}
     </div>
 
     <div class="dashboard-pagination">
       <button type="button" class="pagination-btn" {% if current_page <=1 %}disabled{% endif %}
         onclick="moveDashboardPage({{ current_page - 1 }})">
-        이전
+        ?댁쟾
       </button>
 
       <div class="pagination-info">
@@ -1348,7 +1352,7 @@
       <button type="button" class="pagination-btn" {% if current_page>= total_pages %}disabled{% endif %}
         onclick="moveDashboardPage({{ current_page + 1 }})"
         >
-        다음
+        ?ㅼ쓬
       </button>
     </div>
   </div>
@@ -1358,8 +1362,8 @@
   <div class="detail-modal-card">
     <div class="detail-thumb-box">
       <div class="detail-photo-frame">
-        <img id="dashboardDetailImage" class="detail-thumb-img" src="" alt="신고 이미지">
-        <div id="dashboardDetailPlaceholder" class="detail-thumb-placeholder">사진</div>
+        <img id="dashboardDetailImage" class="detail-thumb-img" src="" alt="?좉퀬 ?대?吏">
+        <div id="dashboardDetailPlaceholder" class="detail-thumb-placeholder">?ъ쭊</div>
       </div>
     </div>
 
@@ -1369,22 +1373,22 @@
           <div class="detail-inline-status-wrap" id="dashboardInlineStatusWrap">
             <button type="button" id="dashboardDetailStatus" class="detail-chip detail-chip-button"
               onclick="toggleInlineStatusMenu()">
-              접수완료
+              ?묒닔?꾨즺
             </button>
 
             <div class="detail-inline-status-menu" id="dashboardInlineStatusMenu">
               <button type="button" class="detail-inline-status-option"
-                onclick="selectInlineDashboardStatus('접수완료')">접수완료</button>
+                onclick="selectInlineDashboardStatus('?묒닔?꾨즺')">?묒닔?꾨즺</button>
               <button type="button" class="detail-inline-status-option"
-                onclick="selectInlineDashboardStatus('처리중')">처리중</button>
+                onclick="selectInlineDashboardStatus('泥섎━以?)">泥섎━以?/button>
               <button type="button" class="detail-inline-status-option"
-                onclick="selectInlineDashboardStatus('처리완료')">처리완료</button>
+                onclick="selectInlineDashboardStatus('泥섎━?꾨즺')">泥섎━?꾨즺</button>
               <button type="button" class="detail-inline-status-option danger"
-                onclick="selectInlineDashboardStatus('반려')">반려</button>
+                onclick="selectInlineDashboardStatus('諛섎젮')">諛섎젮</button>
             </div>
           </div>
 
-          <button class="detail-inline-apply-btn" type="button" onclick="applyInlineDashboardStatus()">변경</button>
+          <button class="detail-inline-apply-btn" type="button" onclick="applyInlineDashboardStatus()">蹂寃?/button>
         </div>
 
         <div class="detail-time-risk-wrap">
@@ -1394,12 +1398,12 @@
       </div>
 
       <div class="detail-info-card">
-        <div id="dashboardDetailTitle" class="detail-content-title">신고 제목</div>
+        <div id="dashboardDetailTitle" class="detail-content-title">?좉퀬 ?쒕ぉ</div>
 
         <div class="detail-location-row">
-          <div id="dashboardDetailLocation" class="detail-content-text">위치 정보</div>
-          <button class="detail-map-inline-btn" type="button" onclick="openDashboardMap()" title="지도 보기"
-            aria-label="지도 보기">
+          <div id="dashboardDetailLocation" class="detail-content-text">?꾩튂 ?뺣낫</div>
+          <button class="detail-map-inline-btn" type="button" onclick="openDashboardMap()" title="吏??蹂닿린"
+            aria-label="吏??蹂닿린">
             <svg class="detail-map-inline-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true">
               <path
@@ -1409,10 +1413,10 @@
           </button>
         </div>
 
-        <div id="dashboardDetailReporter" class="detail-content-text" style="margin-top:8px;">반복 제보 1건</div>
+        <div id="dashboardDetailReporter" class="detail-content-text" style="margin-top:8px;">諛섎났 ?쒕낫 1嫄?/div>
       </div>
 
-      <button class="detail-close-btn" type="button" onclick="closeDashboardDetailModal()">닫기</button>
+      <button class="detail-close-btn" type="button" onclick="closeDashboardDetailModal()">?リ린</button>
     </div>
   </div>
 </div>
@@ -1420,17 +1424,17 @@
 <div class="detail-modal-backdrop" id="dashboardRejectModal">
   <div class="detail-modal-card" style="max-width:420px;">
     <div class="detail-content-box">
-      <div class="section-title" style="font-size:22px; margin-bottom:8px;">반려 사유 입력</div>
-      <div class="section-subtitle" style="font-size:14px; margin-bottom:14px;">반려 처리 사유를 입력해주세요.</div>
+      <div class="section-title" style="font-size:22px; margin-bottom:8px;">諛섎젮 ?ъ쑀 ?낅젰</div>
+      <div class="section-subtitle" style="font-size:14px; margin-bottom:14px;">諛섎젮 泥섎━ ?ъ쑀瑜??낅젰?댁＜?몄슂.</div>
 
       <div class="detail-info-card">
-        <textarea id="dashboardRejectReasonText" placeholder="예: 중복 신고, 위험도 기준 미달, 사진 불명확"
+        <textarea id="dashboardRejectReasonText" placeholder="?? 以묐났 ?좉퀬, ?꾪뿕??湲곗? 誘몃떖, ?ъ쭊 遺덈챸??
           style="width:100%; min-height:110px; border:1px solid #d7dde5; border-radius:12px; padding:12px; font-size:14px; resize:none; outline:none;"></textarea>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
-        <button class="mini-btn" type="button" onclick="closeRejectReasonModal()">취소</button>
-        <button class="mini-btn" type="button" onclick="submitRejectStatus()">반려 확인</button>
+        <button class="mini-btn" type="button" onclick="closeRejectReasonModal()">痍⑥냼</button>
+        <button class="mini-btn" type="button" onclick="submitRejectStatus()">諛섎젮 ?뺤씤</button>
       </div>
     </div>
   </div>
@@ -1445,11 +1449,11 @@
 <div class="custom-alert-backdrop" id="customAlertModal">
   <div class="custom-alert-box">
     <div class="custom-alert-header">
-      <div class="custom-alert-title" id="customAlertTitle">알림</div>
+      <div class="custom-alert-title" id="customAlertTitle">?뚮┝</div>
     </div>
-    <div class="custom-alert-body" id="customAlertMessage">메시지 내용</div>
+    <div class="custom-alert-body" id="customAlertMessage">硫붿떆吏 ?댁슜</div>
     <div class="custom-alert-actions">
-      <button type="button" class="custom-alert-btn" onclick="closeCustomAlert()">확인</button>
+      <button type="button" class="custom-alert-btn" onclick="closeCustomAlert()">?뺤씤</button>
     </div>
   </div>
 </div>
@@ -1457,8 +1461,8 @@
 <div class="detail-modal-backdrop" id="dashboardMapModal">
   <div class="map-modal-card">
     <div class="map-modal-header">
-      <div class="map-modal-title">신고 위치</div>
-      <button type="button" class="map-modal-close-x" onclick="closeDashboardMapModal()">✕</button>
+      <div class="map-modal-title">?좉퀬 ?꾩튂</div>
+      <button type="button" class="map-modal-close-x" onclick="closeDashboardMapModal()">??/button>
     </div>
 
     <div class="map-modal-body">
@@ -1466,19 +1470,19 @@
     </div>
 
     <div class="map-modal-footer">
-      <button type="button" class="detail-close-btn" onclick="closeDashboardMapModal()">닫기</button>
+      <button type="button" class="detail-close-btn" onclick="closeDashboardMapModal()">?リ린</button>
     </div>
   </div>
 </div>
 <div class="image-viewer-backdrop" id="dashboardImageViewerModal">
   <div class="image-viewer-card">
-    <img id="dashboardImageViewerImg" class="image-viewer-img" src="" alt="전체 사진">
+    <img id="dashboardImageViewerImg" class="image-viewer-img" src="" alt="?꾩껜 ?ъ쭊">
   </div>
 </div>
 {% endblock %}
 {% block extra_script %}
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key|default('', true) }}"></script>
-<script>
+<script nonce="{{ csp_nonce }}">
   let dashboardDetailLat = '';
   let dashboardDetailLng = '';
   let dashboardDetailIncidentId = '';
@@ -1539,11 +1543,11 @@
   }
 
   function getDashboardStatusClass(status) {
-    if (status === '접수완료') return 'status-received';
-    if (status === '관리자 확인중') return 'status-checking';
-    if (status === '처리중') return 'status-processing';
-    if (status === '처리완료') return 'status-done';
-    if (status === '반려') return 'status-rejected';
+    if (status === '?묒닔?꾨즺') return 'status-received';
+    if (status === '愿由ъ옄 ?뺤씤以?) return 'status-checking';
+    if (status === '泥섎━以?) return 'status-processing';
+    if (status === '泥섎━?꾨즺') return 'status-done';
+    if (status === '諛섎젮') return 'status-rejected';
     return '';
   }
 
@@ -1563,18 +1567,18 @@
 
   function applyInlineDashboardStatus() {
     if (!dashboardDetailIncidentId) {
-      openCustomAlert('사건 정보가 없습니다.');
+      openCustomAlert('?ш굔 ?뺣낫媛 ?놁뒿?덈떎.');
       return;
     }
     if (!dashboardSelectedStatus) {
-      openCustomAlert('변경할 상태를 선택해주세요.');
+      openCustomAlert('蹂寃쏀븷 ?곹깭瑜??좏깮?댁＜?몄슂.');
       return;
     }
     if (dashboardSelectedStatus === dashboardCurrentStatus) {
-      openCustomAlert('현재 상태와 동일합니다.');
+      openCustomAlert('?꾩옱 ?곹깭? ?숈씪?⑸땲??');
       return;
     }
-    if (dashboardSelectedStatus === '반려') {
+    if (dashboardSelectedStatus === '諛섎젮') {
       openRejectReasonModal();
       return;
     }
@@ -1582,10 +1586,10 @@
   }
 
   function openDashboardDetailModal(incidentId, title, location, status, time, riskScore, reporterCount, imagePath, lat, lng) {
-    document.getElementById('dashboardDetailTitle').textContent = title || '신고 상세';
-    document.getElementById('dashboardDetailLocation').textContent = location || '위치 정보 없음';
+    document.getElementById('dashboardDetailTitle').textContent = title || '?좉퀬 ?곸꽭';
+    document.getElementById('dashboardDetailLocation').textContent = location || '?꾩튂 ?뺣낫 ?놁쓬';
     document.getElementById('dashboardDetailTime').textContent = time || '-';
-    document.getElementById('dashboardDetailReporter').textContent = `반복 제보 ${reporterCount || 1}건`;
+    document.getElementById('dashboardDetailReporter').textContent = `諛섎났 ?쒕낫 ${reporterCount || 1}嫄?;
 
     dashboardDetailIncidentId = incidentId || '';
     dashboardDetailLat = lat || '';
@@ -1625,7 +1629,7 @@
         imgEl.style.display = 'none';
         imgEl.classList.remove('is-zoomable');
         imgEl.onclick = null;
-        placeholderEl.textContent = '이미지를 불러올 수 없습니다.';
+        placeholderEl.textContent = '?대?吏瑜?遺덈윭?????놁뒿?덈떎.';
         placeholderEl.style.display = 'flex';
       };
     } else {
@@ -1633,7 +1637,7 @@
       imgEl.style.display = 'none';
       imgEl.classList.remove('is-zoomable');
       imgEl.onclick = null;
-      placeholderEl.textContent = '사진';
+      placeholderEl.textContent = '?ъ쭊';
       placeholderEl.style.display = 'flex';
     }
 
@@ -1644,7 +1648,7 @@
     document.getElementById('dashboardDetailModal')?.classList.remove('show');
   }
 
-  function openCustomAlert(message, title = '알림') {
+  function openCustomAlert(message, title = '?뚮┝') {
     document.getElementById('customAlertTitle').textContent = title;
     document.getElementById('customAlertMessage').textContent = message;
     document.getElementById('customAlertModal').classList.add('show');
@@ -1656,18 +1660,18 @@
 
   function openDashboardMap() {
     if (!dashboardDetailLat || !dashboardDetailLng) {
-      openCustomAlert('지도에 표시할 좌표 정보가 없습니다.');
+      openCustomAlert('吏?꾩뿉 ?쒖떆??醫뚰몴 ?뺣낫媛 ?놁뒿?덈떎.');
       return;
     }
     if (typeof kakao === 'undefined' || !kakao.maps) {
-      openCustomAlert('카카오 지도 스크립트가 로드되지 않았습니다. JavaScript 키를 확인해주세요.');
+      openCustomAlert('移댁뭅??吏???ㅽ겕由쏀듃媛 濡쒕뱶?섏? ?딆븯?듬땲?? JavaScript ?ㅻ? ?뺤씤?댁＜?몄슂.');
       return;
     }
 
     const lat = Number(dashboardDetailLat);
     const lng = Number(dashboardDetailLng);
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
-      openCustomAlert('좌표 값이 올바르지 않습니다.');
+      openCustomAlert('醫뚰몴 媛믪씠 ?щ컮瑜댁? ?딆뒿?덈떎.');
       return;
     }
 
@@ -1713,7 +1717,7 @@
 
   function submitDashboardStatus(newStatus) {
     if (!dashboardDetailIncidentId) {
-      openCustomAlert('사건 정보가 없습니다.');
+      openCustomAlert('?ш굔 ?뺣낫媛 ?놁뒿?덈떎.');
       return;
     }
     sessionStorage.setItem('adminDashboardScrollY', String(window.scrollY));
@@ -1735,12 +1739,12 @@
 
   function submitRejectStatus() {
     if (!dashboardDetailIncidentId) {
-      openCustomAlert('사건 정보가 없습니다.');
+      openCustomAlert('?ш굔 ?뺣낫媛 ?놁뒿?덈떎.');
       return;
     }
     const reason = document.getElementById('dashboardRejectReasonText').value.trim();
     if (!reason) {
-      openCustomAlert('반려 사유를 입력해주세요.');
+      openCustomAlert('諛섎젮 ?ъ쑀瑜??낅젰?댁＜?몄슂.');
       document.getElementById('dashboardRejectReasonText').focus();
       return;
     }
@@ -1748,7 +1752,7 @@
     closeRejectReasonModal();
     closeDashboardDetailModal();
     document.getElementById('dashboardIncidentIdInput').value = dashboardDetailIncidentId;
-    document.getElementById('dashboardNewStatusInput').value = '반려';
+    document.getElementById('dashboardNewStatusInput').value = '諛섎젮';
     document.getElementById('dashboardRejectReasonInput').value = reason;
     setTimeout(() => document.getElementById('dashboardStatusForm').submit(), 100);
   }
@@ -1796,7 +1800,7 @@
         }, 180);
       }, 140);
     } catch (error) {
-      console.error('대시보드 탭 전환 오류:', error);
+      console.error('??쒕낫?????꾪솚 ?ㅻ쪟:', error);
       window.location.href = href;
     }
   }
@@ -1811,7 +1815,7 @@
 
     const currentTab = url.searchParams.get('tab');
     if (!currentTab) {
-      url.searchParams.set('tab', '{{ selected_tab|default("pending") }}');
+      url.searchParams.set('tab', {{ selected_tab|default('pending')|tojson }});
     }
 
     window.location.href = url.toString();
@@ -1973,3 +1977,4 @@
 </script>
 
 {% endblock %}
+

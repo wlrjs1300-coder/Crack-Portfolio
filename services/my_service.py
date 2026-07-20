@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
+from flask import Blueprint, current_app, render_template, session, redirect, url_for, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from extensions import db
 from models import Member, Report, UserSettings, PointLog
 from utils import check_profanity
+from services.security import rate_limit
 
 my_bp = Blueprint('my', __name__)
 
@@ -16,12 +17,12 @@ def mypage():
     if not user_id:
         return redirect(url_for('auth.login'))
 
-    member = Member.query.get(user_id)
+    member = db.session.get(Member, user_id)
     if not member:
         return redirect(url_for('auth.logout'))
 
     my_report_count = Report.query.filter_by(user_id=user_id).count()
-    completed_count = Report.query.filter_by(user_id=user_id, status='처리 완료').count()
+    completed_count = Report.query.filter_by(user_id=user_id, status='처리완료').count()
     settings = UserSettings.query.filter_by(user_id=user_id).first()
     notification_enabled = settings.notification_enabled if settings else True
     point_logs = PointLog.query.filter_by(user_id=user_id).order_by(PointLog.created_at.desc()).all()
@@ -37,16 +38,19 @@ def mypage():
 
 
 @my_bp.route('/api/mypage/profile', methods=['POST'])
+@rate_limit(10, 3600)
 def update_profile():
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    data = request.get_json()
-    member = Member.query.get(user_id)
+    data = request.get_json(silent=True) or {}
+    member = db.session.get(Member, user_id)
 
     # 닉네임 변경 로직
     if 'nickname' in data:
+        if not isinstance(data['nickname'], str):
+            return jsonify({'success': False, 'message': '닉네임 형식이 올바르지 않습니다.'}), 400
         new_nickname = data['nickname'].strip()
         if not new_nickname:
             return jsonify({'success': False, 'message': '닉네임을 입력해주세요.'}), 400
@@ -64,6 +68,11 @@ def update_profile():
     if 'current_password' in data and 'new_password' in data:
         curr_pw = data['current_password']
         new_pw = data['new_password']
+        if not isinstance(curr_pw, str) or not isinstance(new_pw, str):
+            return jsonify({'success': False, 'message': '비밀번호 형식이 올바르지 않습니다.'}), 400
+
+        if len(new_pw) < 10 or len(new_pw) > 128:
+            return jsonify({'success': False, 'message': '새 비밀번호는 10자 이상 128자 이하로 입력해주세요.'}), 400
 
         if not check_password_hash(member.password_hash, curr_pw):
             return jsonify({'success': False, 'message': '현재 비밀번호가 일치하지 않습니다.'}), 400
@@ -74,14 +83,18 @@ def update_profile():
 
     # 관심지역 변경 로직
     if 'region_city' in data and 'region_district' in data:
+        city = data['region_city']
+        district = data['region_district']
+        if not isinstance(city, str) or not isinstance(district, str) or len(city) > 50 or len(district) > 50:
+            return jsonify({'success': False, 'message': '관심지역 형식이 올바르지 않습니다.'}), 400
         try:
-            member.region_city = data['region_city']
-            member.region_district = data['region_district']
+            member.region_city = city
+            member.region_district = district
             db.session.commit()
             return jsonify({'success': True, 'message': '관심지역이 저장되었습니다.'})
         except Exception as e:
             db.session.rollback()
-            return jsonify({'success': False, 'message': f'DB 저장 오류: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': '관심지역 저장 중 오류가 발생했습니다.'}), 500
 
     return jsonify({'success': False, 'message': '잘못된 요청입니다.'}), 400
 
@@ -92,8 +105,10 @@ def update_settings():
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     enabled = data.get('notification_enabled', True)
+    if not isinstance(enabled, bool):
+        return jsonify({'success': False, 'message': '알림 설정 형식이 올바르지 않습니다.'}), 400
 
     settings = UserSettings.query.filter_by(user_id=user_id).first()
     if not settings:
@@ -107,20 +122,26 @@ def update_settings():
 
 
 @my_bp.route('/api/withdraw', methods=['POST'])
+@rate_limit(3, 3600)
 def withdraw():
     """회원 탈퇴 API"""
     if not session.get('user_id'):
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     password_confirm = data.get('password_confirm', '')
 
-    user = Member.query.get(session['user_id'])
+    user = db.session.get(Member, session['user_id'])
 
     if not check_password_hash(user.password_hash, password_confirm):
         return jsonify({'success': False, 'message': '비밀번호가 일치하지 않습니다.'}), 400
 
     try:
+        from services.retention import _delete_upload
+        for report in Report.query.filter_by(user_id=user.id).all():
+            _delete_upload(current_app._get_current_object(), report.file_path)
+            if report.thumbnail_path != report.file_path:
+                _delete_upload(current_app._get_current_object(), report.thumbnail_path)
         db.session.delete(user)
         db.session.commit()
         session.clear()

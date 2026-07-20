@@ -1,16 +1,26 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
 from extensions import db, socketio
 from models import Report, CrackTalk, Member
-from datetime import timedelta
-from utils import check_profanity, get_now_kst
+from utils import check_profanity
 from flask import current_app
-from werkzeug.utils import secure_filename
+from flask_socketio import join_room
+from services.media_security import MediaValidationError, sanitize_image_to_jpeg, save_and_validate
+from services.security import rate_limit
+from services.privacy_filter import PrivacyFilterError, blur_image_in_place, blur_video_in_place
+from sqlalchemy import update
 
 status_bp = Blueprint('status', __name__)
 
 # [용어 정의] 상단바와 하단바를 제외한 실질적인 본문 영역을 '메인 콘텐츠 영역' 또는 '메인 영역'으로 정의합니다.
 MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
 import os
+
+
+@socketio.on('connect')
+def join_authenticated_socket_room(auth=None):
+    """채팅 이벤트는 로그인된 소켓에만 전달한다."""
+    if session.get('user_id'):
+        join_room('authenticated')
 
 
 def _normalize_path(path):
@@ -32,20 +42,6 @@ def status():
     user_id = session.get('user_id')
     if not user_id:
         return redirect(url_for('auth.login'))
-
-    one_day_ago = get_now_kst() - timedelta(hours=24)
-    # [데이터 관리] 24시간이 지난 반려 게시물은 DB에서 영구 삭제 (사용자 요청 사항)
-    expired_rejects = Report.query.filter(
-        Report.user_id == user_id,
-        Report.status == '반려',
-        Report.created_at < one_day_ago
-    ).all()
-
-    if expired_rejects:
-        for r in expired_rejects:
-            # 삭제 시 관련 AI 결과도 cascade 등으로 인해 삭제되겠지만 명시적으로 처리 고려 가능
-            db.session.delete(r)
-        db.session.commit()
 
     db_reports = Report.query.filter(
         Report.user_id == user_id,
@@ -73,6 +69,8 @@ def status():
 
 @status_bp.route('/api/cracktalk', methods=['GET'])
 def get_cracktalk():
+    if not session.get('user_id'):
+        return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
     is_admin = session.get('is_admin', False)
     # 최근 50개 메시지를 가져온 후, 다시 시간순으로 정렬
     talks = CrackTalk.query.order_by(CrackTalk.created_at.desc()).limit(50).all()
@@ -103,28 +101,36 @@ def get_cracktalk():
 
 
 @status_bp.route('/api/cracktalk', methods=['POST'])
+@rate_limit(20, 60)
 def post_cracktalk():
     from models import PointLog  # 순환 참조 방지를 위해 여기서 import
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    data = request.json
+    data = request.get_json(silent=True) or {}
     content = data.get('content', '').strip()
 
     if not content:
         return jsonify({'success': False, 'message': '내용을 입력해주세요.'}), 400
+    if len(content) > 1000:
+        return jsonify({'success': False, 'message': '메시지는 최대 1000자까지 입력할 수 있습니다.'}), 400
 
     # 비속어 필터링 적용
     if not check_profanity(content):
         return jsonify({'success': False, 'message': '부적절한 단어가 포함되어 있습니다. 바른 말을 사용해 주세요.'}), 400
 
-    user = Member.query.get(user_id)
+    user = db.session.get(Member, user_id)
     # 일반 사용자일 경우 크래커 포인트 20점 차감 (관리자는 무제한)
     if not user.is_admin:
-        if user.points < 20:
+        debit = db.session.execute(
+            update(Member).where(Member.id == user_id, Member.points >= 20).values(
+                points=Member.points - 20
+            )
+        )
+        if debit.rowcount != 1:
+            db.session.rollback()
             return jsonify({'success': False, 'message': '보유한 크래커가 부족합니다. (20 크래커 필요)'}), 400
-        user.points -= 20
         db.session.add(PointLog(user_id=user_id, amount=-20, reason='크랙톡 채팅 작성 (포인트 소모)'))
     else:
         # 관리자도 내역 확인을 위해 0점 로그 추가
@@ -135,7 +141,7 @@ def post_cracktalk():
     try:
         db.session.commit()
         # [WEB-SOCKET] 실시간 CrackTalk 브로드캐스트
-        session_user = Member.query.get(user_id)
+        session_user = db.session.get(Member, user_id)
         socketio.emit('new_message', {
             'id': new_talk.id,
             'author_id': new_talk.author_id,
@@ -143,7 +149,7 @@ def post_cracktalk():
             'content': new_talk.content,
             'date': new_talk.created_at.strftime('%m-%d %H:%M'),
             'is_blinded': False
-        }, namespace='/')
+        }, namespace='/', to='authenticated')
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': '저장 중 오류가 발생했습니다.'}), 500
@@ -157,7 +163,7 @@ def toggle_blind_cracktalk(talk_id):
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    talk = CrackTalk.query.get_or_404(talk_id)
+    talk = db.get_or_404(CrackTalk, talk_id)
     try:
         talk.is_blinded = not talk.is_blinded  # 블라인드 ↔ 노출 토글
         db.session.commit()
@@ -168,15 +174,15 @@ def toggle_blind_cracktalk(talk_id):
 
 
 @status_bp.route('/api/report/<int:report_id>/update', methods=['POST'])
+@rate_limit(10, 3600)
 def update_report(report_id):
     from sqlalchemy import text as sa_text
-    import cv2
 
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     # DB에서 직접 admin 여부 확인
     row = db.session.execute(
@@ -189,73 +195,70 @@ def update_report(report_id):
         is_admin = (row.get('is_admin') == 1) or (row.get('role') == 'admin')
 
     # 관리자는 모든 글 수정 가능, 일반 사용자는 본인 글만
-    if not is_admin and int(report.user_id) != int(user_id):
+    if not is_admin and str(report.user_id) != str(user_id):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    report.title = request.form.get('title')
-    report.content = request.form.get('content')
+    title = (request.form.get('title') or '').strip()
+    content = (request.form.get('content') or '').strip()
+    if not title or len(title) > 30 or len(content) > 5000:
+        return jsonify({'success': False, 'message': '제목 또는 내용이 허용 길이를 벗어났습니다.'}), 400
+    report.title = title
+    report.content = content
 
     file = request.files.get('file')
     if file and file.filename != '':
-        filename = secure_filename(file.filename)
-        ext = os.path.splitext(filename)[1].lower()
-        is_video = ext in ('.mp4', '.mov', '.avi', '.m4v')
+        try:
+            save_path, uploaded_path, media_kind = save_and_validate(file)
+        except MediaValidationError as exc:
+            return jsonify({'success': False, 'message': str(exc)}), 400
 
-        # 영상/이미지 분리 저장
-        if is_video:
-            upload_dir = os.path.join(current_app.root_path, 'uploads', 'videos')
-        else:
-            upload_dir = os.path.join(current_app.root_path, 'uploads', 'images')
-
-        os.makedirs(upload_dir, exist_ok=True)
-        save_path = os.path.join(upload_dir, filename)
-        file.save(save_path)
-
-        if is_video:
-            report.file_path = f"/uploads/videos/{filename}"
-            report.file_type = 'video'
-
-            # 영상 첫 프레임을 썸네일로 추출
+        if media_kind == 'video':
+            from services.report_service import convert_to_mp4
+            save_path, uploaded_path = convert_to_mp4(save_path, '', os.path.basename(save_path))
             try:
-                cap = cv2.VideoCapture(save_path)
-                success, frame = cap.read()
-                cap.release()
-                if success:
-                    thumb_name = os.path.splitext(filename)[0] + '_thumb.jpg'
-                    thumb_dir = os.path.join(current_app.root_path, 'uploads', 'images')
-                    os.makedirs(thumb_dir, exist_ok=True)
-                    cv2.imwrite(os.path.join(thumb_dir, thumb_name), frame)
-                    report.thumbnail_path = f"/uploads/images/{thumb_name}"
-                else:
-                    report.thumbnail_path = report.file_path
-            except Exception:
-                report.thumbnail_path = report.file_path
+                save_path = blur_video_in_place(save_path)
+                uploaded_path = f'/uploads/videos/{os.path.basename(save_path)}'
+            except PrivacyFilterError as exc:
+                os.remove(save_path)
+                return jsonify({'success': False, 'message': str(exc)}), 500
+            report.file_path = uploaded_path
+            report.file_type = 'video'
+            report.thumbnail_path = None
         else:
-            report.file_path = f"/uploads/images/{filename}"
+            try:
+                blur_image_in_place(save_path)
+                _, uploaded_path = sanitize_image_to_jpeg(save_path)
+            except (MediaValidationError, PrivacyFilterError) as exc:
+                if os.path.isfile(save_path):
+                    os.remove(save_path)
+                return jsonify({'success': False, 'message': str(exc)}), 400
+            report.file_path = uploaded_path
             report.file_type = 'image'
-            report.thumbnail_path = f"/uploads/images/{filename}"
+            report.thumbnail_path = uploaded_path
 
     try:
         db.session.commit()
         try:
-            from threading import Thread
             file_path = report.file_path
             file_type = report.file_type or (
                 'video' if (file_path or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')) else 'image')
-            report.status = '접수완료'  # AI 재분석 전 상태 초기화
+            report.status = 'AI 분석중'
             db.session.commit()
-
-            ai_func = current_app._get_current_object().run_ai_analysis
-            t = Thread(target=ai_func, args=(report.id, file_path, file_type))
-            t.daemon = True
-            t.start()
+            if not current_app.config.get('AI_AVAILABLE', False) or not current_app.submit_ai_analysis(report.id, file_path, file_type):
+                report.status = '관리자 확인중'
+                report.reject_reason = 'AI 분석 대기열이 가득 차 관리자 수동 확인으로 전환되었습니다.'
+                db.session.commit()
         except Exception as ai_err:
-            print(f"[AI 재분석 오류] {ai_err}")
+            current_app.logger.exception('AI 재분석 작업 등록 실패')
+            report.status = '관리자 확인중'
+            report.reject_reason = 'AI 분석 작업을 등록하지 못해 관리자 수동 확인으로 전환되었습니다.'
+            db.session.commit()
 
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        current_app.logger.exception('신고 수정 실패')
+        return jsonify({'success': False, 'message': '신고 수정 중 오류가 발생했습니다.'}), 500
 
 
 # [NEW] 소프트 삭제 - DB에서 실제 삭제하지 않고 status만 '삭제'로 변경
@@ -265,10 +268,10 @@ def soft_delete_report(report_id):
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     # 본인 확인
-    if int(report.user_id) != int(user_id):
+    if str(report.user_id) != str(user_id):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
     try:
@@ -277,7 +280,8 @@ def soft_delete_report(report_id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        current_app.logger.exception('신고 소프트 삭제 실패')
+        return jsonify({'success': False, 'message': '삭제 처리 중 오류가 발생했습니다.'}), 500
 
 
 @status_bp.route('/api/report/<int:report_id>/delete', methods=['POST'])
@@ -288,7 +292,7 @@ def delete_my_report(report_id):
     if not user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    report = Report.query.get(report_id)
+    report = db.session.get(Report, report_id)
     if not report:
         return jsonify({'success': False, 'message': '존재하지 않는 게시글입니다.'}), 404
 
@@ -303,7 +307,7 @@ def delete_my_report(report_id):
         is_admin = (row.get('is_admin') == 1) or (row.get('role') == 'admin')
 
     # 관리자는 모든 글 삭제 가능, 일반 사용자는 본인 글만
-    if not is_admin and int(report.user_id) != int(user_id):
+    if not is_admin and str(report.user_id) != str(user_id):
         return jsonify({'success': False, 'message': '삭제 권한이 없습니다.'}), 403
 
     try:
@@ -312,4 +316,5 @@ def delete_my_report(report_id):
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        current_app.logger.exception('신고 삭제 실패')
+        return jsonify({'success': False, 'message': '삭제 처리 중 오류가 발생했습니다.'}), 500

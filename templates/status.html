@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+﻿{% extends 'layout.html' %}
 
 {% block title %}Status - Crack{% endblock %}
 
@@ -37,7 +37,7 @@
         overflow: hidden;
     }
 
-    /* layout.html의 로더 가시성/성능 상호작용이 탭 클릭을 방해하지 않도록 보완 */
+    /* layout.html??濡쒕뜑 媛?쒖꽦/?깅뒫 ?곹샇?묒슜?????대┃??諛⑺빐?섏? ?딅룄濡?蹂댁셿 */
     #premium-loader.fade-out {
         opacity: 0;
         visibility: hidden;
@@ -49,7 +49,7 @@
         padding-top: 0 !important;
     }
 
-    /* 블라인드 메시지 스타일 */
+    /* 釉붾씪?몃뱶 硫붿떆吏 ?ㅽ???*/
     .blinded-msg {
         background: #f5f5f5 !important;
         color: #999 !important;
@@ -60,14 +60,14 @@
         gap: 6px;
     }
 
-    /* 관리자용 블라인드 상태 메시지 (흐리게 표시) */
+    /* 愿由ъ옄??釉붾씪?몃뱶 ?곹깭 硫붿떆吏 (?먮━寃??쒖떆) */
     .admin-blinded-msg {
         opacity: 0.55;
         background: #fff3f3 !important;
         border: 1.5px dashed #ffb3b3 !important;
     }
 
-    /* 되돌리기 버튼 */
+    /* ?섎룎由ш린 踰꾪듉 */
     .btn-unblind {
         position: absolute;
         top: -8px;
@@ -77,7 +77,7 @@
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
-    /* 블라인드 처리 버튼 (X) */
+    /* 釉붾씪?몃뱶 泥섎━ 踰꾪듉 (X) */
     .btn-blind {
         position: absolute;
         top: -8px;
@@ -88,7 +88,7 @@
     }
 </style>
 
-<!-- 스티키 헤더 (레이아웃 개선: 로더보다 높은 z-index로 클릭성 원천 보장) -->
+<!-- ?ㅽ떚???ㅻ뜑 (?덉씠?꾩썐 媛쒖꽑: 濡쒕뜑蹂대떎 ?믪? z-index濡??대┃???먯쿇 蹂댁옣) -->
 <div class="sticky-header"
     style="position: sticky; top: 0; padding: 12px 20px; z-index: 500; background: var(--bg-main); border-bottom:1px solid rgba(0,0,0,0.05); margin-bottom: 16px; pointer-events: auto;">
     <div
@@ -97,21 +97,21 @@
             style="display:flex; gap:12px; width: 100%; pointer-events: auto; position: relative; z-index: 10;">
             <div onclick="switchStatusTab('reports')" id="status-tab-reports"
                 style="flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-weight: 800; font-size: 1rem; color: var(--point-orange); border-bottom: 3px solid var(--point-orange); transition: all 0.2s ease; pointer-events: auto !important; -webkit-tap-highlight-color: transparent; position: relative; z-index: 11;">
-                나의 신고내역</div>
+                ?섏쓽 ?좉퀬?댁뿭</div>
             <div onclick="switchStatusTab('talk')" id="status-tab-talk"
                 style="flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-weight: 800; font-size: 1rem; color: rgba(0,0,0,0.3); border-bottom: 3px solid transparent; transition: all 0.2s ease; pointer-events: auto !important; -webkit-tap-highlight-color: transparent; position: relative; z-index: 11;">
-                크랙톡</div>
+                ?щ옓??/div>
         </div>
     </div>
 </div>
 
-<!-- 나의 신고내역 섹션 -->
+<!-- ?섏쓽 ?좉퀬?댁뿭 ?뱀뀡 -->
 <div id="status-reports-section" class="status-list"
     style="position: relative; z-index: 1; background: var(--bg-main);">
     {% if reports %}
     {% for report in reports %}
-    <div class="report-card" id="report-card-{{ report.id }}" {% if report.status=='반려' %}
-        onclick="showRejectReason(event, this)" data-reason="{{ report.reject_reason }}" {% elif report.status=='삭제' %}
+    <div class="report-card" id="report-card-{{ report.id }}" {% if report.status=='諛섎젮' %}
+        onclick="showRejectReason(event, this)" data-reason="{{ report.reject_reason }}" {% elif report.status=='??젣' %}
         style="opacity: 0.4; filter: grayscale(0.5); cursor: default;" {% else %}
         onclick="location.href='/alert/view/{{ report.id }}'" {% endif %}>
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -138,11 +138,11 @@
         </div>
         <div style="text-align: right; flex-shrink: 0; margin-left: 12px;">
             <span class="badge badge-status-text
-                {% if report.status == '처리 완료' %}status-done
-                {% elif report.status == '신고 처리중' %}status-processing
-                {% elif report.status == '접수완료' %}status-received
-                {% elif report.status == '반려' %}status-rejected
-                {% elif report.status == '삭제' %}status-deleted
+                {% if report.status == '泥섎━ ?꾨즺' %}status-done
+                {% elif report.status == '?좉퀬 泥섎━以? %}status-processing
+                {% elif report.status == '?묒닔?꾨즺' %}status-received
+                {% elif report.status == '諛섎젮' %}status-rejected
+                {% elif report.status == '??젣' %}status-deleted
                 {% endif %}" style="font-size: 0.78rem; font-weight: 700;">
                 {{ report.status }}
             </span>
@@ -152,17 +152,17 @@
     {% else %}
     <div style="text-align: center; padding: 60px 20px; opacity: 0.4;">
         <i class="bi bi-clipboard-x" style="font-size: 3rem; display: block; margin-bottom: 12px;"></i>
-        <p style="font-size: 0.95rem;">신고 내역이 없습니다.</p>
+        <p style="font-size: 0.95rem;">?좉퀬 ?댁뿭???놁뒿?덈떎.</p>
     </div>
     {% endif %}
 </div>
 
-<!-- 크랙톡 섹션 (채팅형 전체 화면 최적화) -->
+<!-- ?щ옓???뱀뀡 (梨꾪똿???꾩껜 ?붾㈃ 理쒖쟻?? -->
 <div id="talk-section" style="display: none; height: calc(100vh - 160px); flex-direction: column; position: relative;">
     <div id="talk-messages"
         style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; background: #f2f2f1; border-radius: 20px 20px 0 0; margin-bottom: 0; position: relative; padding-bottom: 24px; overscroll-behavior: contain; transform: translateY(0px); transition: transform 0.18s ease;">
-        <!-- 메시지 동적 로드 -->
-        <div style="text-align:center; padding: 20px; opacity: 0.5; font-size: 0.8rem;">대화 내용을 불러오고 있습니다...</div>
+        <!-- 硫붿떆吏 ?숈쟻 濡쒕뱶 -->
+        <div style="text-align:center; padding: 20px; opacity: 0.5; font-size: 0.8rem;">????댁슜??遺덈윭?ㅺ퀬 ?덉뒿?덈떎...</div>
     </div>
     <div id="talk-refresh-indicator" style="
         position:absolute;
@@ -190,12 +190,12 @@
 
         transition: opacity 0.22s ease, transform 0.22s ease;
         ">
-        새로고침 중...
+        ?덈줈怨좎묠 以?..
     </div>
-    <!-- 하단 고정 입력창 (플로팅 스타일: 하단바와 간격 확보) -->
+    <!-- ?섎떒 怨좎젙 ?낅젰李?(?뚮줈???ㅽ??? ?섎떒諛붿? 媛꾧꺽 ?뺣낫) -->
     <div id="talk-input-area"
         style="position: fixed; bottom: calc(var(--footer-h) + 16px); left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; gap: 8px; background: transparent; padding: 12px 16px; border: none; box-shadow: none; z-index: 10;">
-        <input type="text" id="talk-input" placeholder="메시지를 입력하세요..."
+        <input type="text" id="talk-input" placeholder="硫붿떆吏瑜??낅젰?섏꽭??.."
             style="flex: 1; border: none; padding: 12px 18px; font-size: 0.95rem; outline: none; background: #f8f9fa; border-radius: 25px;"
             onkeypress="if(event.keyCode==13) sendTalk()">
         <button onclick="sendTalk()"
@@ -205,9 +205,9 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce }}">
     (function () {
-        // [최고순위] 어떤 경우에도 탭 클릭이 가능하도록 함수를 먼저 윈도우 객체에 등록
+        // [理쒓퀬?쒖쐞] ?대뼡 寃쎌슦?먮룄 ???대┃??媛?ν븯?꾨줉 ?⑥닔瑜?癒쇱? ?덈룄??媛앹껜???깅줉
         window.switchStatusTab = function (tab) {
             console.log("[Status] Switching to tab:", tab);
             const reportsTab = document.getElementById('status-tab-reports');
@@ -242,7 +242,7 @@
                 if (typeof loadTalks === 'function') loadTalks();
             }
 
-            // [PPT 통신] iframe 안에서 작동 중이면 부모(PPT)에 탭 전환 알림
+            // [PPT ?듭떊] iframe ?덉뿉???묐룞 以묒씠硫?遺紐?PPT)?????꾪솚 ?뚮┝
             if (window.parent !== window) {
                 window.parent.postMessage({ type: 'PPT_STATE_CHANGE', page: 'status', state: tab }, '*');
             }
@@ -284,20 +284,20 @@
         }
     }
 
-    // 초기 실행 시 에러 방지
+    // 珥덇린 ?ㅽ뻾 ???먮윭 諛⑹?
     try {
         initStatusLazyLoading();
     } catch (e) { console.error(e); }
 
-    // 이전에 정의된 함수들이 있으면 정리 (중복 실행 방지)
-    // 반려 사유 모달 통합 처리 (버그 수정: 중복 정의 제거 및 인자 정상화)
+    // ?댁쟾???뺤쓽???⑥닔?ㅼ씠 ?덉쑝硫??뺣━ (以묐났 ?ㅽ뻾 諛⑹?)
+    // 諛섎젮 ?ъ쑀 紐⑤떖 ?듯빀 泥섎━ (踰꾧렇 ?섏젙: 以묐났 ?뺤쓽 ?쒓굅 諛??몄옄 ?뺤긽??
     window.showRejectReason = function (event, element) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
 
-        const reason = element.getAttribute('data-reason') || '관리자가 사유를 기재하지 않았습니다.';
+        const reason = element.getAttribute('data-reason') || '愿由ъ옄媛 ?ъ쑀瑜?湲곗옱?섏? ?딆븯?듬땲??';
         console.log("[Status] Showing reject reason:", reason);
 
         const reasonText = document.getElementById('reject-reason-text');
@@ -318,7 +318,7 @@
             window.statusObserver.disconnect();
         }
 
-        // 마지막에서 두 번째 아이템을 관찰 대상으로 설정 (부드러운 로딩)
+        // 留덉?留됱뿉????踰덉㎏ ?꾩씠?쒖쓣 愿李???곸쑝濡??ㅼ젙 (遺?쒕윭??濡쒕뵫)
         const targetIndex = Math.min(statusItemsToShow - 2, items.length - 1);
         if (targetIndex >= 0 && statusItemsToShow < items.length) {
             window.statusObserver = new IntersectionObserver((entries) => {
@@ -349,7 +349,7 @@
 
         const indicator = document.getElementById('talk-refresh-indicator');
         if (indicator) {
-            indicator.textContent = '새로고침 중...';
+            indicator.textContent = '?덈줈怨좎묠 以?..';
         }
 
         resetTalkPullVisual();
@@ -385,7 +385,7 @@
     function showTalkPullReady() {
         const indicator = document.getElementById('talk-refresh-indicator');
         if (!indicator) return;
-        indicator.textContent = '새로고침 중...';
+        indicator.textContent = '?덈줈怨좎묠 以?..';
         indicator.style.opacity = '1';
         indicator.style.visibility = 'visible';
     }
@@ -493,12 +493,16 @@
             container.innerHTML = '';
 
             if (talks.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding: 40px 20px; opacity:0.4;">아직 대화가 없습니다.<br>첫 메시지를 남겨보세요!</div>';
+                container.innerHTML = '<div style="text-align:center; padding: 40px 20px; opacity:0.4;">?꾩쭅 ??붽? ?놁뒿?덈떎.<br>泥?硫붿떆吏瑜??④꺼蹂댁꽭??</div>';
                 return;
             }
 
             talks.forEach(t => {
                 const isMe = t.author_id === statusCurrentUserId;
+                const safeId = Number(t.id) || 0;
+                const safeNickname = escapeHtml(t.nickname);
+                const safeContent = escapeHtml(t.content);
+                const safeDate = escapeHtml(t.date);
                 let bubbleContent = '';
 
                 if (t.is_blinded && !statusIsAdmin) {
@@ -507,37 +511,36 @@
                             <div style="display:flex;align-items:flex-end;gap:6px;max-width:80%;">
                                 <div class="blinded-msg" style="padding:10px 14px;border-radius:2px 18px 18px 18px;font-size:0.85rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                                     <i class="bi bi-eye-slash-fill" style="font-size:0.85rem;"></i>
-                                    관리자에 의해 노출이 제한된 게시물
-                                </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${t.date}</span>
+                                    愿由ъ옄???섑빐 ?몄텧???쒗븳??寃뚯떆臾?                                </div>
+                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
                             </div>
                         </div>`;
                 } else if (statusIsAdmin) {
                     const isBlindedClass = t.is_blinded ? 'admin-blinded-msg' : '';
                     const btnIcon = t.is_blinded
-                        ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${t.id}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="블라인드 해제"></i>`
-                        : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${t.id}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="블라인드 처리"></i>`;
+                        ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${safeId}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 ?댁젣"></i>`
+                        : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${safeId}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 泥섎━"></i>`;
                     bubbleContent = `
                         <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${t.nickname}</span>` : ''}
+                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
                             <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
                                 <div class="${isBlindedClass}" style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${t.is_blinded ? '#999' : (isMe ? 'white' : 'black')};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);position:relative;">
-                                    ${t.content}
-                                    ${t.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[블라인드 처리됨]</span>` : ''}
+                                    ${safeContent}
+                                    ${t.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[釉붾씪?몃뱶 泥섎━??</span>` : ''}
                                     ${btnIcon}
                                 </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${t.date}</span>
+                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
                             </div>
                         </div>`;
                 } else {
                     bubbleContent = `
                         <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${t.nickname}</span>` : ''}
+                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
                             <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
                                 <div style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${isMe ? 'white' : 'black'};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                    ${t.content}
+                                    ${safeContent}
                                 </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${t.date}</span>
+                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
                             </div>
                         </div>`;
                 }
@@ -550,7 +553,7 @@
                 '<div class="talk-bottom-spacer" style="height: 130px; flex-shrink: 0; pointer-events: none;"></div>'
             );
 
-            // [UX] 데이터 렌더링 후 즉시 최하단으로 스크롤 (레이아웃 계산 대기 포함)
+            // [UX] ?곗씠???뚮뜑留???利됱떆 理쒗븯?⑥쑝濡??ㅽ겕濡?(?덉씠?꾩썐 怨꾩궛 ?湲??ы븿)
             requestAnimationFrame(() => {
                 container.scrollTop = container.scrollHeight;
                 setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
@@ -567,13 +570,13 @@
 
         window.pendingTalkContent = content;
 
-        // 관리자인 경우 소모 없이 즉시 전송
+        // 愿由ъ옄??寃쎌슦 ?뚮え ?놁씠 利됱떆 ?꾩넚
         if (statusIsAdmin) {
             confirmPostTalk();
             return;
         }
 
-        // 일반 사용자는 확인 모달 출력
+        // ?쇰컲 ?ъ슜?먮뒗 ?뺤씤 紐⑤떖 異쒕젰
         showTalkConfirmModal(content);
     }
 
@@ -609,20 +612,20 @@
             icon.className = 'bi bi-eye-fill';
             icon.style.color = '#4CAF50';
             icon.parentElement.style.background = 'rgba(76,175,80,0.1)';
-            title.innerText = '블라인드 해제';
-            desc.innerHTML = '이 메시지의 블라인드를 <br><strong style="color:#4CAF50;font-weight:800;">해제</strong>하시겠습니까?<br>일반 회원에게 다시 노출됩니다.';
+            title.innerText = '釉붾씪?몃뱶 ?댁젣';
+            desc.innerHTML = '??硫붿떆吏??釉붾씪?몃뱶瑜?<br><strong style="color:#4CAF50;font-weight:800;">?댁젣</strong>?섏떆寃좎뒿?덇퉴?<br>?쇰컲 ?뚯썝?먭쾶 ?ㅼ떆 ?몄텧?⑸땲??';
             confirmBtn.style.background = '#4CAF50';
             confirmBtn.style.boxShadow = '0 8px 20px rgba(76,175,80,0.3)';
-            confirmBtn.innerText = '해제';
+            confirmBtn.innerText = '?댁젣';
         } else {
             icon.className = 'bi bi-eye-slash-fill';
             icon.style.color = '#FF4D4D';
             icon.parentElement.style.background = 'rgba(255,77,77,0.1)';
-            title.innerText = '블라인드 처리';
-            desc.innerHTML = '이 메시지를 <br><strong style="color:#FF4D4D;font-weight:800;">블라인드 처리</strong>하시겠습니까?<br>일반 회원에게 노출이 제한됩니다.';
+            title.innerText = '釉붾씪?몃뱶 泥섎━';
+            desc.innerHTML = '??硫붿떆吏瑜?<br><strong style="color:#FF4D4D;font-weight:800;">釉붾씪?몃뱶 泥섎━</strong>?섏떆寃좎뒿?덇퉴?<br>?쇰컲 ?뚯썝?먭쾶 ?몄텧???쒗븳?⑸땲??';
             confirmBtn.style.background = '#FF4D4D';
             confirmBtn.style.boxShadow = '0 8px 20px rgba(255,77,77,0.3)';
-            confirmBtn.innerText = '처리';
+            confirmBtn.innerText = '泥섎━';
         }
 
         document.body.classList.add('modal-active');
@@ -645,7 +648,7 @@
             if (result.success) {
                 closeBlindModal();
                 loadTalks();
-                const msg = result.is_blinded ? '블라인드 처리되었습니다.' : '블라인드가 해제되었습니다.';
+                const msg = result.is_blinded ? '釉붾씪?몃뱶 泥섎━?섏뿀?듬땲??' : '釉붾씪?몃뱶媛 ?댁젣?섏뿀?듬땲??';
                 if (typeof showToast === 'function') showToast(msg);
             } else {
                 if (typeof showNoticeModal === 'function') showNoticeModal(result.message);
@@ -679,7 +682,7 @@
             if (result.success) {
                 loadTalks();
                 if (typeof showToast === 'function' && !statusIsAdmin) {
-                    showToast('20 크래커가 소모되었습니다.');
+                    showToast('20 ?щ옒而ㅺ? ?뚮え?섏뿀?듬땲??');
                 }
             } else {
                 if (typeof showToast === 'function') showToast(result.message);
@@ -690,37 +693,41 @@
         }
     }
 
-    // 중복 제거됨 (상단 통합 함수 사용)
+    // 以묐났 ?쒓굅??(?곷떒 ?듯빀 ?⑥닔 ?ъ슜)
 
     window.closeRejectModal = function () {
         const modal = document.getElementById('reject-modal-overlay');
         if (modal) modal.style.display = 'none';
     }
 
-    // [WEB-SOCKET] Socket.IO 실시간 연동
+    // [WEB-SOCKET] Socket.IO ?ㅼ떆媛??곕룞
     if (typeof io !== 'undefined') {
         if (!window.appSocket) {
             window.appSocket = io();
         }
         const socket = window.appSocket;
 
-        // 중복 등록 방지를 위해 기존 리스너 제거
+        // 以묐났 ?깅줉 諛⑹?瑜??꾪빐 湲곗〈 由ъ뒪???쒓굅
         socket.off('new_message');
 
-        // 1. CrackTalk 실시간 수신
+        // 1. CrackTalk ?ㅼ떆媛??섏떊
         socket.on('new_message', function (data) {
             console.log("[Socket] New CrackTalk:", data);
             const container = document.getElementById('talk-messages');
             if (!container) return;
 
-            // 로딩 중이거나 내역 없음 안내 제거
-            if (container.innerHTML.includes('불러오고') || container.innerHTML.includes('아직 대화가')) {
+            // 濡쒕뵫 以묒씠嫄곕굹 ?댁뿭 ?놁쓬 ?덈궡 ?쒓굅
+            if (container.innerHTML.includes('遺덈윭?ㅺ퀬') || container.innerHTML.includes('?꾩쭅 ??붽?')) {
                 container.innerHTML = '';
             }
             resetTalkRefreshState();
             const spacer = container.querySelector('.talk-bottom-spacer');
 
             const isMe = data.author_id === statusCurrentUserId;
+            const safeId = Number(data.id) || 0;
+            const safeNickname = escapeHtml(data.nickname);
+            const safeContent = escapeHtml(data.content);
+            const safeDate = escapeHtml(data.date);
             let bubbleContent = '';
 
             if (data.is_blinded && !statusIsAdmin) {
@@ -729,27 +736,26 @@
                         <div style="display:flex;align-items:flex-end;gap:6px;max-width:80%;">
                             <div class="blinded-msg" style="padding:10px 14px;border-radius:2px 18px 18px 18px;font-size:0.85rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
                                 <i class="bi bi-eye-slash-fill" style="font-size:0.85rem;"></i>
-                                관리자에 의해 노출이 제한된 게시물
-                            </div>
-                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${data.date}</span>
+                                愿由ъ옄???섑빐 ?몄텧???쒗븳??寃뚯떆臾?                            </div>
+                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
                         </div>
                     </div>`;
             } else {
                 const isAdminStyle = statusIsAdmin ? (data.is_blinded ? 'admin-blinded-msg' : '') : '';
                 const btnIcon = (statusIsAdmin) ? (data.is_blinded
-                    ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${data.id}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="블라인드 해제"></i>`
-                    : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${data.id}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="블라인드 처리"></i>`) : '';
+                    ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${safeId}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 ?댁젣"></i>`
+                    : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${safeId}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 泥섎━"></i>`) : '';
 
                 bubbleContent = `
                     <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                        ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${data.nickname}</span>` : ''}
+                        ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
                         <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
                             <div class="${isAdminStyle}" style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${data.is_blinded ? '#999' : (isMe ? 'white' : 'black')};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);position:relative;">
-                                ${data.content}
-                                ${data.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[블라인드 처리됨]</span>` : ''}
+                                ${safeContent}
+                                ${data.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[釉붾씪?몃뱶 泥섎━??</span>` : ''}
                                 ${btnIcon}
                             </div>
-                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${data.date}</span>
+                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
                         </div>
                     </div>`;
             }
@@ -760,14 +766,13 @@
                 container.insertAdjacentHTML('beforeend', bubbleContent);
             }
 
-            // 사용자가 Talk 섹션을 보고 있으면 부드럽게 하단 스크롤
-            const talkSection = document.getElementById('talk-section');
+            // ?ъ슜?먭? Talk ?뱀뀡??蹂닿퀬 ?덉쑝硫?遺?쒕읇寃??섎떒 ?ㅽ겕濡?            const talkSection = document.getElementById('talk-section');
             if (talkSection && talkSection.style.display !== 'none') {
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
             }
         });
 
-        // 2. 신고 처리 상태 실시간 수신
+        // 2. ?좉퀬 泥섎━ ?곹깭 ?ㅼ떆媛??섏떊
         socket.off('status_update');
         socket.on('status_update', function (data) {
             console.log("[Socket] Report Status Update:", data);
@@ -776,18 +781,18 @@
 
             const badge = card.querySelector('.badge-status-text');
             if (badge) {
-                // 기존 클래스 제거
+                // 湲곗〈 ?대옒???쒓굅
                 badge.classList.remove('status-done', 'status-processing', 'status-received', 'status-rejected', 'status-deleted');
 
-                // 새 클래스 및 텍스트 적용
+                // ???대옒??諛??띿뒪???곸슜
                 badge.innerText = data.new_status;
-                if (data.new_status === '처리 완료') badge.classList.add('status-done');
-                else if (data.new_status === '신고 처리중') badge.classList.add('status-processing');
-                else if (data.new_status === '접수완료') badge.classList.add('status-received');
-                else if (data.new_status === '반려') badge.classList.add('status-rejected');
-                else if (data.new_status === '삭제') badge.classList.add('status-deleted');
+                if (data.new_status === '泥섎━ ?꾨즺') badge.classList.add('status-done');
+                else if (data.new_status === '?좉퀬 泥섎━以?) badge.classList.add('status-processing');
+                else if (data.new_status === '?묒닔?꾨즺') badge.classList.add('status-received');
+                else if (data.new_status === '諛섎젮') badge.classList.add('status-rejected');
+                else if (data.new_status === '??젣') badge.classList.add('status-deleted');
 
-                // 강조 모션
+                // 媛뺤“ 紐⑥뀡
                 badge.style.transform = 'scale(1.2)';
                 badge.style.transition = 'transform 0.3s ease';
                 setTimeout(() => badge.style.transform = '', 500);
@@ -797,7 +802,7 @@
     }) ();
 </script>
 
-<!-- 반려 사유 모달 -->
+<!-- 諛섎젮 ?ъ쑀 紐⑤떖 -->
 <div id="reject-modal-overlay"
     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div
@@ -805,21 +810,21 @@
         <div style="margin-bottom: 20px;">
             <i class="bi bi-exclamation-triangle-fill"
                 style="font-size: 2.5rem; color: #D32F2F; filter: drop-shadow(0 4px 10px rgba(211, 47, 47, 0.3));"></i>
-            <h3 style="margin-top: 12px; font-size: 1.4rem; color: #333; font-weight: 800;">사유 안내</h3>
+            <h3 style="margin-top: 12px; font-size: 1.4rem; color: #333; font-weight: 800;">?ъ쑀 ?덈궡</h3>
         </div>
         <p id="reject-reason-text"
             style="font-size:1.05rem; line-height:1.6; color: #444; margin-bottom:16px; word-break:break-all; font-weight: 500;">
         </p>
         <p
             style="font-size:0.85rem; color:#D32F2F; opacity:0.8; margin-bottom:28px; font-weight:600; background: #FFEBEE; padding: 10px; border-radius: 12px;">
-            * 본 안내는 제보 24시간 후 <br>자동으로 목록에서 사라집니다.
+            * 蹂??덈궡???쒕낫 24?쒓컙 ??<br>?먮룞?쇰줈 紐⑸줉?먯꽌 ?щ씪吏묐땲??
         </p>
         <button onclick="closeRejectModal()" class="btn-auth-solid"
-            style="width:100%; padding:16px; border-radius:20px; font-weight:800; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">확인</button>
+            style="width:100%; padding:16px; border-radius:20px; font-weight:800; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">?뺤씤</button>
     </div>
 </div>
 
-<!-- 크래커 소모 확인 모달 -->
+<!-- ?щ옒而??뚮え ?뺤씤 紐⑤떖 -->
 <div id="talk-confirm-modal-overlay"
     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div
@@ -829,23 +834,23 @@
                 style="width: 60px; height: 60px; background: rgba(255, 140, 0, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
                 <i class="bi bi-lightning-charge-fill" style="font-size: 1.8rem; color: var(--point-orange);"></i>
             </div>
-            <h3 style="font-size: 1.3rem; color: #333; font-weight: 800;">크래커 소모 안내</h3>
+            <h3 style="font-size: 1.3rem; color: #333; font-weight: 800;">?щ옒而??뚮え ?덈궡</h3>
         </div>
         <p
             style="font-size:1.05rem; line-height:1.6; color: #444; margin-bottom:24px; word-break:keep-all; font-weight: 500;">
-            채팅을 작성하면 <br><strong style="color:var(--point-orange); font-weight: 800;">20 크래커</strong>가 소모됩니다.
-            <br>정말 작성하시겠습니까?
+            梨꾪똿???묒꽦?섎㈃ <br><strong style="color:var(--point-orange); font-weight: 800;">20 ?щ옒而?/strong>媛 ?뚮え?⑸땲??
+            <br>?뺣쭚 ?묒꽦?섏떆寃좎뒿?덇퉴?
         </p>
         <div style="display: flex; gap: 12px;">
             <button onclick="closeTalkConfirmModal()"
-                style="flex: 1; padding: 16px; border-radius: 20px; font-weight: 700; font-size: 1rem; border: 1.5px solid #eee; background: white; color: #666; cursor: pointer;">취소</button>
+                style="flex: 1; padding: 16px; border-radius: 20px; font-weight: 700; font-size: 1rem; border: 1.5px solid #eee; background: white; color: #666; cursor: pointer;">痍⑥냼</button>
             <button onclick="confirmPostTalk()" id="talk-confirm-btn"
-                style="flex: 1.5; padding: 16px; border-radius: 20px; font-weight: 800; font-size: 1.1rem; border: none; background: var(--point-orange); color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">확인</button>
+                style="flex: 1.5; padding: 16px; border-radius: 20px; font-weight: 800; font-size: 1.1rem; border: none; background: var(--point-orange); color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">?뺤씤</button>
         </div>
     </div>
 </div>
 
-<!-- 블라인드 처리/해제 확인 모달 (관리자용) -->
+<!-- 釉붾씪?몃뱶 泥섎━/?댁젣 ?뺤씤 紐⑤떖 (愿由ъ옄?? -->
 <div id="talk-blind-modal-overlay"
     style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div
@@ -855,17 +860,18 @@
                 style="width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
                 <i id="blind-modal-icon" class="bi bi-eye-slash-fill" style="font-size:1.8rem;"></i>
             </div>
-            <h3 id="blind-modal-title" style="font-size:1.3rem; color:#333; font-weight:800;">블라인드 처리</h3>
+            <h3 id="blind-modal-title" style="font-size:1.3rem; color:#333; font-weight:800;">釉붾씪?몃뱶 泥섎━</h3>
         </div>
         <p id="blind-modal-desc"
             style="font-size:1.05rem; line-height:1.6; color:#444; margin-bottom:24px; word-break:keep-all; font-weight:500;">
         </p>
         <div style="display:flex; gap:12px;">
             <button onclick="closeBlindModal()"
-                style="flex:1; padding:16px; border-radius:20px; font-weight:700; font-size:1rem; border:1.5px solid #eee; background:white; color:#666; cursor:pointer;">취소</button>
+                style="flex:1; padding:16px; border-radius:20px; font-weight:700; font-size:1rem; border:1.5px solid #eee; background:white; color:#666; cursor:pointer;">痍⑥냼</button>
             <button onclick="confirmBlindTalk()" id="blind-confirm-btn"
-                style="flex:1.5; padding:16px; border-radius:20px; font-weight:800; font-size:1.1rem; border:none; color:white; cursor:pointer;">처리</button>
+                style="flex:1.5; padding:16px; border-radius:20px; font-weight:800; font-size:1.1rem; border:none; color:white; cursor:pointer;">泥섎━</button>
         </div>
     </div>
 </div>
 {% endblock %}
+

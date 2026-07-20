@@ -2,40 +2,61 @@ import math
 import os
 import json
 import re
+import logging
 from datetime import datetime, timedelta, timezone
 
 # 전역 변수로 필터 캐싱 (성능 최적화)
 _banned_words_cache = None
+_profanity_load_error = None
+logger = logging.getLogger(__name__)
 
 def get_now_kst():
     """현재 한국 표준시(KST)를 naive datetime 객체로 반환합니다. (DB 저장 시 오차 방지)"""
     return datetime.now(timezone(timedelta(hours=9))).replace(tzinfo=None)
 
-def check_profanity(text):
-    """텍스트에 비속어/금지어가 포함되어 있는지 확인합니다. (특수문자 우회 차단 포함)"""
-    global _banned_words_cache
-    if not text: return True
-    
+def _load_banned_words():
+    """금칙어 파일을 한 번 검증해 읽고, 실패 시 None을 반환한다."""
+    global _banned_words_cache, _profanity_load_error
     if _banned_words_cache is None:
         try:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             secrets_dir = os.path.join(base_dir, 'secrets')
             profanity_file = os.path.join(secrets_dir, 'profanity.json')
-            
-            if os.path.exists(profanity_file):
-                with open(profanity_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    banned_hex = data.get('ko', []) + data.get('en', [])
-                    _banned_words_cache = [bytes.fromhex(w).decode('utf-8') for w in banned_hex]
-            else:
-                if not os.path.exists(secrets_dir):
-                    print("⚠️  Warning: 'secrets' directory is missing. Profanity filter disabled.")
-                else:
-                    print(f"⚠️  Warning: '{profanity_file}' not found. Profanity filter disabled.")
-                _banned_words_cache = []
-        except Exception as e:
-            print(f"Profanity load error: {e}")
-            _banned_words_cache = []
+
+            with open(profanity_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                raise ValueError('최상위 JSON 값은 객체여야 합니다.')
+            ko = data.get('ko', [])
+            en = data.get('en', [])
+            if not isinstance(ko, list) or not isinstance(en, list):
+                raise ValueError('ko/en 값은 배열이어야 합니다.')
+            banned_hex = ko + en
+            if not banned_hex or not all(isinstance(word, str) and word for word in banned_hex):
+                raise ValueError('금칙어 목록이 비어 있거나 형식이 올바르지 않습니다.')
+            decoded = [bytes.fromhex(word).decode('utf-8').strip().lower() for word in banned_hex]
+            if not all(decoded):
+                raise ValueError('빈 금칙어가 포함되어 있습니다.')
+            _banned_words_cache = tuple(dict.fromkeys(decoded))
+            _profanity_load_error = None
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            logger.exception("금칙어 파일 로드 실패")
+            _banned_words_cache = ()
+            _profanity_load_error = True
+    return _banned_words_cache
+
+
+def profanity_filter_available():
+    """파일이 실제로 해석되고 유효한 단어가 있는지 반환한다."""
+    _load_banned_words()
+    return not _profanity_load_error and bool(_banned_words_cache)
+
+
+def check_profanity(text):
+    """텍스트에 비속어/금지어가 포함되어 있는지 확인합니다. (특수문자 우회 차단 포함)"""
+    if not text:
+        return True
+    banned_words = _load_banned_words()
 
     # 1. 원본 그대로 검사 (공백 포함)
     text_lower = text.lower()
@@ -44,7 +65,7 @@ def check_profanity(text):
     import re
     clean_text = re.sub(r'[^a-zA-Z0-9가-힣]', '', text_lower)
 
-    for word in _banned_words_cache:
+    for word in banned_words:
         # 단어 길이가 너무 짧으면(1글자) 과잉 필터링 위험이 있으므로 2글자 이상만 clean_text 검사
         if word in text_lower or (len(word) > 1 and word in clean_text):
             return False
@@ -70,8 +91,7 @@ def extract_gps_from_exif(image_path):
         return None, None
 
     lat, lng = None, None
-    print(f"==================================================")
-    print(f"[GPS EXTRACTOR] STARTING COMPLETE PARSE FOR: {os.path.basename(image_path)}")
+    logger.debug("이미지 GPS 메타데이터 추출 시작")
 
     def decimal_calc(dms, ref):
         try:
@@ -85,7 +105,7 @@ def extract_gps_from_exif(image_path):
     # ATTEMPT 1: PIEXIF (Very strong for standard JPEG/WebP)
     try:
         if image_path.lower().endswith(('.jpg', '.jpeg', '.webp')):
-            print(f"[GPS] Attempt 1: PIEXIF (for standard formats)")
+            logger.debug("GPS 추출 시도: piexif")
             import piexif
             exif_dict = piexif.load(image_path)
             if 'GPS' in exif_dict and exif_dict['GPS']:
@@ -102,17 +122,17 @@ def extract_gps_from_exif(image_path):
                     lng = decimal_calc(lng_dms, lng_ref)
                     
                     if lat and lng:
-                        print(f"[GPS] ✅ PIEXIF SUCCESS: lat={lat}, lng={lng}")
+                        logger.debug("GPS 추출 성공: piexif")
                         return lat, lng
-                print(f"[GPS] PIEXIF: GPS tags present but no latitude/longitude (2, 4) keys.")
+                logger.debug("piexif GPS 좌표 태그 없음")
             else:
-                print(f"[GPS] PIEXIF: No GPS IFD found.")
-    except Exception as e:
-        print(f"[GPS] PIEXIF Error: {e}")
+                logger.debug("piexif GPS IFD 없음")
+    except Exception:
+        logger.debug("piexif GPS 추출 실패", exc_info=True)
 
     # ATTEMPT 2: EXIFREAD (Binary Deep Parsing, Great for HEIC/RAW bounds)
     try:
-        print(f"[GPS] Attempt 2: EXIFREAD (binary deep parsing)")
+        logger.debug("GPS 추출 시도: exifread")
         import exifread
         with open(image_path, 'rb') as f:
             tags = exifread.process_file(f, details=False)
@@ -135,17 +155,17 @@ def extract_gps_from_exif(image_path):
                 lng = decimal_calc(lng_dms, str(lng_ref).strip(' \t\n\r\0').upper())
 
                 if lat and lng:
-                    print(f"[GPS] ✅ EXIFREAD SUCCESS: lat={lat}, lng={lng}")
+                    logger.debug("GPS 추출 성공: exifread")
                     return lat, lng
-                print(f"[GPS] EXIFREAD: Tags found but decimal conversion failed.")
+                logger.debug("exifread 좌표 변환 실패")
             else:
-                print(f"[GPS] EXIFREAD: GPS tags not found in binary stream.")
-    except Exception as e:
-        print(f"[GPS] EXIFREAD Error: {e}")
+                logger.debug("exifread GPS 태그 없음")
+    except Exception:
+        logger.debug("exifread GPS 추출 실패", exc_info=True)
 
     # ATTEMPT 3: PILLOW & PILLOW_HEIF (Universal compat fallback including HEIC)
     try:
-        print(f"[GPS] Attempt 3: PILLOW (universal fallback)")
+        logger.debug("GPS 추출 시도: Pillow")
         from PIL import Image
         from PIL.ExifTags import TAGS, GPSTAGS
         img = Image.open(image_path)
@@ -185,16 +205,15 @@ def extract_gps_from_exif(image_path):
             lng = decimal_calc(lng_dms, lng_ref)
 
             if lat and lng:
-                print(f"[GPS] ✅ PILLOW SUCCESS: lat={lat}, lng={lng}")
+                logger.debug("GPS 추출 성공: Pillow")
                 return lat, lng
-            print(f"[GPS) PILLOW: Info present but coordinate calculation failed.")
+            logger.debug("Pillow 좌표 변환 실패")
         else:
-            print(f"[GPS] PILLOW: No GPSInfo found.")
-    except Exception as e:
-        print(f"[GPS] PILLOW Error: {e}")
+            logger.debug("Pillow GPS 정보 없음")
+    except Exception:
+        logger.debug("Pillow GPS 추출 실패", exc_info=True)
 
-    print(f"[GPS] ❌ ALL ENGINES FAILED. The file likely has NO metadata.")
-    print(f"==================================================")
+    logger.debug("이미지 GPS 메타데이터 없음")
     return None, None
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -233,6 +252,6 @@ def reverse_geocode(lat, lng):
             addr = doc.get('address')
             if addr and addr.get('address_name'):
                 return addr['address_name']
-    except Exception as e:
-        print(f"Reverse geocode error: {e}")
+    except Exception:
+        logger.exception("역지오코딩 요청 실패")
     return None

@@ -1,10 +1,10 @@
-{% extends "admin_layout.html" %}
+﻿{% extends "admin_layout.html" %}
 
-{% block title %}CRACK 통계{% endblock %}
+{% block title %}CRACK ?듦퀎{% endblock %}
 
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" aria-label="알림 페이지">🔔</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" aria-label="?뚮┝ ?섏씠吏">?뵒</a>
 </div>
 {% endblock %}
 
@@ -13,10 +13,10 @@
   href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
   class="account-chip"
 >
-  <strong>{{ session.get('user_name', '관리자') }}님</strong>
+  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </a>
-<a href="/logout" class="logout-pill">로그아웃</a>
+<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -633,7 +633,7 @@
     .region-detail-pagination {
       display: flex;
       align-items: center;
-      justify-content: center;   /* 안전하게 중앙 유지 */
+      justify-content: center;   /* ?덉쟾?섍쾶 以묒븰 ?좎? */
       gap: 10px;
     }
 
@@ -711,7 +711,7 @@
       align-items: center;
       gap: 12px;
 
-      height: 48px;        /* 🔥 핵심 */
+      height: 48px;        /* ?뵦 ?듭떖 */
       padding: 0 18px;
 
       border-radius: 14px;
@@ -1062,30 +1062,30 @@
 <div class="page-title-box">
           <div class="page-title-row">
             <div class="page-title-wrap">
-              <div class="page-title">통계</div>
+              <div class="page-title">?듦퀎</div>
               <div class="page-subtitle">
-                지역별 신고 분포와 기간별 추이를 기준별로 확인합니다.
+                吏??퀎 ?좉퀬 遺꾪룷? 湲곌컙蹂?異붿씠瑜?湲곗?蹂꾨줈 ?뺤씤?⑸땲??
               </div>
             </div>
           </div>
         </div>
         <div class="compare-row">
           <div class="compare-card js-trend-shortcut" data-range="7d">
-            <div class="compare-label">최근 7일 변호</div>
+            <div class="compare-label">理쒓렐 7??蹂??/div>
             <div class="compare-value" id="weeklyCompareValue">-</div>
-            <div class="compare-meta" id="weeklyCompareMeta">이전 7일 대비</div>
+            <div class="compare-meta" id="weeklyCompareMeta">?댁쟾 7???鍮?/div>
           </div>
 
           <div class="compare-card js-trend-shortcut" data-range="30d">
-            <div class="compare-label">최근 30일 변화</div>
+            <div class="compare-label">理쒓렐 30??蹂??/div>
             <div class="compare-value" id="monthlyCompareValue">-</div>
-            <div class="compare-meta" id="monthlyCompareMeta">이전 30일 대비</div>
+            <div class="compare-meta" id="monthlyCompareMeta">?댁쟾 30???鍮?/div>
           </div>
 
           <div class="compare-card js-trend-shortcut" data-range="all">
-            <div class="compare-label">최근 최고 신고일</div>
+            <div class="compare-label">理쒓렐 理쒓퀬 ?좉퀬??/div>
             <div class="compare-value" id="trendCompareValue">-</div>
-            <div class="compare-meta" id="trendCompareMeta">최근 추이 기준</div>
+            <div class="compare-meta" id="trendCompareMeta">理쒓렐 異붿씠 湲곗?</div>
           </div>
         </div>
 
@@ -1093,13 +1093,13 @@
           <section class="panel panel-region-chart">
             <div class="section-header region-section-header">
               <div class="section-title-wrap">
-                <div class="section-title">지역별 신고 분포</div>
-                <div class="section-subtitle">전국부터 세부 지역까지 단계별로 신고 집중도를 확인합니다.</div>
+                <div class="section-title">吏??퀎 ?좉퀬 遺꾪룷</div>
+                <div class="section-subtitle">?꾧뎅遺???몃? 吏??퉴吏 ?④퀎蹂꾨줈 ?좉퀬 吏묒쨷?꾨? ?뺤씤?⑸땲??</div>
               </div>
 
               <div class="region-header-actions">
                 <div class="region-breadcrumb">
-                  <span class="breadcrumb-item active">전국</span>
+                  <span class="breadcrumb-item active">?꾧뎅</span>
                 </div>
               </div>
             </div>
@@ -1107,29 +1107,28 @@
             <div class="region-chart-shell">
               <div class="region-chart-body">
                 <div class="region-chart-box">
-                  <button type="button" class="region-back-btn hidden chart-back-btn" id="regionBackBtn" aria-label="상위 지역으로 이동">
-                    ←
-                  </button>
+                  <button type="button" class="region-back-btn hidden chart-back-btn" id="regionBackBtn" aria-label="?곸쐞 吏??쑝濡??대룞">
+                    ??                  </button>
 
                   <canvas id="regionDonutChart"></canvas>
                 </div>
 
                 <div class="region-detail-panel">
                   <div class="region-detail-head">
-                    <span class="region-detail-head-title">상세 지역 목록</span>
-                    <span class="region-detail-head-count" id="regionDetailCount">0개</span>
+                    <span class="region-detail-head-title">?곸꽭 吏??紐⑸줉</span>
+                    <span class="region-detail-head-count" id="regionDetailCount">0媛?/span>
                   </div>
 
                   <div class="region-detail-list">
                     <div class="region-detail-item">
-                      <div class="region-detail-name">경기도</div>
-                      <div class="region-detail-meta">42건 · 32%</div>
+                      <div class="region-detail-name">寃쎄린??/div>
+                      <div class="region-detail-meta">42嫄?쨌 32%</div>
                     </div>
                   </div>
                   <div class="region-detail-footer">
                     <div class="region-detail-pagination">
-                      <button type="button" class="region-page-btn" id="regionPrevBtn">이전</button>
-                      <button type="button" class="region-page-btn" id="regionNextBtn">다음</button>
+                      <button type="button" class="region-page-btn" id="regionPrevBtn">?댁쟾</button>
+                      <button type="button" class="region-page-btn" id="regionNextBtn">?ㅼ쓬</button>
                     </div>
                   </div>
                   </div>
@@ -1140,14 +1139,14 @@
           <section class="panel panel-main-chart">
             <div class="section-header">
               <div class="section-title-wrap">
-                <div class="section-title">기간별 신고 추이</div>
-                <div class="section-subtitle">기간별 신고 흐름과 변화</div>
+                <div class="section-title">湲곌컙蹂??좉퀬 異붿씠</div>
+                <div class="section-subtitle">湲곌컙蹂??좉퀬 ?먮쫫怨?蹂??/div>
               </div>
 
               <div class="section-actions trend-filter-actions">
-                <button type="button" class="mini-filter-chip trend-filter-chip active" data-range="7d">7일</button>
-                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="30d">30일</button>
-                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="all">전체</button>
+                <button type="button" class="mini-filter-chip trend-filter-chip active" data-range="7d">7??/button>
+                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="30d">30??/button>
+                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="all">?꾩껜</button>
               </div>
             </div>
 
@@ -1158,18 +1157,18 @@
 
               <div class="trend-summary-row">
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">총 신고</div>
-                  <div class="trend-summary-value" id="trendTotalValue">42건</div>
+                  <div class="trend-summary-label">珥??좉퀬</div>
+                  <div class="trend-summary-value" id="trendTotalValue">42嫄?/div>
                 </div>
 
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">일평균</div>
-                  <div class="trend-summary-value" id="trendAvgValue">6건</div>
+                  <div class="trend-summary-label">?쇳룊洹?/div>
+                  <div class="trend-summary-value" id="trendAvgValue">6嫄?/div>
                 </div>
 
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">최고 구간</div>
-                  <div class="trend-summary-value" id="trendPeakValue">월 12건</div>
+                  <div class="trend-summary-label">理쒓퀬 援ш컙</div>
+                  <div class="trend-summary-value" id="trendPeakValue">??12嫄?/div>
                 </div>
               </div>
             </div>
@@ -1183,8 +1182,8 @@
 {% endblock %}
 
 {% block extra_script %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script nonce="{{ csp_nonce }}">
 let pageTransitionRunning = false;
     let regionDonutChart = null;
     let trendLineChart = null;
@@ -1265,7 +1264,7 @@ let pageTransitionRunning = false;
       runPageTransition(href);
     });
 
-    // ===== 1. 더미 지역 데이터 (계층 구조) =====
+    // ===== 1. ?붾? 吏???곗씠??(怨꾩링 援ъ“) =====
 const regionDataMap = {{ (region_data_map or {"all": {}}) | tojson | safe }};
 const trendDataMap = {{ (trend_data_map or {"all": {}}) | tojson | safe }};
 const statisticsSummaryData = {{ (statistics_summary or {}) | tojson | safe }};
@@ -1274,10 +1273,10 @@ console.log("regionDataMap =", regionDataMap);
 console.log("trendDataMap =", trendDataMap);
 console.log("statisticsSummaryData =", statisticsSummaryData);
 
-// ===== 2. 현재 위치 (breadcrumb 역할) =====
+// ===== 2. ?꾩옱 ?꾩튂 (breadcrumb ??븷) =====
 let currentPath = [];
 
-// ===== 3. 현재 노드 가져오기 =====
+// ===== 3. ?꾩옱 ?몃뱶 媛?몄삤湲?=====
 function getCurrentNode() {
   let node = regionDataMap?.all || {};
 
@@ -1295,9 +1294,9 @@ function getCurrentNode() {
   return node;
 }
 
-// ===== 4. 현재 레벨 데이터 변환 =====
+// ===== 4. ?꾩옱 ?덈꺼 ?곗씠??蹂??=====
 function getCurrentItems() {
-  // 기타 내부 보기 상태면 그 목록만 바로 반환
+  // 湲고? ?대? 蹂닿린 ?곹깭硫?洹?紐⑸줉留?諛붾줈 諛섑솚
   if (currentOtherItems) {
     return {
       visibleItems: currentOtherItems,
@@ -1332,10 +1331,10 @@ function getCurrentItems() {
   items.sort((a, b) => b.count - a.count);
 
   const isNationalLevel = currentPath.length === 0;
-const isGyeonggiLevel = currentPath.length === 1 && currentPath[0] === "경기도";
+const isGyeonggiLevel = currentPath.length === 1 && currentPath[0] === "寃쎄린??;
 
 if (!isNationalLevel) {
-  // 경기도는 기타로 묶지 않고 전부 그대로 노출
+  // 寃쎄린?꾨뒗 湲고?濡?臾띠? ?딄퀬 ?꾨? 洹몃?濡??몄텧
   if (isGyeonggiLevel) {
     return {
       visibleItems: items,
@@ -1343,14 +1342,13 @@ if (!isNationalLevel) {
     };
   }
 
-  const MAX_ITEMS = 6; // 5개 대표 + 기타 1개
-  if (items.length > MAX_ITEMS) {
+  const MAX_ITEMS = 6; // 5媛????+ 湲고? 1媛?  if (items.length > MAX_ITEMS) {
     const topItems = items.slice(0, MAX_ITEMS - 1);
     const restItems = items.slice(MAX_ITEMS - 1);
     const restSum = restItems.reduce((sum, item) => sum + item.count, 0);
 
     topItems.push({
-      name: "기타",
+      name: "湲고?",
       count: restSum,
       hasChildren: true,
       isOther: true
@@ -1369,7 +1367,7 @@ if (!isNationalLevel) {
   };
 }
 
-// ===== 5. 하위 합계 재귀 계산 =====
+// ===== 5. ?섏쐞 ?⑷퀎 ?ш? 怨꾩궛 =====
 function getSum(node) {
   if (typeof node === "number") return node;
 
@@ -1420,7 +1418,7 @@ function formatDiff(current, previous) {
   if (previous === null || previous === undefined) {
     return {
       text: "-",
-      meta: "비교 데이터 없음",
+      meta: "鍮꾧탳 ?곗씠???놁쓬",
       className: "same"
     };
   }
@@ -1430,23 +1428,23 @@ function formatDiff(current, previous) {
 
   if (diff > 0) {
     return {
-      text: `+${diff}건`,
-      meta: previous > 0 ? `${previous}건 대비 ${percent}% 증가` : `이전 기간 0건`,
+      text: `+${diff}嫄?,
+      meta: previous > 0 ? `${previous}嫄??鍮?${percent}% 利앷?` : `?댁쟾 湲곌컙 0嫄?,
       className: "up"
     };
   }
 
   if (diff < 0) {
     return {
-      text: `${diff}건`,
-      meta: previous > 0 ? `${previous}건 대비 ${Math.abs(percent)}% 감소` : `이전 기간 0건`,
+      text: `${diff}嫄?,
+      meta: previous > 0 ? `${previous}嫄??鍮?${Math.abs(percent)}% 媛먯냼` : `?댁쟾 湲곌컙 0嫄?,
       className: "down"
     };
   }
 
   return {
-    text: "변화 없음",
-    meta: `${previous}건과 동일`,
+    text: "蹂???놁쓬",
+    meta: `${previous}嫄닿낵 ?숈씪`,
     className: "same"
   };
 }
@@ -1456,7 +1454,7 @@ function updateCompareCards() {
   const trend30 = trendDataMap?.all?.["30d"];
 
   if (!trend7 || !trend30 || !Array.isArray(trend7.values) || !Array.isArray(trend30.values)) {
-    console.warn("비교 카드용 trend 데이터 부족:", trendDataMap);
+    console.warn("鍮꾧탳 移대뱶??trend ?곗씠??遺議?", trendDataMap);
     return;
   }
 
@@ -1478,15 +1476,15 @@ function updateCompareCards() {
   const max7Label = trend7.labels[max7Index];
 
   document.getElementById("weeklyCompareValue").textContent = weekResult.text;
-  document.getElementById("weeklyCompareMeta").textContent = previous7 !== null ? `이전 7일보다 ${weekResult.text.replace('+', '')}` : "비교 데이터 없음";
+  document.getElementById("weeklyCompareMeta").textContent = previous7 !== null ? `?댁쟾 7?쇰낫??${weekResult.text.replace('+', '')}` : "鍮꾧탳 ?곗씠???놁쓬";
   document.getElementById("weeklyCompareValue").className = `compare-value ${weekResult.className}`;
 
   document.getElementById("monthlyCompareValue").textContent = monthResult.text;
-  document.getElementById("monthlyCompareMeta").textContent = previous30 !== null ? `이전 30일보다 ${monthResult.text.replace('+', '')}` : "비교 데이터 없음";
+  document.getElementById("monthlyCompareMeta").textContent = previous30 !== null ? `?댁쟾 30?쇰낫??${monthResult.text.replace('+', '')}` : "鍮꾧탳 ?곗씠???놁쓬";
   document.getElementById("monthlyCompareValue").className = `compare-value ${monthResult.className}`;
 
-  document.getElementById("trendCompareValue").textContent = `${max7}건`;
-  document.getElementById("trendCompareMeta").textContent = `${max7Label}에 최고치 기록`;
+  document.getElementById("trendCompareValue").textContent = `${max7}嫄?;
+  document.getElementById("trendCompareMeta").textContent = `${max7Label}??理쒓퀬移?湲곕줉`;
   document.getElementById("trendCompareValue").className = "compare-value same";
 }
 
@@ -1506,13 +1504,12 @@ const centerTextPlugin = {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // 제목
+    // ?쒕ぉ
     ctx.fillStyle = "#64748b";
     ctx.font = "700 13px Pretendard, Noto Sans KR, Arial, sans-serif";
     ctx.fillText(title, centerX, centerY - 12);
 
-    // 값
-    ctx.fillStyle = "#0f172a";
+    // 媛?    ctx.fillStyle = "#0f172a";
     ctx.font = "900 20px Pretendard, Noto Sans KR, Arial, sans-serif";
     ctx.fillText(value, centerX, centerY + 14);
 
@@ -1563,7 +1560,7 @@ function getRegionItemsPerPage() {
 
   const itemHeight = 48;
 
-  // 경계 화면에서 4개로 과하게 잡히는 걸 막기 위한 안전 여백
+  // 寃쎄퀎 ?붾㈃?먯꽌 4媛쒕줈 怨쇳븯寃??≫엳??嫄?留됯린 ?꾪븳 ?덉쟾 ?щ갚
   const safetyBuffer = 0;
 
   const availableHeight =
@@ -1584,29 +1581,29 @@ function formatRegionName(name) {
   if (!name) return "";
 
   const aliasMap = {
-    "강원특별자치도": "강원도",
-    "전북특별자치도": "전북도",
-    "제주특별자치도": "제주도",
-    "세종특별자치시": "세종시",
+    "媛뺤썝?밸퀎?먯튂??: "媛뺤썝??,
+    "?꾨턿?밸퀎?먯튂??: "?꾨턿??,
+    "?쒖＜?밸퀎?먯튂??: "?쒖＜??,
+    "?몄쥌?밸퀎?먯튂??: "?몄쥌??,
 
-    "서울특별시": "서울",
-    "부산광역시": "부산",
-    "대구광역시": "대구",
-    "인천광역시": "인천",
-    "광주광역시": "광주",
-    "대전광역시": "대전",
-    "울산광역시": "울산",
+    "?쒖슱?밸퀎??: "?쒖슱",
+    "遺?곌킅??떆": "遺??,
+    "?援ш킅??떆": "?援?,
+    "?몄쿇愿묒뿭??: "?몄쿇",
+    "愿묒＜愿묒뿭??: "愿묒＜",
+    "??꾧킅??떆": "???,
+    "?몄궛愿묒뿭??: "?몄궛",
 
-    "충청북도": "충북",
-    "충청남도": "충남",
-    "전라남도": "전남",
-    "경상북도": "경북",
-    "경상남도": "경남"
+    "異⑹껌遺곷룄": "異⑸턿",
+    "異⑹껌?⑤룄": "異⑸궓",
+    "?꾨씪?⑤룄": "?꾨궓",
+    "寃쎌긽遺곷룄": "寃쎈턿",
+    "寃쎌긽?⑤룄": "寃쎈궓"
   };
 
   let shortName = aliasMap[name] || name;
 
-  // 5글자 제한
+  // 5湲???쒗븳
   if (shortName.length > 5) {
     return shortName.slice(0, 5);
   }
@@ -1614,12 +1611,12 @@ function formatRegionName(name) {
   return shortName;
 }
 
-// ===== 6. 화면 렌더링 =====
+// ===== 6. ?붾㈃ ?뚮뜑留?=====
 function renderRegion() {
   const { visibleItems: items, hiddenItems } = getCurrentItems();
-  console.log("현재 currentPath =", currentPath);
-  console.log("현재 node =", getCurrentNode());
-  console.log("현재 items =", items);
+  console.log("?꾩옱 currentPath =", currentPath);
+  console.log("?꾩옱 node =", getCurrentNode());
+  console.log("?꾩옱 items =", items);
 
 const backBtn = document.getElementById("regionBackBtn");
 const canGoBack = currentPath.length > 0 || currentOtherItems !== null;
@@ -1630,9 +1627,9 @@ if (backBtn) {
 
   // === breadcrumb ===
   const breadcrumbEl = document.querySelector(".region-breadcrumb");
-  const breadcrumbParts = ["전국", ...currentPath];
+  const breadcrumbParts = ["?꾧뎅", ...currentPath];
   if (currentOtherItems) {
-    breadcrumbParts.push("기타");
+    breadcrumbParts.push("湲고?");
   }
 
 breadcrumbEl.innerHTML = breadcrumbParts
@@ -1643,7 +1640,7 @@ breadcrumbEl.innerHTML = breadcrumbParts
         class="breadcrumb-item ${isLast ? "active" : ""} ${!isLast ? "clickable" : ""}"
         data-index="${i}"
       >
-        ${name}
+        ${escapeHtml(name)}
       </span>
     `;
   })
@@ -1678,13 +1675,13 @@ if (backBtn) {
   };
 }
 
-  // === 리스트 ===
+  // === 由ъ뒪??===
   const listEl = document.querySelector(".region-detail-list");
 listEl.innerHTML = "";
 
 const detailCountEl = document.getElementById("regionDetailCount");
 if (detailCountEl) {
-  detailCountEl.textContent = `${items.length}개`;
+  detailCountEl.textContent = `${items.length}媛?;
 }
 
 const total = items.reduce((sum, item) => sum + item.count, 0);
@@ -1705,7 +1702,7 @@ const startIndex = (currentRegionPage - 1) * REGION_ITEMS_PER_PAGE;
 const endIndex = startIndex + REGION_ITEMS_PER_PAGE;
 const pagedItems = items.slice(startIndex, endIndex);
 
-// ===== 현재 페이지 목록만 렌더링 =====
+// ===== ?꾩옱 ?섏씠吏 紐⑸줉留??뚮뜑留?=====
 pagedItems.forEach(item => {
   const div = document.createElement("div");
   div.className = "region-detail-item";
@@ -1713,8 +1710,8 @@ pagedItems.forEach(item => {
   const percent = total ? Math.round((item.count / total) * 100) : 0;
 
   div.innerHTML = `
-    <div class="region-detail-name">${formatRegionName(item.name)}</div>
-    <div class="region-detail-meta">${item.count}건 · ${percent}%</div>
+    <div class="region-detail-name">${escapeHtml(formatRegionName(item.name))}</div>
+    <div class="region-detail-meta">${item.count}嫄?쨌 ${percent}%</div>
   `;
 
   if (item.hasChildren) {
@@ -1756,7 +1753,7 @@ if (nextBtn) {
   };
 }
 
-  // === 차트 다시 그리기 ===
+  // === 李⑦듃 ?ㅼ떆 洹몃━湲?===
   destroyRegionChart();
 
   const canvas = document.getElementById("regionDonutChart");
@@ -1812,13 +1809,13 @@ if (nextBtn) {
             label: function(context) {
               const value = context.raw || 0;
               const percent = total ? Math.round((value / total) * 100) : 0;
-              return `${value}건 (${percent}%)`;
+              return `${value}嫄?(${percent}%)`;
             }
           }
         },
         centerText: {
-          title: currentPath.length ? formatRegionName(currentPath[currentPath.length - 1]) : "전국",
-          value: `${total}건`
+          title: currentPath.length ? formatRegionName(currentPath[currentPath.length - 1]) : "?꾧뎅",
+          value: `${total}嫄?
         }
       },
       onClick: (event, elements) => {
@@ -1827,8 +1824,8 @@ if (nextBtn) {
   const index = elements[0].index;
   const clickedItem = items[index];
 
-  console.log("[도넛 클릭]", clickedItem);
-  console.log("[현재 node]", getCurrentNode());
+  console.log("[?꾨꽋 ?대┃]", clickedItem);
+  console.log("[?꾩옱 node]", getCurrentNode());
 
   if (!clickedItem) return;
 
@@ -1856,7 +1853,7 @@ function renderTrendChart(range = currentTrendRange) {
 
   const trend = trendDataMap?.all?.[range];
   if (!trend || !Array.isArray(trend.labels) || !Array.isArray(trend.values) || !trend.values.length) {
-    console.warn("trend 데이터 없음:", range, trendDataMap);
+    console.warn("trend ?곗씠???놁쓬:", range, trendDataMap);
     return;
   }
 
@@ -1880,7 +1877,7 @@ function renderTrendChart(range = currentTrendRange) {
       labels: trend.labels,
       datasets: [
         {
-          label: "신고 수",
+          label: "?좉퀬 ??,
           data: trend.values,
           borderColor: "#3b82f6",
           backgroundColor: "rgba(59, 130, 246, 0.12)",
@@ -1910,7 +1907,7 @@ function renderTrendChart(range = currentTrendRange) {
           cornerRadius: 10,
           callbacks: {
             label: function(context) {
-              return `${context.raw}건`;
+              return `${context.raw}嫄?;
             }
           }
         }
@@ -1944,10 +1941,10 @@ function renderTrendChart(range = currentTrendRange) {
     }
   });
 
-  document.getElementById("trendTotalValue").textContent = `${total}건`;
-  document.getElementById("trendAvgValue").textContent = `${avg}건`;
-  document.getElementById("trendPeakValue").textContent = `${peak}건`;
-document.getElementById("trendPeakValue").title = `${peakLabel} ${peak}건`;
+  document.getElementById("trendTotalValue").textContent = `${total}嫄?;
+  document.getElementById("trendAvgValue").textContent = `${avg}嫄?;
+  document.getElementById("trendPeakValue").textContent = `${peak}嫄?;
+document.getElementById("trendPeakValue").title = `${peakLabel} ${peak}嫄?;
 
   document.querySelectorAll(".trend-filter-chip").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.range === range);
@@ -2014,7 +2011,7 @@ document.querySelectorAll(".trend-filter-chip").forEach(btn => {
   });
 });
 
-// ===== 8. 최초 실행 =====
+// ===== 8. 理쒖큹 ?ㅽ뻾 =====
 
 const shouldRunDashboardEnter = document.referrer && document.referrer.includes("/admin/dashboard");
 
@@ -2035,19 +2032,19 @@ document.addEventListener("DOMContentLoaded", () => {
   try {
     renderRegion();
   } catch (e) {
-    console.error("renderRegion 오류:", e);
+    console.error("renderRegion ?ㅻ쪟:", e);
   }
 
   try {
     renderTrendChart();
   } catch (e) {
-    console.error("renderTrendChart 오류:", e);
+    console.error("renderTrendChart ?ㅻ쪟:", e);
   }
 
   try {
     updateCompareCards();
   } catch (e) {
-    console.error("updateCompareCards 오류:", e);
+    console.error("updateCompareCards ?ㅻ쪟:", e);
   }
 });
 
@@ -2062,3 +2059,4 @@ window.addEventListener("resize", () => {
 });
 </script>
 {% endblock %}
+

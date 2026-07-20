@@ -1,14 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 
 <head>
-    <script>
-        // [FOUC Guard] 즉시 실행하여 렌더링 전 클로킹 모드 진입
+    <script nonce="{{ csp_nonce }}">
+        // [FOUC Guard] 利됱떆 ?ㅽ뻾?섏뿬 ?뚮뜑留????대줈??紐⑤뱶 吏꾩엯
         document.documentElement.classList.add('is-loading');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Crack{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <script src="{{ url_for('static', filename='security.js') }}"></script>
 
     <!-- Preload Critical Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,11 +47,11 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png?v=3">
 
     <!-- iOS Splash Screen (Startup Image) -->
-    <!-- iOS는 매니페스트를 타지 않으므로 개별 태그로 지정하여 스플래시 화면의 이질감 최소화 -->
+    <!-- iOS??留ㅻ땲?섏뒪?몃? ?吏 ?딆쑝誘濡?媛쒕퀎 ?쒓렇濡?吏?뺥븯???ㅽ뵆?섏떆 ?붾㈃???댁쭏媛?理쒖냼??-->
     <link rel="apple-touch-startup-image" href="/static/icons/icon-512.png?v=3">
 
     <!-- [BRIDGE] Admin Transition State Check (Must be here to prevent flicker) -->
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             if (window.location.pathname.includes('/admin/dashboard') && sessionStorage.getItem('admin_transition') === 'active') {
                 document.documentElement.classList.add('admin-bridge-mode');
@@ -106,7 +108,7 @@
             color: #616161;
         }
 
-        /* [FOUC Guard Style] 최상단 배치: 로딩 중에도 Header와 Footer는 노출하도록 수정 */
+        /* [FOUC Guard Style] 理쒖긽??諛곗튂: 濡쒕뵫 以묒뿉??Header? Footer???몄텧?섎룄濡??섏젙 */
         .is-loading .app-container>*:not(#premium-loader):not(header):not(.bottom-nav) {
             opacity: 0 !important;
             visibility: hidden !important;
@@ -126,7 +128,7 @@
 
         body {
             background-color: #D6D6D6;
-            /* 배경색을 약간 더 어둡게 하여 앱 영역을 강조 */
+            /* 諛곌꼍?됱쓣 ?쎄컙 ???대몼寃??섏뿬 ???곸뿭??媛뺤“ */
             color: var(--text-asphalt);
             font-family: 'Inter', sans-serif;
             overflow: hidden;
@@ -140,7 +142,7 @@
 
         .app-container {
             height: calc(100dvh - 40px);
-            /* 화면에서 살짝 띄워서 곡률 강조 */
+            /* ?붾㈃?먯꽌 ?댁쭩 ?꾩썙??怨〓쪧 媛뺤“ */
             width: 100vw;
             max-width: 480px;
             margin: 20px auto;
@@ -297,7 +299,7 @@
         main {
             flex: 1;
             padding: 24px 20px 24px 20px;
-            /* 상단 패딩을 8px에서 24px로 복구하여 헤더와의 간격 확보 */
+            /* ?곷떒 ?⑤뵫??8px?먯꽌 24px濡?蹂듦뎄?섏뿬 ?ㅻ뜑???媛꾧꺽 ?뺣낫 */
             overflow-y: auto;
         }
 
@@ -343,7 +345,7 @@
             flex-direction: column;
             align-items: center;
             color: rgba(69, 75, 82, 0.35);
-            /* opacity 대신 투명한 색상을 사용하여 배지 선명도 유지 */
+            /* opacity ????щ챸???됱긽???ъ슜?섏뿬 諛곗? ?좊챸???좎? */
             text-decoration: none;
             font-size: 0.8rem;
             gap: 2px;
@@ -364,7 +366,7 @@
         }
 
         .nav-item.has-unread i {
-            /* 알림 배지만 노출하고 아이콘/텍스트 스타일은 다른 비활성 탭과 동일하게 유지 */
+            /* ?뚮┝ 諛곗?留??몄텧?섍퀬 ?꾩씠肄??띿뒪???ㅽ??쇱? ?ㅻⅨ 鍮꾪솢????낵 ?숈씪?섍쾶 ?좎? */
             position: relative;
         }
 
@@ -378,7 +380,7 @@
             top: -2px;
             right: calc(50% - 22px);
             background-color: #FF3B30;
-            /* 더욱 선명한 레드 (iOS 스타일) */
+            /* ?붿슧 ?좊챸???덈뱶 (iOS ?ㅽ??? */
             color: white;
             font-size: 0.65rem;
             font-weight: 700;
@@ -393,7 +395,7 @@
             border: 1.5px solid white;
             z-index: 10;
             opacity: 1 !important;
-            /* 탭 비활성 시에도 숫자는 선명하게 유지 */
+            /* ??鍮꾪솢???쒖뿉???レ옄???좊챸?섍쾶 ?좎? */
         }
 
         .nav-item:hover {
@@ -586,7 +588,7 @@
         #custom-toast {
             position: fixed;
             top: 80px;
-            /* PWA 상단바/헤더에 가려지지 않도록 하향 조정 */
+            /* PWA ?곷떒諛??ㅻ뜑??媛?ㅼ?吏 ?딅룄濡??섑뼢 議곗젙 */
             left: 50%;
             transform: translate(-50%, -150%);
             background: #2D2D2D;
@@ -594,7 +596,7 @@
             padding: 14px 28px;
             border-radius: 16px;
             z-index: 999999 !important;
-            /* 그 어떤 레이어보다 앞에 보이도록 */
+            /* 洹??대뼡 ?덉씠?대낫???욎뿉 蹂댁씠?꾨줉 */
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0;
             display: flex;
@@ -604,7 +606,7 @@
             pointer-events: none;
             width: auto;
             max-width: 400px;
-            /* 앱 너비보다 작게 설정 */
+            /* ???덈퉬蹂대떎 ?묎쾶 ?ㅼ젙 */
             min-width: 250px;
             white-space: normal;
             word-break: keep-all;
@@ -612,7 +614,7 @@
             text-align: center;
         }
 
-        /* [BLUEPRINT] 앱 영역 내 모달 강제 격리 스타일 */
+        /* [BLUEPRINT] ???곸뿭 ??紐⑤떖 媛뺤젣 寃⑸━ ?ㅽ???*/
         .app-container:not(.admin-page) .global-modal-overlay,
         .app-container:not(.admin-page) #notice-modal,
         .app-container:not(.admin-page) #enlarge-modal,
@@ -625,7 +627,7 @@
             max-width: 480px !important;
             margin: 0 auto !important;
             border-radius: 24px !important;
-            /* 앱 컨테이너의 곡률과 일치 */
+            /* ??而⑦뀒?대꼫??怨〓쪧怨??쇱튂 */
             overflow: hidden !important;
         }
 
@@ -751,10 +753,10 @@
             transform: scale(0.96);
         }
 
-        /* 관리자 대시보드 PC 전용 버튼 (원형) */
+        /* 愿由ъ옄 ??쒕낫??PC ?꾩슜 踰꾪듉 (?먰삎) */
         .admin-pc-btn {
             display: none !important;
-            /* 기본적으로 숨김 (모바일) */
+            /* 湲곕낯?곸쑝濡??④? (紐⑤컮?? */
             align-items: center;
             justify-content: center;
             width: 34px;
@@ -771,7 +773,7 @@
             margin-right: 4px;
         }
 
-        /* [NEW] 헤더 필터 버튼 전용 스타일 */
+        /* [NEW] ?ㅻ뜑 ?꾪꽣 踰꾪듉 ?꾩슜 ?ㅽ???*/
         .header-filter-btn {
             display: flex !important;
             align-items: center;
@@ -824,7 +826,7 @@
             transform: scale(0.8);
         }
 
-        /* 기존 admin-icon-btn 스타일 유지 (필요 시) */
+        /* 湲곗〈 admin-icon-btn ?ㅽ????좎? (?꾩슂 ?? */
         .admin-icon-btn {
             display: none;
             /* Hidden by default (mobile) */
@@ -858,7 +860,7 @@
             transform: translateY(0);
         }
 
-        /* Premium Loader Styles: 상하단 바를 제외한 메인 영역만 덮도록 수정 */
+        /* Premium Loader Styles: ?곹븯??諛붾? ?쒖쇅??硫붿씤 ?곸뿭留???룄濡??섏젙 */
         #premium-loader {
             position: absolute;
             top: var(--header-h);
@@ -890,7 +892,7 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            /* 클릭 방해 금지 */
+            /* ?대┃ 諛⑺빐 湲덉? */
         }
 
         .loader-logo {
@@ -924,7 +926,7 @@
             top: 0;
             left: 0;
             width: 80%;
-            /* 약간의 여유를 줌 */
+            /* ?쎄컙???ъ쑀瑜?以?*/
             height: 100%;
             background: linear-gradient(90deg, transparent, var(--point-orange), transparent);
             animation: loaderSlide 1.5s infinite linear;
@@ -1121,20 +1123,20 @@
             transition: all 0.5s ease !important;
         }
 
-        /* [FIX] 모달 활성 시 배경 스크롤 차단 */
+        /* [FIX] 紐⑤떖 ?쒖꽦 ??諛곌꼍 ?ㅽ겕濡?李⑤떒 */
         .modal-active main {
             overflow: hidden !important;
             overscroll-behavior-y: contain !important;
         }
     </style>
     {% block extra_style %}{% endblock %}
-    <script>
+    <script nonce="{{ csp_nonce }}">
         // Check sessionStorage before body renders to apply initial classes
         if (sessionStorage.getItem('admin_transition') === 'active') {
             document.documentElement.classList.add('admin-bridge-mode');
         }
 
-        // [PPT Mode Persistence] URL에 ppt=1이 있거나 관리자 대시보드 진입 시에만 제한적으로 활성
+        // [PPT Mode Persistence] URL??ppt=1???덇굅??愿由ъ옄 ??쒕낫??吏꾩엯 ?쒖뿉留??쒗븳?곸쑝濡??쒖꽦
         const urlParams = new URLSearchParams(window.location.search);
         const isPptParam = urlParams.get('ppt') === '1';
         const isAdminDash = window.location.pathname.includes('/admin/dashboard');
@@ -1143,7 +1145,7 @@
             sessionStorage.setItem('ppt_mode', 'active');
         }
 
-        // ppt_mode가 활성 상태이더라도, ppt=1 파라미터가 없거나 관리자 대시보드가 아니면 일반 앱으로 간주하여 해제 (메인 앱 복구용)
+        // ppt_mode媛 ?쒖꽦 ?곹깭?대뜑?쇰룄, ppt=1 ?뚮씪誘명꽣媛 ?녾굅??愿由ъ옄 ??쒕낫?쒓? ?꾨땲硫??쇰컲 ?깆쑝濡?媛꾩＜?섏뿬 ?댁젣 (硫붿씤 ??蹂듦뎄??
         if (sessionStorage.getItem('ppt_mode') === 'active') {
             if (isPptParam || isAdminDash) {
                 document.documentElement.classList.add('ppt-mode-active');
@@ -1162,7 +1164,7 @@
             overflow: hidden !important;
         }
 
-        /* 관리자 대시보드에서만 스크롤 물리적 완전 차단 - 모든 래퍼 포함 */
+        /* 愿由ъ옄 ??쒕낫?쒖뿉?쒕쭔 ?ㅽ겕濡?臾쇰━???꾩쟾 李⑤떒 - 紐⑤뱺 ?섑띁 ?ы븿 */
         html.ppt-mode-active body.admin-mode-active,
         body.ppt-mode.admin-mode-active {
             overflow: hidden !important;
@@ -1173,7 +1175,7 @@
             overscroll-behavior: none !important;
         }
 
-        /* [핵심] 중간 래퍼(.app-container, main)도 절대 고정 */
+        /* [?듭떖] 以묎컙 ?섑띁(.app-container, main)???덈? 怨좎젙 */
         body.ppt-mode.admin-mode-active .app-container,
         body.ppt-mode.admin-mode-active main,
         html.ppt-mode-active body.admin-mode-active .app-container,
@@ -1183,24 +1185,24 @@
             max-height: 100vh !important;
         }
 
-        /* 스크롤 인디케이터(주황색 프로그레시브 바) 숨김 */
+        /* ?ㅽ겕濡??몃뵒耳?댄꽣(二쇳솴???꾨줈洹몃젅?쒕툕 諛? ?④? */
         body.ppt-mode.admin-mode-active #scroll-indicator,
         html.ppt-mode-active body.admin-mode-active #scroll-indicator {
             display: none !important;
         }
 
-        /* 공통: 발표 시 관리자 전환 버튼 숨김 */
+        /* 怨듯넻: 諛쒗몴 ??愿由ъ옄 ?꾪솚 踰꾪듉 ?④? */
         body.ppt-mode .admin-pc-btn,
         html.ppt-mode-active body .admin-pc-btn {
             display: none !important;
         }
 
-        /* 관리자 대시보드 전용: PPT 모드(ppt=1 파라미터 존재 시)에서만 상단바 완전 차단 */
+        /* 愿由ъ옄 ??쒕낫???꾩슜: PPT 紐⑤뱶(ppt=1 ?뚮씪誘명꽣 議댁옱 ???먯꽌留??곷떒諛??꾩쟾 李⑤떒 */
         body.ppt-mode.admin-dashboard-page header {
             display: none !important;
         }
 
-        /* 오직 관리자 대시보드에서만 하단바 숨김 (사용자 요청: 17~20페이지 하단바 복구) */
+        /* ?ㅼ쭅 愿由ъ옄 ??쒕낫?쒖뿉?쒕쭔 ?섎떒諛??④? (?ъ슜???붿껌: 17~20?섏씠吏 ?섎떒諛?蹂듦뎄) */
         body.ppt-mode.admin-dashboard-page .bottom-nav,
         html.ppt-mode-active body.admin-dashboard-page .bottom-nav {
             display: none !important;
@@ -1237,36 +1239,39 @@
             <div class="auth-tools" style="display:flex; gap:12px; align-items:center;">
                 <!-- Global Filter Tool in Alert Page (Only on Feed List) -->
                 {% if request.path == '/alert' %}
-                <button id="headerFilterBtn" class="header-filter-btn" title="필터 및 검색" onclick="openFilterModal()">
+                <button id="headerFilterBtn" class="header-filter-btn" title="?꾪꽣 諛?寃?? onclick="openFilterModal()">
                     <i class="bi bi-sliders"></i>
                 </button>
                 {% endif %}
 
                 {% if session.get('user_id') %}
-                <!-- 로그인한 사용자 -->
+                <!-- 濡쒓렇?명븳 ?ъ슜??-->
                 {% if session.get('is_admin') %}
                 {% if request.path == '/admin/dashboard' %}
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="/" class="admin-pc-btn" title="앱으로 돌아가기">
+                    <a href="/" class="admin-pc-btn" title="?깆쑝濡??뚯븘媛湲?>
                         <i class="bi bi-arrow-left-circle-fill"></i>
                     </a>
-                    <a href="/admin/ppt" class="admin-pc-btn" title="프레젠테이션 (PPT)">
+                    <a href="/admin/ppt" class="admin-pc-btn" title="?꾨젅?좏뀒?댁뀡 (PPT)">
                         <i class="bi bi-file-earmark-slides-fill"></i>
                     </a>
                 </div>
                 {% endif %}
                 <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-pc-btn ms-2 admin-dashboard-link"
-                    title="관리자 대시보드">
+                    title="愿由ъ옄 ??쒕낫??>
                     <i class="bi bi-person-fill-gear"></i>
                 </a>
                 {% endif %}
-                <a href="/logout" class="btn-auth-outline" style="color: #FF4D4D;">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+                <form method="post" action="/logout" style="display:inline; margin:0;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn-auth-outline" style="color:#FF4D4D;">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
                 {% else %}
-                <!-- 비로그인 -->
-                <a href="/login" class="btn-auth-solid" style="padding: 6px 14px; font-size: 0.8rem;">로그인</a>
-                <a href="/signup" class="btn-auth-outline" style="padding: 6px 14px; font-size: 0.8rem;">회원가입</a>
+                <!-- 鍮꾨줈洹몄씤 -->
+                <a href="/login" class="btn-auth-solid" style="padding: 6px 14px; font-size: 0.8rem;">濡쒓렇??/a>
+                <a href="/signup" class="btn-auth-outline" style="padding: 6px 14px; font-size: 0.8rem;">?뚯썝媛??/a>
                 {% endif %}
             </div>
             <!-- Scroll Progress Indicator -->
@@ -1300,15 +1305,15 @@
         <div id="global-upload-modal" class="global-modal-overlay" onclick="closeGlobalModal()">
             <div class="global-modal-content" onclick="event.stopPropagation()">
                 <div class="gmodal-item" onclick="handleGlobalModalAction('FILE')"><i
-                        class="bi bi-collection-play-fill"></i> 이 디바이스에서 추가하기</div>
+                        class="bi bi-collection-play-fill"></i> ???붾컮?댁뒪?먯꽌 異붽??섍린</div>
                 <div id="gmodal-camera-option" class="gmodal-item" onclick="handleGlobalModalAction('CAMERA')"><i
-                        class="bi bi-camera-reels-fill"></i> 직접 사진/영상 촬영하기</div>
+                        class="bi bi-camera-reels-fill"></i> 吏곸젒 ?ъ쭊/?곸긽 珥ъ쁺?섍린</div>
                 <div class="gmodal-divider"></div>
-                <div class="gmodal-item cancel" onclick="closeGlobalModal()">취소</div>
+                <div class="gmodal-item cancel" onclick="closeGlobalModal()">痍⑥냼</div>
             </div>
         </div>
 
-        <!-- [전역] 커스텀 공지 모달 -->
+        <!-- [?꾩뿭] 而ㅼ뒪? 怨듭? 紐⑤떖 -->
         <div id="notice-modal"
             style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
             <div
@@ -1326,20 +1331,20 @@
                 <!-- Footer: Fixed -->
                 <div style="padding: 10px 24px 30px;">
                     <button type="button" onclick="hideNoticeModal()"
-                        style="width: 100%; background: var(--point-orange); color: white; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(255,140,0,0.2);">확인</button>
+                        style="width: 100%; background: var(--point-orange); color: white; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(255,140,0,0.2);">?뺤씤</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // [중요] 최상단에서 상태 복구 함수 정의 (호이스팅 보장)
+    <script nonce="{{ csp_nonce }}">
+        // [以묒슂] 理쒖긽?⑥뿉???곹깭 蹂듦뎄 ?⑥닔 ?뺤쓽 (?몄씠?ㅽ똿 蹂댁옣)
         function hidePremiumLoader() {
             const loader = document.getElementById('premium-loader');
             const text = document.getElementById('loader-text');
             if (loader) {
                 loader.classList.add('fade-out');
-                // 강제로 스타일 적용 (브라우저 최적화 방지)
+                // 媛뺤젣濡??ㅽ????곸슜 (釉뚮씪?곗? 理쒖쟻??諛⑹?)
                 loader.style.opacity = '0';
                 loader.style.visibility = 'hidden';
                 loader.style.pointerEvents = 'none';
@@ -1358,8 +1363,7 @@
             const appContainer = document.querySelector('.app-container');
             if (appContainer) {
                 appContainer.classList.remove('admin-expanding');
-                // 만약 admin-page 에서 돌아오는 것이라면 reload가 이미 호출되었어야 함
-            }
+                // 留뚯빟 admin-page ?먯꽌 ?뚯븘?ㅻ뒗 寃껋씠?쇰㈃ reload媛 ?대? ?몄텧?섏뿀?댁빞 ??            }
 
             const fallMain = document.querySelector('main');
             const fallNav = document.querySelector('.bottom-nav');
@@ -1377,8 +1381,7 @@
             hidePremiumLoader();
         }
 
-        // [bfcache 대응] 페이지가 표시될 때마다 상태 초기화
-        window.addEventListener('pageshow', function (event) {
+        // [bfcache ??? ?섏씠吏媛 ?쒖떆???뚮쭏???곹깭 珥덇린??        window.addEventListener('pageshow', function (event) {
             cancelAdminTransition();
         });
 
@@ -1392,19 +1395,19 @@
                 toast.classList.remove('active');
                 void toast.offsetWidth; // reflow
                 toast.classList.add('active');
-                // 기존 타이머가 있으면 제거 (연속 발생 대응)
+                // 湲곗〈 ??대㉧媛 ?덉쑝硫??쒓굅 (?곗냽 諛쒖깮 ???
                 if (window.toastTimer) clearTimeout(window.toastTimer);
                 window.toastTimer = setTimeout(() => toast.classList.remove('active'), duration);
             }
         }
 
-        // [USER REQUEST] 스크롤 인디케이터 처리기 (캡처 모드를 사용하여 하위 요소들의 스크롤도 전역에서 감지)
+        // [USER REQUEST] ?ㅽ겕濡??몃뵒耳?댄꽣 泥섎━湲?(罹≪쿂 紐⑤뱶瑜??ъ슜?섏뿬 ?섏쐞 ?붿냼?ㅼ쓽 ?ㅽ겕濡ㅻ룄 ?꾩뿭?먯꽌 媛먯?)
         document.addEventListener('DOMContentLoaded', () => {
             const indicator = document.getElementById('scroll-indicator');
             if (indicator) {
                 document.addEventListener('scroll', (e) => {
                     const target = e.target;
-                    // document scroll 또는 overflow:auto 인 요소의 스크롤 감지
+                    // document scroll ?먮뒗 overflow:auto ???붿냼???ㅽ겕濡?媛먯?
                     const scrollNode = (target === document) ? (document.scrollingElement || document.documentElement) : target;
 
                     if (scrollNode && scrollNode.scrollHeight > scrollNode.clientHeight) {
@@ -1473,9 +1476,9 @@
             if (!userId) {
                 e.preventDefault();
 
-                showToast('로그인을 먼저 해주세요');
+                showToast('濡쒓렇?몄쓣 癒쇱? ?댁＜?몄슂');
 
-                // 🔥 바로 login으로 이동
+                // ?뵦 諛붾줈 login?쇰줈 ?대룞
                 window.location.href = '/login';
 
                 return false;
@@ -1498,9 +1501,9 @@
         window.addEventListener('load', () => { setTimeout(hidePremiumLoader, 300); });
 
         (function () {
-            // SPA Routing: 메뉴 클릭 시 부드러운 전환 (페이지 새로고침 방지)
+            // SPA Routing: 硫붾돱 ?대┃ ??遺?쒕윭???꾪솚 (?섏씠吏 ?덈줈怨좎묠 諛⑹?)
             document.addEventListener('click', async function (e) {
-                // 입력 필드 클릭 시 SPA 로직 무시
+                // ?낅젰 ?꾨뱶 ?대┃ ??SPA 濡쒖쭅 臾댁떆
                 if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
                 const link = e.target.closest('.nav-item, .brand, .btn-login, .btn-auth-solid, .alert-item, .notice-item, .back-btn');
@@ -1509,7 +1512,7 @@
                 if (e.defaultPrevented) return;
 
                 let href = link.getAttribute('href');
-                // onclick="location.href='...'" 또는 window.location.href='...' 형태 대응 (안전하게 참조)
+                // onclick="location.href='...'" ?먮뒗 window.location.href='...' ?뺥깭 ???(?덉쟾?섍쾶 李몄“)
                 if (!href) {
                     const onclickVal = link.getAttribute('onclick');
                     if (onclickVal) {
@@ -1520,15 +1523,14 @@
 
                 if (!href || href.startsWith('http') || href.startsWith('#')) return;
 
-                // [중요] 현재 페이지와 동일한 경로 클릭 시 무시 (새로고침 방지)
+                // [以묒슂] ?꾩옱 ?섏씠吏? ?숈씪??寃쎈줈 ?대┃ ??臾댁떆 (?덈줈怨좎묠 諛⑹?)
                 const targetPath = href.split('?')[0];
                 const currentPath = window.location.pathname;
 
-                // [수정] query string 무시하고 순수 경로로 비교하여 정확성 상승
+                // [?섏젙] query string 臾댁떆?섍퀬 ?쒖닔 寃쎈줈濡?鍮꾧탳?섏뿬 ?뺥솗???곸듅
                 if (targetPath === currentPath) {
                     console.log("Already on this page, performing Scroll-to-Top.");
-                    // [UX 개선] 동일 탭 활성 상태에서 탭 아이콘 다시 클릭 시 맨 위로 부드럽게 스크롤
-                    // main 뿐만 아니라 내부의 실제 스크롤 컨테이너(.alert-page, .status-page 등)도 모두 찾아 스크롤 상단으로 올림
+                    // [UX 媛쒖꽑] ?숈씪 ???쒖꽦 ?곹깭?먯꽌 ???꾩씠肄??ㅼ떆 ?대┃ ??留??꾨줈 遺?쒕읇寃??ㅽ겕濡?                    // main 肉먮쭔 ?꾨땲???대????ㅼ젣 ?ㅽ겕濡?而⑦뀒?대꼫(.alert-page, .status-page ????紐⑤몢 李얠븘 ?ㅽ겕濡??곷떒?쇰줈 ?щ┝
                     const scrollTargets = document.querySelectorAll('main, main > div, .alert-page, .status-page');
                     setTimeout(() => {
                         scrollTargets.forEach(el => {
@@ -1541,7 +1543,7 @@
                     return;
                 }
 
-                // [필독] 관리자 대시보드 전환 애니메이션 (Bridge)
+                // [?꾨룆] 愿由ъ옄 ??쒕낫???꾪솚 ?좊땲硫붿씠??(Bridge)
                 if (href.includes('admin/dashboard') && !window.location.pathname.includes('admin/dashboard')) {
                     e.preventDefault();
                     sessionStorage.setItem('admin_transition', 'active');
@@ -1554,11 +1556,9 @@
                     return;
                 }
 
-                // 그 밖의 페이지 전환 제외 대상
-                if (href.includes('logout') || window.location.pathname.includes('admin/dashboard')) return;
+                // 洹?諛뽰쓽 ?섏씠吏 ?꾪솚 ?쒖쇅 ???                if (href.includes('logout') || window.location.pathname.includes('admin/dashboard')) return;
 
-                // [FIX] 만약 대시보드 진입 애니메이션 대기 중이라면 즉시 중단 및 초기화
-                cancelAdminTransition();
+                // [FIX] 留뚯빟 ??쒕낫??吏꾩엯 ?좊땲硫붿씠???湲?以묒씠?쇰㈃ 利됱떆 以묐떒 諛?珥덇린??                cancelAdminTransition();
 
                 e.preventDefault();
                 showPremiumLoader();
@@ -1572,8 +1572,7 @@
                     const finalUrl = new URL(response.url).pathname;
                     const currentPath = window.location.pathname;
 
-                    // URL 상태 변경을 먼저 적용하여 후속 초기화(PTR 등)가 새 경로를 인식하도록 함
-                    if (currentPath !== finalUrl) {
+                    // URL ?곹깭 蹂寃쎌쓣 癒쇱? ?곸슜?섏뿬 ?꾩냽 珥덇린??PTR ??媛 ??寃쎈줈瑜??몄떇?섎룄濡???                    if (currentPath !== finalUrl) {
                         window.history.pushState({}, '', finalUrl);
                     }
 
@@ -1583,8 +1582,7 @@
                         const mainElem = document.querySelector('main');
                         mainElem.innerHTML = newMain.innerHTML;
                         mainElem.scrollTop = 0;
-                        // 페이지 전환 및 URL 업데이트 완료 후 PTR 초기화
-                        initPullToRefresh();
+                        // ?섏씠吏 ?꾪솚 諛?URL ?낅뜲?댄듃 ?꾨즺 ??PTR 珥덇린??                        initPullToRefresh();
                     }
                     if (newAuth) {
                         const authElem = document.querySelector('.auth-tools');
@@ -1593,12 +1591,11 @@
 
                     document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
                         const navHref = nav.getAttribute('href');
-                        // 홈(/)은 정확히 일치할 때만, 그 외(/alert, /report 등)는 시작 부분 일치 시 활성화
-                        const isActive = (navHref === '/' && finalUrl === '/') || (navHref !== '/' && finalUrl.startsWith(navHref));
+                        // ??/)? ?뺥솗???쇱튂???뚮쭔, 洹???/alert, /report ?????쒖옉 遺遺??쇱튂 ???쒖꽦??                        const isActive = (navHref === '/' && finalUrl === '/') || (navHref !== '/' && finalUrl.startsWith(navHref));
                         nav.classList.toggle('active', isActive);
                     });
 
-                    // 스크립트 재실행 (동적 로드 대응 강화)
+                    // ?ㅽ겕由쏀듃 ?ъ떎??(?숈쟻 濡쒕뱶 ???媛뺥솕)
                     const scripts = Array.from(document.querySelector('main').querySelectorAll('script'));
                     for (const oldScript of scripts) {
                         const newScript = document.createElement('script');
@@ -1618,14 +1615,14 @@
                 }
             });
 
-            // 뒤로가기/앞으로가기 처리
+            // ?ㅻ줈媛湲??욎쑝濡쒓?湲?泥섎━
             window.addEventListener('popstate', async function (e) {
                 const href = window.location.pathname;
 
-                // [FIX] 뒤로가기 시 진행 중인 모든 애니메이션 및 로더 강제 종료
+                // [FIX] ?ㅻ줈媛湲???吏꾪뻾 以묒씤 紐⑤뱺 ?좊땲硫붿씠??諛?濡쒕뜑 媛뺤젣 醫낅즺
                 cancelAdminTransition();
 
-                // [FIX] 관리자 대시보드와 모바일 화면 간의 history 이동 시 강제 새로고침하여 레이아웃 리셋
+                // [FIX] 愿由ъ옄 ??쒕낫?쒖? 紐⑤컮???붾㈃ 媛꾩쓽 history ?대룞 ??媛뺤젣 ?덈줈怨좎묠?섏뿬 ?덉씠?꾩썐 由ъ뀑
                 const appContainer = document.querySelector('.app-container');
                 const isContainerAdmin = appContainer ? (appContainer.classList.contains('admin-page') || appContainer.classList.contains('admin-expanding')) : false;
                 if (href.includes('admin/dashboard') || isContainerAdmin) {
@@ -1633,7 +1630,7 @@
                     return;
                 }
 
-                // [SPA] 뒤로가기 시 로더 다시 보여주고 데이터 가져오기 (사용자 경험 개선)
+                // [SPA] ?ㅻ줈媛湲???濡쒕뜑 ?ㅼ떆 蹂댁뿬二쇨퀬 ?곗씠??媛?몄삤湲?(?ъ슜??寃쏀뿕 媛쒖꽑)
                 showPremiumLoader();
 
                 try {
@@ -1646,8 +1643,7 @@
                         const mainElem = document.querySelector('main');
                         mainElem.innerHTML = newMain.innerHTML;
                         mainElem.scrollTop = 0;
-                        initPullToRefresh(); // PTR 재설정
-                        document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
+                        initPullToRefresh(); // PTR ?ъ꽕??                        document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
                             const navHref = nav.getAttribute('href');
                             const isActive = (navHref === '/' && href === '/') ||
                                 (navHref !== '/' && (href.startsWith(navHref) || (navHref === '/alert' && href.startsWith('/alert_view'))));
@@ -1671,15 +1667,15 @@
             let startY = 0;
             let currentY = 0;
             let pulling = false;
-            // [USER REQUEST] PTR 오작동을 막기 위해 민감도(임계값)를 대폭 상향
+            // [USER REQUEST] PTR ?ㅼ옉?숈쓣 留됯린 ?꾪빐 誘쇨컧???꾧퀎媛?瑜?????곹뼢
             const threshold = 160;
 
             function initPullToRefresh() {
                 const main = document.querySelector('main');
                 const path = window.location.pathname;
 
-                // [PTR HARD BLOCK] 상세 페이지(view, members/id, incidents/id) 및 특정 탭(report, status) 원천 차단
-                // 상세페이지에서 PTR 후 카카오 지도가 먹통이 되는 현상을 방지하기 위함
+                // [PTR HARD BLOCK] ?곸꽭 ?섏씠吏(view, members/id, incidents/id) 諛??뱀젙 ??report, status) ?먯쿇 李⑤떒
+                // ?곸꽭?섏씠吏?먯꽌 PTR ??移댁뭅??吏?꾧? 癒뱁넻???섎뒗 ?꾩긽??諛⑹??섍린 ?꾪븿
                 const isDetailPath = path.includes('/view') || path.includes('/alert_view') || /\/(members|incidents)\/\d+/.test(path);
                 const isBlockedTab = path.startsWith('/report') || path.startsWith('/status');
 
@@ -1688,7 +1684,7 @@
                     main.style.overscrollBehaviorY = 'none';
                     main.style.touchAction = 'pan-x pan-y';
 
-                    // 터치 이벤트 수준에서 한번 더 차단 (당기는 동작만)
+                    // ?곗튂 ?대깽???섏??먯꽌 ?쒕쾲 ??李⑤떒 (?밴린???숈옉留?
                     let startY = 0;
                     main.addEventListener('touchstart', e => {
                         startY = e.touches[0].pageY;
@@ -1696,40 +1692,40 @@
 
                     main.addEventListener('touchmove', e => {
                         const moveY = e.touches[0].pageY;
-                        // scrollTop이 0인 상태에서 아래로 당기는(PTR) 동작만 차단
+                        // scrollTop??0???곹깭?먯꽌 ?꾨옒濡??밴린??PTR) ?숈옉留?李⑤떒
                         if (main.scrollTop <= 0 && moveY > startY) {
                             if (e.cancelable) e.preventDefault();
                         }
                     }, { passive: false });
-                    return; // PTR 초기화 중단
+                    return; // PTR 珥덇린??以묐떒
                 }
 
-                // Alert 이외의 모든 페이지도 기본적으로 PTR 불필요 (맵 보호를 위해 none 처리)
+                // Alert ?댁쇅??紐⑤뱺 ?섏씠吏??湲곕낯?곸쑝濡?PTR 遺덊븘??(留?蹂댄샇瑜??꾪빐 none 泥섎━)
                 if (!path.startsWith('/alert')) {
                     main.style.overscrollBehaviorY = 'none';
                     return;
                 }
 
-                // Alert 페이지: 커스텀 PTR 활성화 (브라우저 기본 PTR은 contain으로 차단)
+                // Alert ?섏씠吏: 而ㅼ뒪? PTR ?쒖꽦??(釉뚮씪?곗? 湲곕낯 PTR? contain?쇰줈 李⑤떒)
                 main.style.overscrollBehaviorY = 'contain';
 
-                // Alert/Status: 즉시 PTR 활성화 (overscroll 차단으로 브라우저 기본 PTR 방지)
+                // Alert/Status: 利됱떆 PTR ?쒖꽦??(overscroll 李⑤떒?쇰줈 釉뚮씪?곗? 湲곕낯 PTR 諛⑹?)
                 main.style.overscrollBehaviorY = 'contain';
 
-                // SPA 네비게이션 시마다 새로 등록되도록 기존 플래그 체크 제거
+                // SPA ?ㅻ퉬寃뚯씠???쒕쭏???덈줈 ?깅줉?섎룄濡?湲곗〈 ?뚮옒洹?泥댄겕 ?쒓굅
                 if (main.dataset.ptrInitialized) return;
                 main.dataset.ptrInitialized = 'true';
 
                 main.addEventListener('touchstart', e => {
-                    // [FIX] 신고(report) 탭에서는 PTR 작동 안함
+                    // [FIX] ?좉퀬(report) ??뿉?쒕뒗 PTR ?묐룞 ?덊븿
                     if (window.location.pathname.startsWith('/report')) return;
 
-                    // [추가 보강] 내부 스크롤 가능한 영역(.alert-page, .status-page 등) 모두 찾기
+                    // [異붽? 蹂닿컯] ?대? ?ㅽ겕濡?媛?ν븳 ?곸뿭(.alert-page, .status-page ?? 紐⑤몢 李얘린
                     const scrollEls = Array.from(main.querySelectorAll('.alert-page, .status-page'));
-                    // main 자체와 그 내부 스크롤 가능한 요소들 중 단 하나라도 스크롤이 내려가 있다면 PTR 작동 안함
+                    // main ?먯껜? 洹??대? ?ㅽ겕濡?媛?ν븳 ?붿냼??以????섎굹?쇰룄 ?ㅽ겕濡ㅼ씠 ?대젮媛 ?덈떎硫?PTR ?묐룞 ?덊븿
                     const anyScrolled = (main.scrollTop > 0) || scrollEls.some(el => el.scrollTop > 0);
 
-                    // 모달 활성 시에도 PTR 작동 안함. 모든 관련된 스크롤이 완벽히 0일 때만 허용
+                    // 紐⑤떖 ?쒖꽦 ?쒖뿉??PTR ?묐룞 ?덊븿. 紐⑤뱺 愿?⑤맂 ?ㅽ겕濡ㅼ씠 ?꾨꼍??0???뚮쭔 ?덉슜
                     if (!anyScrolled && !document.documentElement.classList.contains('modal-active')) {
                         startY = e.touches[0].pageY;
                         currentY = startY;
@@ -1742,14 +1738,14 @@
                     currentY = e.touches[0].pageY;
                     const diff = currentY - startY;
 
-                    // [보강] 당기기 시작 후 위로 다시 밀거나(diff <= 0) 횡스크롤 발생 시, 또는 하단으로 정상 스크롤 중일 때 pulling 해제
+                    // [蹂닿컯] ?밴린湲??쒖옉 ???꾨줈 ?ㅼ떆 諛嫄곕굹(diff <= 0) ?≪뒪?щ· 諛쒖깮 ?? ?먮뒗 ?섎떒?쇰줈 ?뺤긽 ?ㅽ겕濡?以묒씪 ??pulling ?댁젣
                     if (diff <= 3) {
                         pulling = false;
                         main.style.transform = '';
                         return;
                     }
 
-                    // 핵심 수정: main 또는 속해있는 컨테이너 중 하나라도 최상단이 아닐 때는 일반 스크롤이 작동해야 하므로 PTR 무시
+                    // ?듭떖 ?섏젙: main ?먮뒗 ?랁빐?덈뒗 而⑦뀒?대꼫 以??섎굹?쇰룄 理쒖긽?⑥씠 ?꾨땺 ?뚮뒗 ?쇰컲 ?ㅽ겕濡ㅼ씠 ?묐룞?댁빞 ?섎?濡?PTR 臾댁떆
                     const scrollEls = Array.from(main.querySelectorAll('.alert-page, .status-page'));
                     const anyScrolled = (main.scrollTop > 0) || scrollEls.some(el => el.scrollTop > 0);
 
@@ -1773,7 +1769,7 @@
                             icon.style.transform = `rotate(${diff * 2}deg)`;
                         }
 
-                        // 기본 스크롤 동작 방지 (최상단에서 당기는 것만 허용)
+                        // 湲곕낯 ?ㅽ겕濡??숈옉 諛⑹? (理쒖긽?⑥뿉???밴린??寃껊쭔 ?덉슜)
                         if (e.cancelable) e.preventDefault();
                     }
                     else {
@@ -1867,7 +1863,7 @@
                 const delay = Math.max(0, minTime - elapsedTime);
 
                 setTimeout(() => {
-                    // 클로킹 해제와 로더 제거를 거의 동시에 진행하되 클로킹을 아주 살짝 먼저 해제
+                    // ?대줈???댁젣? 濡쒕뜑 ?쒓굅瑜?嫄곗쓽 ?숈떆??吏꾪뻾?섎릺 ?대줈?뱀쓣 ?꾩＜ ?댁쭩 癒쇱? ?댁젣
                     document.documentElement.classList.remove('is-loading');
 
                     setTimeout(() => {
@@ -1886,7 +1882,7 @@
             });
         }
         // Admin Dashboard Transition Logic
-        // 공통 레이아웃에는 과한 효과를 주지 않고, 진입 플래그만 저장한 뒤 짧게 눌린 느낌만 주고 이동
+        // 怨듯넻 ?덉씠?꾩썐?먮뒗 怨쇳븳 ?④낵瑜?二쇱? ?딄퀬, 吏꾩엯 ?뚮옒洹몃쭔 ??ν븳 ??吏㏐쾶 ?뚮┛ ?먮굦留?二쇨퀬 ?대룞
         window.adminTransitionTimer = null;
 
         document.addEventListener('click', function (e) {
@@ -1927,39 +1923,38 @@
             if (window.location.pathname === '/admin/dashboard' && document.documentElement.classList.contains('admin-bridge-mode')) {
                 var container = document.querySelector('.app-container');
 
-                // 페이지가 로드되었으므로 로더 표시
-                showPremiumLoader('관리자 세상을 확장하고 있습니다...');
+                // ?섏씠吏媛 濡쒕뱶?섏뿀?쇰?濡?濡쒕뜑 ?쒖떆
+                showPremiumLoader('愿由ъ옄 ?몄긽???뺤옣?섍퀬 ?덉뒿?덈떎...');
 
-                // 약간의 지연 후 전체 화면 확장 시작
+                // ?쎄컙??吏?????꾩껜 ?붾㈃ ?뺤옣 ?쒖옉
                 setTimeout(function () {
                     document.documentElement.classList.remove('admin-bridge-mode');
                     if (container) container.classList.add('admin-expanding');
 
-                    // 확장 완료 후 로더 제거 및 이벤트 발행
+                    // ?뺤옣 ?꾨즺 ??濡쒕뜑 ?쒓굅 諛??대깽??諛쒗뻾
                     setTimeout(function () {
                         hidePremiumLoader();
                         sessionStorage.removeItem('admin_transition');
-                        // [EVENT] 대시보드 지연 로딩을 위한 신호 발행
+                        // [EVENT] ??쒕낫??吏??濡쒕뵫???꾪븳 ?좏샇 諛쒗뻾
                         window.dispatchEvent(new CustomEvent('admin_transition_done'));
                     }, 1300);
                 }, 600);
             }
         })();
 
-        // [PPT RETURN] PPT 시연하기에서 메인으로 복귀 시 역방향 전환 애니메이션
-        (function () {
+        // [PPT RETURN] PPT ?쒖뿰?섍린?먯꽌 硫붿씤?쇰줈 蹂듦? ????갑???꾪솚 ?좊땲硫붿씠??        (function () {
             if (sessionStorage.getItem('ppt_return') === 'active') {
                 sessionStorage.removeItem('ppt_return');
                 var container = document.querySelector('.app-container');
                 if (container) {
-                    // 처음에 전체화면 크기에서 시작 (PPT가 축소되며 사라진 것처럼)
+                    // 泥섏쓬???꾩껜?붾㈃ ?ш린?먯꽌 ?쒖옉 (PPT媛 異뺤냼?섎ŉ ?щ씪吏?寃껋쿂??
                     container.style.transition = 'none';
                     container.style.transform = 'scale(3)';
                     container.style.opacity = '0';
 
-                    showPremiumLoader('시연 화면으로 돌아가고 있습니다...');
+                    showPremiumLoader('?쒖뿰 ?붾㈃?쇰줈 ?뚯븘媛怨??덉뒿?덈떎...');
 
-                    // 약간의 지연 후 원래 크기로 부드럽게 축소
+                    // ?쎄컙??吏?????먮옒 ?ш린濡?遺?쒕읇寃?異뺤냼
                     setTimeout(function () {
                         container.style.transition = 'transform 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.6s ease';
                         container.style.transform = 'scale(1)';
@@ -1981,7 +1976,7 @@
 
         window.socket = io();
         window.socket.on('new_report', function (data) {
-            // SPA 내부 스크립트에서도 반응할 수 있도록 CustomEvent 발생
+            // SPA ?대? ?ㅽ겕由쏀듃?먯꽌??諛섏쓳?????덈룄濡?CustomEvent 諛쒖깮
             window.dispatchEvent(new CustomEvent('on_new_report', { detail: data }));
 
             let badge = document.querySelector('.nav-item[href="/alert"] .badge-count');
@@ -2003,3 +1998,4 @@
 </body>
 
 </html>
+

@@ -1,20 +1,20 @@
-{% extends "admin_layout.html" %}
+﻿{% extends "admin_layout.html" %}
 
-{% block title %}CRACK 회원 관리{% endblock %}
+{% block title %}CRACK ?뚯썝 愿由?% endblock %}
 
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="알림">🔔</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="?뚮┝">?뵒</a>
 </div>
 {% endblock %}
 
 {% block account_area %}
 <a href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
   class="account-chip js-page-transition-link">
-  <strong>{{ session.get('user_name', '관리자') }}님</strong>
+  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </a>
-<a href="/logout" class="logout-pill js-page-transition-link">로그아웃</a>
+<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -122,7 +122,7 @@
     transform: translateY(-1px);
   }
 
-  /* number input 화살표 제거 */
+  /* number input ?붿궡???쒓굅 */
   .pagination-jump-input-inline::-webkit-outer-spin-button,
   .pagination-jump-input-inline::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -470,8 +470,8 @@
 <section class="section">
   <div class="section-header">
     <div class="section-title-wrap">
-      <div class="section-title">회원 관리</div>
-      <div class="section-subtitle">전체 회원 목록과 역할 정보를 확인할 수 있습니다.</div>
+      <div class="section-title">?뚯썝 愿由?/div>
+      <div class="section-subtitle">?꾩껜 ?뚯썝 紐⑸줉怨???븷 ?뺣낫瑜??뺤씤?????덉뒿?덈떎.</div>
     </div>
 
     <form method="get" action="/admin/members" class="member-filter-form">
@@ -480,18 +480,18 @@
       <input type="hidden" name="order" value="{{ order or 'desc' }}">
       <input type="hidden" name="header_sorted" value="{{ '1' if request.args.get('header_sorted') == '1' else '' }}">
 
-      <input type="text" name="keyword" value="{{ keyword }}" placeholder="이름 또는 아이디 검색" class="filter-input" />
+      <input type="text" name="keyword" value="{{ keyword }}" placeholder="?대쫫 ?먮뒗 ?꾩씠??寃?? class="filter-input" />
 
       <select name="role" class="filter-select">
-        <option value="">전체 역할</option>
-        <option value="user" {% if role=='user' %}selected{% endif %}>일반회원</option>
-        <option value="manager" {% if role=='manager' %}selected{% endif %}>매니저</option>
-        <option value="admin" {% if role=='admin' %}selected{% endif %}>관리자</option>
+        <option value="">?꾩껜 ??븷</option>
+        <option value="user" {% if role=='user' %}selected{% endif %}>?쇰컲?뚯썝</option>
+        <option value="manager" {% if role=='manager' %}selected{% endif %}>留ㅻ땲?</option>
+        <option value="admin" {% if role=='admin' %}selected{% endif %}>愿由ъ옄</option>
       </select>
 
-      <button type="submit" class="filter-btn">검색</button>
+      <button type="submit" class="filter-btn">寃??/button>
 
-      <a href="/admin/members?page_size={{ request.args.get('page_size', 10) }}" class="filter-reset-btn js-page-transition-link">초기화</a>
+      <a href="/admin/members?page_size={{ request.args.get('page_size', 10) }}" class="filter-reset-btn js-page-transition-link">珥덇린??/a>
     </form>
   </div>
   <div class="table-shell">
@@ -511,48 +511,47 @@
         <thead>
           <tr>
             <th data-sort="id" class="{% if header_sorted and sort == 'id' %}sort-active{% endif %}">
-              번호
+              踰덊샇
               {% if header_sorted and sort == 'id' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
             <th data-sort="name" class="{% if header_sorted and sort == 'name' %}sort-active{% endif %}">
-              이름
+              ?대쫫
               {% if header_sorted and sort == 'name' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
             <th data-sort="uid" class="{% if header_sorted and sort == 'uid' %}sort-active{% endif %}">
-              아이디
-              {% if header_sorted and sort == 'uid' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              ?꾩씠??              {% if header_sorted and sort == 'uid' %}
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
             <th data-sort="role" class="{% if header_sorted and sort == 'role' %}sort-active{% endif %}">
-              역할
+              ??븷
               {% if header_sorted and sort == 'role' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
             <th data-sort="active" class="{% if header_sorted and sort == 'active' %}sort-active{% endif %}">
-              상태
+              ?곹깭
               {% if header_sorted and sort == 'active' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
             <th data-sort="created_at" class="{% if header_sorted and sort == 'created_at' %}sort-active{% endif %}">
-              가입일
+              媛?낆씪
               {% if header_sorted and sort == 'created_at' %}
-              <span class="sort-indicator">{{ '▲' if order == 'asc' else '▼' }}</span>
+              <span class="sort-indicator">{{ '?? if order == 'asc' else '?? }}</span>
               {% endif %}
             </th>
 
-            <th>상세</th>
+            <th>?곸꽭</th>
           </tr>
         </thead>
         <tbody>
@@ -563,25 +562,25 @@
             <td>{{ member.uid }}</td>
             <td>
               {% if member.role == 'admin' %}
-              <span class="role-badge role-admin">관리자</span>
+              <span class="role-badge role-admin">愿由ъ옄</span>
               {% elif member.role == 'manager' %}
-              <span class="role-badge role-manager">매니저</span>
+              <span class="role-badge role-manager">留ㅻ땲?</span>
               {% else %}
-              <span class="role-badge role-user">일반회원</span>
+              <span class="role-badge role-user">?쇰컲?뚯썝</span>
               {% endif %}
             </td>
             <td>
               {% if member.active %}
-              <span class="status-badge status-active">활성</span>
+              <span class="status-badge status-active">?쒖꽦</span>
               {% else %}
-              <span class="status-badge status-suspended">정지</span>
+              <span class="status-badge status-suspended">?뺤?</span>
               {% endif %}
             </td>
             <td>{{ member.created_at.strftime('%Y-%m-%d') if member.created_at else '-' }}</td>
             <td>
               <a href="/admin/members/{{ member.id }}?page={{ page }}&page_size={{ request.args.get('page_size', 10) }}&keyword={{ keyword }}&role={{ role }}&sort={{ sort }}&order={{ order }}"
                 class="detail-btn js-page-transition-link">
-                상세보기
+                ?곸꽭蹂닿린
               </a>
             </td>
           </tr>
@@ -590,8 +589,8 @@
           {% if members|length == 0 %}
           <tr>
             <td colspan="7" class="empty-row">
-              👤 표시할 회원이 없습니다<br>
-              <span>필터를 변경하거나 회원을 추가해보세요</span>
+              ?뫀 ?쒖떆???뚯썝???놁뒿?덈떎<br>
+              <span>?꾪꽣瑜?蹂寃쏀븯嫄곕굹 ?뚯썝??異붽??대낫?몄슂</span>
             </td>
           </tr>
           {% endif %}
@@ -605,7 +604,7 @@
     <div class="pagination-row">
       <a href="{{ '/admin/members?page=' ~ (page - 1) ~ '&page_size=' ~ request.args.get('page_size', 10) ~ '&keyword=' ~ keyword ~ '&role=' ~ role ~ '&sort=' ~ sort ~ '&order=' ~ order ~ '&header_sorted=' ~ ('1' if request.args.get('header_sorted') == '1' else '') if page > 1 else '#' }}"
         class="page-btn js-page-transition-link {% if page == 1 %}disabled{% endif %}">
-        이전
+        ?댁쟾
       </a>
 
       <div class="pagination-jump" id="paginationJumpBox">
@@ -623,7 +622,7 @@
 
       <a href="{{ '/admin/members?page=' ~ (page + 1) ~ '&page_size=' ~ request.args.get('page_size', 10) ~ '&keyword=' ~ keyword ~ '&role=' ~ role ~ '&sort=' ~ sort ~ '&order=' ~ order ~ '&header_sorted=' ~ ('1' if request.args.get('header_sorted') == '1' else '') if page < total_pages else '#' }}"
         class="page-btn js-page-transition-link {% if page >= total_pages %}disabled{% endif %}">
-        다음
+        ?ㅼ쓬
       </a>
     </div>
   </div>
@@ -634,13 +633,13 @@
 {% endblock %}
 
 {% block extra_script %}
-<script>
+<script nonce="{{ csp_nonce }}">
   let pageTransitionRunning = false;
   let membersResizeTimer = null;
   let lastResponsiveMembersPageSize = null;
 
   function applyResponsiveMemberSectionHeight() {
-    // 높이 강제 조정 없이 빈 함수로 유지
+    // ?믪씠 媛뺤젣 議곗젙 ?놁씠 鍮??⑥닔濡??좎?
   }
 
 
@@ -671,7 +670,7 @@
     const count = Math.floor(availableHeight / rowHeight);
     let adjustedCount = count;
 
-    // 7개가 계산되는 화면만 6개로 보정
+    // 7媛쒓? 怨꾩궛?섎뒗 ?붾㈃留?6媛쒕줈 蹂댁젙
     if (count === 7) {
       adjustedCount = 6;
     }
@@ -782,12 +781,18 @@
   if (targetPage > totalPages) targetPage = totalPages;
 
   const pageSize = getResponsiveMembersPageSize();
-  const url = `/admin/members?page=${targetPage}&page_size=${pageSize}&keyword={{ keyword }}&role={{ role }}&sort={{ sort }}&order={{ order }}&header_sorted={{ '1' if request.args.get('header_sorted') == '1' else '' }}`;
+  const url = new URL('/admin/members', window.location.origin);
+  const params = {
+    page: targetPage, page_size: pageSize, keyword: {{ keyword|tojson }},
+    role: {{ role|tojson }}, sort: {{ sort|tojson }}, order: {{ order|tojson }},
+    header_sorted: {{ ('1' if request.args.get('header_sorted') == '1' else '')|tojson }}
+  };
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
 
   const box = document.getElementById('paginationJumpBox');
   if (box) box.classList.remove('editing');
 
-  runPageTransition(url);
+  runPageTransition(url.toString());
   }
 
   function handleInlinePageJumpKey(event) {
@@ -803,8 +808,8 @@
   }
 
   function buildMemberSortUrl(sortKey) {
-    const currentSort = '{{ sort or "" }}';
-    const currentOrder = '{{ order or "asc" }}';
+    const currentSort = {{ (sort or '')|tojson }};
+    const currentOrder = {{ (order or 'asc')|tojson }};
     const hasExplicitSort = {{ 'true' if request.args.get('sort') else 'false' }};
 
   let nextOrder = 'asc';
@@ -816,7 +821,11 @@
   }
 
   const pageSize = getResponsiveMembersPageSize();
-  return `/admin/members?page=1&page_size=${pageSize}&keyword={{ keyword }}&role={{ role }}&sort=${sortKey}&order=${nextOrder}&header_sorted=1`;
+  const url = new URL('/admin/members', window.location.origin);
+  const params = {page: 1, page_size: pageSize, keyword: {{ keyword|tojson }},
+    role: {{ role|tojson }}, sort: sortKey, order: nextOrder, header_sorted: 1};
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  return url.toString();
   }
 
   document.addEventListener('click', function (event) {
@@ -895,3 +904,4 @@
   });
 </script>
 {% endblock %}
+

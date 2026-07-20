@@ -1,10 +1,10 @@
-{% extends "admin_layout.html" %}
+﻿{% extends "admin_layout.html" %}
 
-{% block title %}CRACK 신고 전체 관리{% endblock %}
+{% block title %}CRACK ?좉퀬 ?꾩껜 愿由?% endblock %}
 
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="알림 페이지">🔔</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="?뚮┝ ?섏씠吏">?뵒</a>
 </div>
 {% endblock %}
 
@@ -13,10 +13,10 @@
   href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
   class="account-chip"
 >
-  <strong>{{ session.get('user_name', '관리자') }}님</strong>
+  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </a>
-<a href="/logout" class="logout-pill">로그아웃</a>
+<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -439,7 +439,7 @@
       padding-bottom: 16px;
     }
 
-    /* 헤더 스타일 */
+    /* ?ㅻ뜑 ?ㅽ???*/
     .table-wrap thead th {
       background: #f8fafc;
       color: #475569;
@@ -460,14 +460,14 @@
       background: #fcfcfd;
     }
 
-/* 셀 내부 넘침 방지 */
+/* ? ?대? ?섏묠 諛⑹? */
 thead th,
 tbody td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 텍스트 길이로 높이 흔들리는 것 방지 */
+/* ?띿뒪??湲몄씠濡??믪씠 ?붾뱾由щ뒗 寃?諛⑹? */
 .reject-reason-text,
 .urgent-reason-text {
   display: inline-block;
@@ -716,7 +716,7 @@ tbody td {
       color: #64748b;
     }
 
-    /* 관리자 확인중 */
+    /* 愿由ъ옄 ?뺤씤以?*/
     .status-checking {
       background: #f3e8ff;
       color: #6d28d9;
@@ -1571,7 +1571,7 @@ tbody td:nth-child(3) {
 <section class="section">
           <div class="section-header incidents-section-header">
             <div class="section-title-wrap">
-              <div class="section-title">신고 전체 관리</div>
+              <div class="section-title">?좉퀬 ?꾩껜 愿由?/div>
             </div>
 
             {% if member_id %}
@@ -1579,8 +1579,7 @@ tbody td:nth-child(3) {
                 href="/admin/members/{{ member_id }}"
                 class="btn js-page-transition-link back-btn"
               >
-                ← 뒤로 가기
-              </a>
+                ???ㅻ줈 媛湲?              </a>
             {% endif %}
           </div>
 
@@ -1593,56 +1592,56 @@ tbody td:nth-child(3) {
             <div class="filter-row filter-row-top">
               <div class="filter-group">
                 <select name="status" class="filter-control">
-                  <option value="">전체 상태</option>
-                  <option value="접수완료" {{ 'selected' if selected_status == '접수완료' else '' }}>접수완료</option>
-                  <option value="처리중" {{ 'selected' if selected_status == '처리중' else '' }}>처리중</option>
-                  <option value="처리완료" {{ 'selected' if selected_status == '처리완료' else '' }}>처리완료</option>
-                  <option value="반려" {{ 'selected' if selected_status == '반려' else '' }}>반려</option>
+                  <option value="">?꾩껜 ?곹깭</option>
+                  <option value="?묒닔?꾨즺" {{ 'selected' if selected_status == '?묒닔?꾨즺' else '' }}>?묒닔?꾨즺</option>
+                  <option value="泥섎━以? {{ 'selected' if selected_status == '泥섎━以? else '' }}>泥섎━以?/option>
+                  <option value="泥섎━?꾨즺" {{ 'selected' if selected_status == '泥섎━?꾨즺' else '' }}>泥섎━?꾨즺</option>
+                  <option value="諛섎젮" {{ 'selected' if selected_status == '諛섎젮' else '' }}>諛섎젮</option>
                 </select>
 
                 <select name="risk" class="filter-control">
-                  <option value="">전체 위험도</option>
-                  <option value="high" {{ 'selected' if selected_risk == 'high' else '' }}>높음</option>
-                  <option value="medium" {{ 'selected' if selected_risk == 'medium' else '' }}>중간</option>
-                  <option value="low" {{ 'selected' if selected_risk == 'low' else '' }}>낮음</option>
+                  <option value="">?꾩껜 ?꾪뿕??/option>
+                  <option value="high" {{ 'selected' if selected_risk == 'high' else '' }}>?믪쓬</option>
+                  <option value="medium" {{ 'selected' if selected_risk == 'medium' else '' }}>以묎컙</option>
+                  <option value="low" {{ 'selected' if selected_risk == 'low' else '' }}>??쓬</option>
                 </select>
 
                 <select name="region" class="filter-control">
-                  <option value="">전체 지역</option>
+                  <option value="">?꾩껜 吏??/option>
                   {% for region in region_options %}
                     <option value="{{ region }}" {{ 'selected' if selected_region == region else '' }}>{{ region }}</option>
                   {% endfor %}
                 </select>
 
                 <select name="sort" class="filter-control">
-                  <option value="latest" {{ 'selected' if sort_by == 'latest' else '' }}>최신순</option>
-                  <option value="priority" {{ 'selected' if sort_by == 'priority' else '' }}>우선순위순</option>
-                  <option value="risk" {{ 'selected' if sort_by == 'risk' else '' }}>위험도순</option>
-                  <option value="reports" {{ 'selected' if sort_by == 'reports' else '' }}>반복 제보순</option>
-                  <option value="pending" {{ 'selected' if sort_by == 'pending' else '' }}>미처리 우선</option>
+                  <option value="latest" {{ 'selected' if sort_by == 'latest' else '' }}>理쒖떊??/option>
+                  <option value="priority" {{ 'selected' if sort_by == 'priority' else '' }}>?곗꽑?쒖쐞??/option>
+                  <option value="risk" {{ 'selected' if sort_by == 'risk' else '' }}>?꾪뿕?꾩닚</option>
+                  <option value="reports" {{ 'selected' if sort_by == 'reports' else '' }}>諛섎났 ?쒕낫??/option>
+                  <option value="pending" {{ 'selected' if sort_by == 'pending' else '' }}>誘몄쿂由??곗꽑</option>
                 </select>
 
                 <input
                   type="text"
                   name="keyword"
                   value="{{ keyword or '' }}"
-                  placeholder="제목 또는 위치 검색"
+                  placeholder="?쒕ぉ ?먮뒗 ?꾩튂 寃??
                   class="filter-control filter-input-keyword"
                 >
 
-                <button type="submit" class="btn">검색</button>
-                <a href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&page_size={{ request.args.get('page_size', 8) }}" class="btn">초기화</a>
+                <button type="submit" class="btn">寃??/button>
+                <a href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&page_size={{ request.args.get('page_size', 8) }}" class="btn">珥덇린??/a>
               </div>
 
               <div class="filter-group filter-group-right">
-                <span class="filter-result-chip">현재 총 {{ total_count }}건</span>
+                <span class="filter-result-chip">?꾩옱 珥?{{ total_count }}嫄?/span>
               </div>
             </div>
 
             {% if quick_filter %}
             <div class="filter-row">
               <div class="filter-group">
-                <a href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&page_size={{ request.args.get('page_size', 8) }}" class="btn">빠른 필터 해제</a>
+                <a href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&page_size={{ request.args.get('page_size', 8) }}" class="btn">鍮좊Ⅸ ?꾪꽣 ?댁젣</a>
               </div>
             </div>
             {% endif %}
@@ -1664,56 +1663,55 @@ tbody td:nth-child(3) {
                   </th>
 
                   <th data-sort="id" class="{% if header_sorted and active_sort == 'id' %}sort-active{% endif %}">
-                    번호
+                    踰덊샇
                     {% if header_sorted and active_sort == 'id' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
                   <th data-sort="location" class="{% if header_sorted and active_sort == 'location' %}sort-active{% endif %}">
-                    위치
+                    ?꾩튂
                     {% if header_sorted and active_sort == 'location' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
                   <th data-sort="risk" class="{% if header_sorted and active_sort == 'risk' %}sort-active{% endif %}">
-                    AI 결과값
-                    {% if header_sorted and active_sort == 'risk' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                    AI 寃곌낵媛?                    {% if header_sorted and active_sort == 'risk' %}
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
                   <th data-sort="priority" class="{% if header_sorted and active_sort == 'priority' %}sort-active{% endif %}">
-                    우선순위
+                    ?곗꽑?쒖쐞
                     {% if header_sorted and active_sort == 'priority' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
-                  <th>긴급 사유</th>
+                  <th>湲닿툒 ?ъ쑀</th>
 
                   <th data-sort="status" class="{% if header_sorted and active_sort == 'status' %}sort-active{% endif %}">
-                    처리 상태
+                    泥섎━ ?곹깭
                     {% if header_sorted and active_sort == 'status' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
                   <th data-sort="latest" class="{% if header_sorted and active_sort == 'latest' %}sort-active{% endif %}">
-                    접수시간
+                    ?묒닔?쒓컙
                     {% if header_sorted and active_sort == 'latest' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
                   <th data-sort="reports" class="{% if header_sorted and active_sort == 'reports' %}sort-active{% endif %}">
-                    반복 제보
+                    諛섎났 ?쒕낫
                     {% if header_sorted and active_sort == 'reports' %}
-                      <span class="sort-indicator">{{ '▲' if active_order == 'asc' else '▼' }}</span>
+                      <span class="sort-indicator">{{ '?? if active_order == 'asc' else '?? }}</span>
                     {% endif %}
                   </th>
 
-                  <th>관리</th>
+                  <th>愿由?/th>
                 </tr>
               </thead>
               <tbody id="incidentTableBody">
@@ -1736,12 +1734,12 @@ tbody td:nth-child(3) {
                     {% endif %}
                   </td>
                     <td>
-                      {% if incident.priority_label == '긴급' %}
-                        <span class="badge priority-urgent" title="우선순위 점수 {{ incident.priority_score }}">긴급</span>
-                      {% elif incident.priority_label == '주의' %}
-                        <span class="badge priority-warning" title="우선순위 점수 {{ incident.priority_score }}">주의</span>
+                      {% if incident.priority_label == '湲닿툒' %}
+                        <span class="badge priority-urgent" title="?곗꽑?쒖쐞 ?먯닔 {{ incident.priority_score }}">湲닿툒</span>
+                      {% elif incident.priority_label == '二쇱쓽' %}
+                        <span class="badge priority-warning" title="?곗꽑?쒖쐞 ?먯닔 {{ incident.priority_score }}">二쇱쓽</span>
                       {% else %}
-                        <span class="badge priority-normal" title="우선순위 점수 {{ incident.priority_score }}">일반</span>
+                        <span class="badge priority-normal" title="?곗꽑?쒖쐞 ?먯닔 {{ incident.priority_score }}">?쇰컲</span>
                       {% endif %}
                     </td>
                    <td>
@@ -1754,20 +1752,20 @@ tbody td:nth-child(3) {
                       {% endif %}
                     </td>
                   <td>
-                    {% if incident.status == '접수완료' %}
-                      <span class="badge status-received">접수완료</span>
-                    {% elif incident.status == '처리중' %}
-                      <span class="badge status-processing">처리중</span>
-                    {% elif incident.status == '처리완료' %}
-                      <span class="badge status-done">처리완료</span>
-                    {% elif incident.status == '반려' %}
-                      <span class="badge status-rejected">반려</span>
-                    {% elif incident.status == '관리자 확인중' %}
-                    <span class="badge status-checking">관리자 확인중</span>
-                    {% elif incident.status == 'AI 분석중' %}
-                    <span class="badge status-checking">관리자 확인중</span>
-                    {% elif incident.status == '담당자 확인중' %}
-                    <span class="badge status-checking">관리자 확인중</span>
+                    {% if incident.status == '?묒닔?꾨즺' %}
+                      <span class="badge status-received">?묒닔?꾨즺</span>
+                    {% elif incident.status == '泥섎━以? %}
+                      <span class="badge status-processing">泥섎━以?/span>
+                    {% elif incident.status == '泥섎━?꾨즺' %}
+                      <span class="badge status-done">泥섎━?꾨즺</span>
+                    {% elif incident.status == '諛섎젮' %}
+                      <span class="badge status-rejected">諛섎젮</span>
+                    {% elif incident.status == '愿由ъ옄 ?뺤씤以? %}
+                    <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
+                    {% elif incident.status == 'AI 遺꾩꽍以? %}
+                    <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
+                    {% elif incident.status == '?대떦???뺤씤以? %}
+                    <span class="badge status-checking">愿由ъ옄 ?뺤씤以?/span>
                     {% else %}
                       <span class="badge">{{ incident.status }}</span>
                     {% endif %}
@@ -1788,8 +1786,7 @@ tbody td:nth-child(3) {
                         class="reporter-count-btn"
                         onclick="openIncidentGroupModal({{ incident.id }}, {{ repeat_count }})"
                       >
-                        {{ repeat_count }}건
-                      </button>
+                        {{ repeat_count }}嫄?                      </button>
                     {% else %}
                       <span class="reporter-count-text">-</span>
                     {% endif %}
@@ -1799,20 +1796,19 @@ tbody td:nth-child(3) {
                     <button
                       class="mini-btn"
                       type="button"
-                      onclick="openIncidentDetailModal(
-                        '{{ incident.id }}',
-                        '{{ incident.title|default("신고 상세")|e }}',
-                        '{{ incident.location|e }}',
-                        '{{ incident.status|e }}',
-                        '{{ incident.first_created_at.strftime('%Y-%m-%d %H:%M') if incident.first_created_at else '-' }}',
-                        '{{ incident.risk_score|default(0) }}',
-                        '{{ incident.group_reporter_count|default(0) }}',
-                        '{{ incident.image_path|default('', true)|e }}',
-                        '{{ incident.latitude|default('', true) }}',
-                        '{{ incident.longitude|default('', true) }}'
-                      )"
+                      data-id="{{ incident.id }}"
+                      data-title="{{ incident.title|default('?좉퀬 ?곸꽭', true) }}"
+                      data-location="{{ incident.location }}"
+                      data-status="{{ incident.status }}"
+                      data-time="{{ incident.first_created_at.strftime('%Y-%m-%d %H:%M') if incident.first_created_at else '-' }}"
+                      data-risk="{{ incident.risk_score|default(0) }}"
+                      data-count="{{ incident.group_reporter_count|default(0) }}"
+                      data-image="{{ incident.image_path|default('', true) }}"
+                      data-lat="{{ incident.latitude|default('', true) }}"
+                      data-lng="{{ incident.longitude|default('', true) }}"
+                      onclick="openIncidentDetailModal(this.dataset.id, this.dataset.title, this.dataset.location, this.dataset.status, this.dataset.time, this.dataset.risk, this.dataset.count, this.dataset.image, this.dataset.lat, this.dataset.lng)"
                     >
-                      상세보기
+                      ?곸꽭蹂닿린
                     </button>
                   </td>
                 </tr>
@@ -1821,7 +1817,7 @@ tbody td:nth-child(3) {
                 {% if incidents|length == 0 %}
                 <tr>
                   <td colspan="10" style="text-align:center; padding:28px; color:#94a3b8;">
-                    표시할 신고가 없습니다.
+                    ?쒖떆???좉퀬媛 ?놁뒿?덈떎.
                   </td>
                 </tr>
                 {% endif %}
@@ -1831,10 +1827,10 @@ tbody td:nth-child(3) {
         </div>
         <div class="table-bottom-bar">
           <div class="bulk-action-row bottom-actions">
-            <span class="bulk-selection-chip" id="bulkSelectionCount">선택 항목 0건</span>
-            <button type="button" class="btn bulk-btn" onclick="submitBulkStatus('처리중')">처리중 변경</button>
-            <button type="button" class="btn bulk-btn" onclick="submitBulkStatus('처리완료')">처리완료 변경</button>
-            <button type="button" class="btn bulk-btn bulk-btn-danger" onclick="openBulkRejectModal()">반려 처리</button>
+            <span class="bulk-selection-chip" id="bulkSelectionCount">?좏깮 ??ぉ 0嫄?/span>
+            <button type="button" class="btn bulk-btn" onclick="submitBulkStatus('泥섎━以?)">泥섎━以?蹂寃?/button>
+            <button type="button" class="btn bulk-btn" onclick="submitBulkStatus('泥섎━?꾨즺')">泥섎━?꾨즺 蹂寃?/button>
+            <button type="button" class="btn bulk-btn bulk-btn-danger" onclick="openBulkRejectModal()">諛섎젮 泥섎━</button>
           </div>
 
           <div class="pagination-row">
@@ -1843,10 +1839,10 @@ tbody td:nth-child(3) {
                 class="btn js-page-transition-link"
                 href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&status={{ selected_status }}&risk={{ selected_risk }}&region={{ selected_region }}&keyword={{ keyword }}&sort={{ sort_by }}&order={{ request.args.get('order', 'desc') }}&header_sorted={{ '1' if request.args.get('header_sorted') == '1' else '' }}&page_size={{ request.args.get('page_size', 8) }}&page={{ page - 1 }}"
               >
-                이전
+                ?댁쟾
               </a>
             {% else %}
-              <span class="btn pagination-btn-disabled">이전</span>
+              <span class="btn pagination-btn-disabled">?댁쟾</span>
             {% endif %}
 
             <div class="pagination-jump" id="paginationJumpBox">
@@ -1878,10 +1874,10 @@ tbody td:nth-child(3) {
                 class="btn js-page-transition-link"
                 href="/admin/incidents?member_id={{ request.args.get('member_id', '') }}&status={{ selected_status }}&risk={{ selected_risk }}&region={{ selected_region }}&keyword={{ keyword }}&sort={{ sort_by }}&order={{ request.args.get('order', 'desc') }}&header_sorted={{ '1' if request.args.get('header_sorted') == '1' else '' }}&page_size={{ request.args.get('page_size', 8) }}&page={{ page + 1 }}"
               >
-                다음
+                ?ㅼ쓬
               </a>
             {% else %}
-              <span class="btn pagination-btn-disabled">다음</span>
+              <span class="btn pagination-btn-disabled">?ㅼ쓬</span>
             {% endif %}
           </div>
         </div>
@@ -1892,8 +1888,8 @@ tbody td:nth-child(3) {
       <div class="detail-modal-card">
         <div class="detail-thumb-box">
           <div class="detail-photo-frame">
-            <img id="incidentDetailImage" class="detail-thumb-img" src="" alt="신고 이미지">
-            <div id="incidentDetailPlaceholder" class="detail-thumb-placeholder">사진</div>
+            <img id="incidentDetailImage" class="detail-thumb-img" src="" alt="?좉퀬 ?대?吏">
+            <div id="incidentDetailPlaceholder" class="detail-thumb-placeholder">?ъ쭊</div>
           </div>
         </div>
 
@@ -1907,20 +1903,19 @@ tbody td:nth-child(3) {
                   class="detail-chip detail-chip-button"
                   onclick="toggleIncidentStatusMenu()"
                 >
-                  접수완료
+                  ?묒닔?꾨즺
                 </button>
 
                 <div class="detail-inline-status-menu" id="incidentInlineStatusMenu">
-                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('접수완료')">접수완료</button>
-                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('처리중')">처리중</button>
-                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('처리완료')">처리완료</button>
-                  <button type="button" class="detail-inline-status-option danger" onclick="selectInlineIncidentStatus('반려')">반려</button>
+                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('?묒닔?꾨즺')">?묒닔?꾨즺</button>
+                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('泥섎━以?)">泥섎━以?/button>
+                  <button type="button" class="detail-inline-status-option" onclick="selectInlineIncidentStatus('泥섎━?꾨즺')">泥섎━?꾨즺</button>
+                  <button type="button" class="detail-inline-status-option danger" onclick="selectInlineIncidentStatus('諛섎젮')">諛섎젮</button>
                 </div>
               </div>
 
               <button class="detail-inline-apply-btn" type="button" onclick="applyInlineIncidentStatus()">
-                변경
-              </button>
+                蹂寃?              </button>
             </div>
 
             <div class="detail-time-risk-wrap">
@@ -1932,16 +1927,16 @@ tbody td:nth-child(3) {
           <div class="detail-divider"></div>
 
           <div class="detail-info-card">
-            <div id="incidentDetailTitle" class="detail-content-title">신고 제목</div>
+            <div id="incidentDetailTitle" class="detail-content-title">?좉퀬 ?쒕ぉ</div>
 
             <div class="detail-location-row">
-              <div id="incidentDetailLocation" class="detail-content-text">위치 정보</div>
+              <div id="incidentDetailLocation" class="detail-content-text">?꾩튂 ?뺣낫</div>
               <button
                 class="detail-map-inline-btn"
                 type="button"
                 onclick="openIncidentMap()"
-                title="지도 보기"
-                aria-label="지도 보기"
+                title="吏??蹂닿린"
+                aria-label="吏??蹂닿린"
               >
                 <svg
                   class="detail-map-inline-icon"
@@ -1961,11 +1956,11 @@ tbody td:nth-child(3) {
               </button>
             </div>
 
-            <div id="incidentDetailReporter" class="detail-content-text" style="margin-top:8px;">반복 제보 -</div>
+            <div id="incidentDetailReporter" class="detail-content-text" style="margin-top:8px;">諛섎났 ?쒕낫 -</div>
           </div>
 
           <div class="detail-close-wrap">
-            <button class="detail-close-btn" type="button" onclick="closeIncidentDetailModal()">닫기</button>
+            <button class="detail-close-btn" type="button" onclick="closeIncidentDetailModal()">?リ린</button>
           </div>
         </div>
       </div>
@@ -1974,26 +1969,25 @@ tbody td:nth-child(3) {
     <div class="detail-modal-backdrop" id="incidentRejectModal">
       <div class="detail-modal-card" style="max-width:420px;">
         <div class="detail-content-box">
-          <div class="section-title" style="font-size:22px; margin-bottom:8px;">반려 사유 입력</div>
+          <div class="section-title" style="font-size:22px; margin-bottom:8px;">諛섎젮 ?ъ쑀 ?낅젰</div>
           <div class="section-subtitle" style="font-size:14px; margin-bottom:14px;">
-            반려 처리 사유를 입력해주세요.
+            諛섎젮 泥섎━ ?ъ쑀瑜??낅젰?댁＜?몄슂.
           </div>
 
           <div class="detail-info-card">
             <textarea
               id="incidentRejectReasonText"
               maxlength="40"
-              placeholder="예: 중복 신고, 위험도 기준 미달, 사진 불명확"
+              placeholder="?? 以묐났 ?좉퀬, ?꾪뿕??湲곗? 誘몃떖, ?ъ쭊 遺덈챸??
               style="width:100%; min-height:110px; border:1px solid #d7dde5; border-radius:12px; padding:12px; font-size:14px; resize:none; outline:none;"
             ></textarea>
             <div id="incidentRejectReasonCount" style="margin-top:8px; font-size:12px; color:#94a3b8; text-align:right;">
-              0 / 40자
-            </div>
+              0 / 40??            </div>
           </div>
 
           <div class="modal-action-row">
-            <button class="modal-btn-secondary" type="button" onclick="closeIncidentRejectModal()">취소</button>
-            <button class="modal-btn-primary" type="button" onclick="submitIncidentReject()">반려 확인</button>
+            <button class="modal-btn-secondary" type="button" onclick="closeIncidentRejectModal()">痍⑥냼</button>
+            <button class="modal-btn-primary" type="button" onclick="submitIncidentReject()">諛섎젮 ?뺤씤</button>
           </div>
         </div>
       </div>
@@ -2001,26 +1995,25 @@ tbody td:nth-child(3) {
     <div class="detail-modal-backdrop" id="bulkRejectModal">
       <div class="detail-modal-card" style="max-width:420px;">
         <div class="detail-content-box">
-          <div class="section-title" style="font-size:22px; margin-bottom:8px;">선택 항목 반려</div>
+          <div class="section-title" style="font-size:22px; margin-bottom:8px;">?좏깮 ??ぉ 諛섎젮</div>
           <div class="section-subtitle" style="font-size:14px; margin-bottom:14px;">
-            선택한 신고들의 반려 사유를 입력해주세요.
+            ?좏깮???좉퀬?ㅼ쓽 諛섎젮 ?ъ쑀瑜??낅젰?댁＜?몄슂.
           </div>
 
           <div class="detail-info-card">
             <textarea
               id="bulkRejectReasonText"
               maxlength="40"
-              placeholder="예: 중복 신고, 위험도 기준 미달, 사진 불명확"
+              placeholder="?? 以묐났 ?좉퀬, ?꾪뿕??湲곗? 誘몃떖, ?ъ쭊 遺덈챸??
               style="width:100%; min-height:110px; border:1px solid #d7dde5; border-radius:12px; padding:12px; font-size:14px; resize:none; outline:none;"
             ></textarea>
             <div id="bulkRejectReasonCount" style="margin-top:8px; font-size:12px; color:#94a3b8; text-align:right;">
-              0 / 40자
-            </div>
+              0 / 40??            </div>
           </div>
 
           <div class="modal-action-row">
-            <button class="modal-btn-secondary" type="button" onclick="closeBulkRejectModal()">취소</button>
-            <button class="modal-btn-primary" type="button" onclick="submitBulkReject()">반려 확인</button>
+            <button class="modal-btn-secondary" type="button" onclick="closeBulkRejectModal()">痍⑥냼</button>
+            <button class="modal-btn-primary" type="button" onclick="submitBulkReject()">諛섎젮 ?뺤씤</button>
           </div>
         </div>
       </div>
@@ -2035,14 +2028,14 @@ tbody td:nth-child(3) {
   <div class="custom-alert-backdrop" id="customAlertModal">
     <div class="custom-alert-box">
       <div class="custom-alert-header">
-        <div class="custom-alert-title" id="customAlertTitle">알림</div>
+        <div class="custom-alert-title" id="customAlertTitle">?뚮┝</div>
       </div>
       <div class="custom-alert-body" id="customAlertMessage">
-        메시지 내용
+        硫붿떆吏 ?댁슜
       </div>
       <div class="custom-alert-actions">
         <button type="button" class="custom-alert-btn" onclick="closeCustomAlert()">
-          확인
+          ?뺤씤
         </button>
       </div>
     </div>
@@ -2051,17 +2044,17 @@ tbody td:nth-child(3) {
   <div class="confirm-modal-backdrop" id="confirmActionModal">
     <div class="confirm-modal-box">
       <div class="confirm-modal-header">
-        <div class="confirm-modal-title" id="confirmActionTitle">상태 변경 확인</div>
+        <div class="confirm-modal-title" id="confirmActionTitle">?곹깭 蹂寃??뺤씤</div>
       </div>
       <div class="confirm-modal-body" id="confirmActionMessage">
-        선택한 신고의 상태를 변경하시겠습니까?
+        ?좏깮???좉퀬???곹깭瑜?蹂寃쏀븯?쒓쿋?듬땲源?
       </div>
       <div class="confirm-modal-actions">
         <button type="button" class="confirm-btn-cancel" onclick="closeConfirmActionModal()">
-          취소
+          痍⑥냼
         </button>
         <button type="button" class="confirm-btn-submit" onclick="confirmBulkStatusSubmit()">
-          확인
+          ?뺤씤
         </button>
       </div>
     </div>
@@ -2069,9 +2062,9 @@ tbody td:nth-child(3) {
   <div class="group-modal-backdrop" id="incidentGroupModal">
   <div class="group-modal-box">
     <div class="group-modal-header">
-      <div class="group-modal-title">중복 신고 목록</div>
+      <div class="group-modal-title">以묐났 ?좉퀬 紐⑸줉</div>
       <div class="group-modal-subtitle" id="incidentGroupSubtitle">
-        같은 그룹으로 묶인 신고 목록입니다.
+        媛숈? 洹몃９?쇰줈 臾띠씤 ?좉퀬 紐⑸줉?낅땲??
       </div>
     </div>
 
@@ -2080,18 +2073,18 @@ tbody td:nth-child(3) {
         <table class="group-modal-table">
           <thead>
             <tr>
-              <th>번호</th>
-              <th>제목</th>
-              <th>제보자</th>
-              <th>위치</th>
-              <th>상태</th>
-              <th>접수시간</th>
-              <th>대표</th>
+              <th>踰덊샇</th>
+              <th>?쒕ぉ</th>
+              <th>?쒕낫??/th>
+              <th>?꾩튂</th>
+              <th>?곹깭</th>
+              <th>?묒닔?쒓컙</th>
+              <th>???/th>
             </tr>
           </thead>
           <tbody id="incidentGroupTableBody">
             <tr>
-              <td colspan="7" class="group-modal-empty">불러오는 중입니다.</td>
+              <td colspan="7" class="group-modal-empty">遺덈윭?ㅻ뒗 以묒엯?덈떎.</td>
             </tr>
           </tbody>
         </table>
@@ -2099,7 +2092,7 @@ tbody td:nth-child(3) {
 
       <div class="group-modal-actions">
         <button type="button" class="group-modal-close-btn" onclick="closeIncidentGroupModal()">
-          닫기
+          ?リ린
         </button>
       </div>
     </div>
@@ -2108,8 +2101,8 @@ tbody td:nth-child(3) {
 <div class="detail-modal-backdrop" id="incidentMapModal">
   <div class="map-modal-card">
     <div class="map-modal-header">
-      <div class="map-modal-title">신고 위치</div>
-      <button type="button" class="map-modal-close-x" onclick="closeIncidentMapModal()">✕</button>
+      <div class="map-modal-title">?좉퀬 ?꾩튂</div>
+      <button type="button" class="map-modal-close-x" onclick="closeIncidentMapModal()">??/button>
     </div>
 
     <div class="map-modal-body">
@@ -2117,7 +2110,7 @@ tbody td:nth-child(3) {
     </div>
 
     <div class="map-modal-footer">
-      <button type="button" class="detail-close-btn" onclick="closeIncidentMapModal()">닫기</button>
+      <button type="button" class="detail-close-btn" onclick="closeIncidentMapModal()">?リ린</button>
     </div>
   </div>
 </div>
@@ -2126,7 +2119,7 @@ tbody td:nth-child(3) {
 
 {% block extra_script %}
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ KAKAO_JS_KEY|default('', true) }}"></script>
-<script>
+<script nonce="{{ csp_nonce }}">
 let incidentDetailLat = '';
 let incidentDetailLng = '';
 let incidentDetailId = '';
@@ -2190,12 +2183,12 @@ function getResponsiveIncidentsPageSize() {
 
   const vh = window.innerHeight;
 
-  // 작은 화면에서는 1줄 보정 유지
+  // ?묒? ?붾㈃?먯꽌??1以?蹂댁젙 ?좎?
   if (vh >= 700 && vh <= 820) {
     adjustedCount = count + 1;
   }
 
-  // 9개가 계산되는 화면은 8개로 맞춤
+  // 9媛쒓? 怨꾩궛?섎뒗 ?붾㈃? 8媛쒕줈 留욎땄
   if (adjustedCount === 9) {
     adjustedCount = 8;
   }
@@ -2232,31 +2225,31 @@ function applyResponsiveIncidentsPageSize(forceReload = false) {
 }
 
 function getIncidentStatusClass(status) {
-  if (status === '접수완료') return 'status-received';
-  if (status === '관리자 확인중') return 'status-checking';  // 추가
-  if (status === '처리중') return 'status-processing';
-  if (status === '처리완료') return 'status-done';
-  if (status === '반려') return 'status-rejected';
+  if (status === '?묒닔?꾨즺') return 'status-received';
+  if (status === '愿由ъ옄 ?뺤씤以?) return 'status-checking';  // 異붽?
+  if (status === '泥섎━以?) return 'status-processing';
+  if (status === '泥섎━?꾨즺') return 'status-done';
+  if (status === '諛섎젮') return 'status-rejected';
   return '';
 }
 
 function getIncidentStatusBadgeHtml(status) {
-  if (status === '접수완료') {
-    return '<span class="badge status-received">접수완료</span>';
+  if (status === '?묒닔?꾨즺') {
+    return '<span class="badge status-received">?묒닔?꾨즺</span>';
   }
-  if (status === '처리중') {
-    return '<span class="badge status-processing">처리중</span>';
+  if (status === '泥섎━以?) {
+    return '<span class="badge status-processing">泥섎━以?/span>';
   }
-  if (status === '처리완료') {
-    return '<span class="badge status-done">처리완료</span>';
+  if (status === '泥섎━?꾨즺') {
+    return '<span class="badge status-done">泥섎━?꾨즺</span>';
   }
-  if (status === '반려') {
-    return '<span class="badge status-rejected">반려</span>';
+  if (status === '諛섎젮') {
+    return '<span class="badge status-rejected">諛섎젮</span>';
   }
   return `<span class="badge">${status || '-'}</span>`;
 }
 
-function openCustomAlert(message, title = '알림') {
+function openCustomAlert(message, title = '?뚮┝') {
   const titleEl = document.getElementById('customAlertTitle');
   const messageEl = document.getElementById('customAlertMessage');
   const modalEl = document.getElementById('customAlertModal');
@@ -2324,12 +2317,21 @@ function submitPageJump() {
   if (targetPage > totalPages) targetPage = totalPages;
 
   const pageSize = getResponsiveIncidentsPageSize();
-  const url = `/admin/incidents?member_id={{ request.args.get('member_id', '') }}&status={{ selected_status }}&risk={{ selected_risk }}&region={{ selected_region }}&keyword={{ keyword }}&sort={{ sort_by }}&order={{ request.args.get('order', 'desc') }}&header_sorted={{ '1' if request.args.get('header_sorted') == '1' else '' }}&page_size=${pageSize}&page=${targetPage}`;
+  const url = new URL('/admin/incidents', window.location.origin);
+  const params = {
+    member_id: {{ request.args.get('member_id', '')|tojson }},
+    status: {{ selected_status|tojson }}, risk: {{ selected_risk|tojson }},
+    region: {{ selected_region|tojson }}, keyword: {{ keyword|tojson }},
+    sort: {{ sort_by|tojson }}, order: {{ request.args.get('order', 'desc')|tojson }},
+    header_sorted: {{ ('1' if request.args.get('header_sorted') == '1' else '')|tojson }},
+    page_size: pageSize, page: targetPage
+  };
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
 
   const box = document.getElementById('paginationJumpBox');
   if (box) box.classList.remove('editing');
 
-  window.location.href = url;
+  window.location.href = url.toString();
 }
 
 function closeConfirmActionModal() {
@@ -2346,18 +2348,18 @@ function openConfirmActionModal(statusLabel) {
   const modalEl = document.getElementById('confirmActionModal');
 
   if (!modalEl || !titleEl || !messageEl) {
-    openCustomAlert('확인 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('?뺤씤 紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
-  titleEl.textContent = '상태 변경 확인';
+  titleEl.textContent = '?곹깭 蹂寃??뺤씤';
 
-  if (statusLabel === '처리중') {
-    messageEl.textContent = '선택한 신고들을 처리중 상태로 변경하시겠습니까?';
-  } else if (statusLabel === '처리완료') {
-    messageEl.textContent = '선택한 신고들을 처리완료 상태로 변경하시겠습니까?';
+  if (statusLabel === '泥섎━以?) {
+    messageEl.textContent = '?좏깮???좉퀬?ㅼ쓣 泥섎━以??곹깭濡?蹂寃쏀븯?쒓쿋?듬땲源?';
+  } else if (statusLabel === '泥섎━?꾨즺') {
+    messageEl.textContent = '?좏깮???좉퀬?ㅼ쓣 泥섎━?꾨즺 ?곹깭濡?蹂寃쏀븯?쒓쿋?듬땲源?';
   } else {
-    messageEl.textContent = '선택한 신고들의 상태를 변경하시겠습니까?';
+    messageEl.textContent = '?좏깮???좉퀬?ㅼ쓽 ?곹깭瑜?蹂寃쏀븯?쒓쿋?듬땲源?';
   }
 
   modalEl.classList.add('show');
@@ -2387,7 +2389,7 @@ function syncCheckAllState() {
 function updateBulkSelectionCount() {
   const countEl = document.getElementById('bulkSelectionCount');
   if (!countEl) return;
-  countEl.textContent = `선택 항목 ${getCheckedIncidentCount()}건`;
+  countEl.textContent = `?좏깮 ??ぉ ${getCheckedIncidentCount()}嫄?;
 }
 
 function toggleAllIncidents(source) {
@@ -2403,7 +2405,7 @@ function submitBulkStatus(newStatus) {
   const checkedCount = getCheckedIncidentCount();
 
   if (checkedCount === 0) {
-    openCustomAlert('상태를 변경할 신고를 먼저 선택해주세요.');
+    openCustomAlert('?곹깭瑜?蹂寃쏀븷 ?좉퀬瑜?癒쇱? ?좏깮?댁＜?몄슂.');
     return;
   }
 
@@ -2416,7 +2418,7 @@ function confirmBulkStatusSubmit() {
   const rejectInput = document.getElementById('bulkRejectReasonInput');
 
   if (!form || !statusInput || !rejectInput) {
-    openCustomAlert('일괄 변경 폼을 찾지 못했습니다.');
+    openCustomAlert('?쇨큵 蹂寃??쇱쓣 李얠? 紐삵뻽?듬땲??');
     return;
   }
 
@@ -2438,7 +2440,7 @@ function bindRejectReasonCounter(textareaId, counterId, maxLength = 40) {
   if (!textarea || !counter) return;
 
   function updateCount() {
-    counter.textContent = `${textarea.value.length} / ${maxLength}자`;
+    counter.textContent = `${textarea.value.length} / ${maxLength}??;
   }
 
   textarea.addEventListener('input', updateCount);
@@ -2447,7 +2449,7 @@ function bindRejectReasonCounter(textareaId, counterId, maxLength = 40) {
 
 function openBulkRejectModal() {
   if (getCheckedIncidentCount() === 0) {
-    openCustomAlert('반려 처리할 신고를 먼저 선택해주세요.');
+    openCustomAlert('諛섎젮 泥섎━???좉퀬瑜?癒쇱? ?좏깮?댁＜?몄슂.');
     return;
   }
 
@@ -2455,13 +2457,13 @@ function openBulkRejectModal() {
   const textarea = document.getElementById('bulkRejectReasonText');
 
   if (!modal || !textarea) {
-    openCustomAlert('반려 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('諛섎젮 紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   textarea.value = '';
   const counter = document.getElementById('bulkRejectReasonCount');
-  if (counter) counter.textContent = '0 / 40자';
+  if (counter) counter.textContent = '0 / 40??;
 
   modal.classList.add('show');
 }
@@ -2478,18 +2480,18 @@ function submitBulkReject() {
   const textarea = document.getElementById('bulkRejectReasonText');
 
   if (!form || !statusInput || !rejectInput || !textarea) {
-    openCustomAlert('반려 처리 폼 요소를 찾지 못했습니다.');
+    openCustomAlert('諛섎젮 泥섎━ ???붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   const reason = textarea.value.trim();
 
   if (!reason) {
-    openCustomAlert('반려 사유를 입력해주세요.');
+    openCustomAlert('諛섎젮 ?ъ쑀瑜??낅젰?댁＜?몄슂.');
     return;
   }
 
-  statusInput.value = '반려';
+  statusInput.value = '諛섎젮';
   rejectInput.value = reason;
   closeBulkRejectModal();
   form.submit();
@@ -2518,13 +2520,13 @@ function openIncidentRejectModal() {
   const textarea = document.getElementById('incidentRejectReasonText');
 
   if (!modal || !textarea) {
-    openCustomAlert('반려 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('諛섎젮 紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   textarea.value = '';
   const counter = document.getElementById('incidentRejectReasonCount');
-  if (counter) counter.textContent = '0 / 40자';
+  if (counter) counter.textContent = '0 / 40??;
 
   modal.classList.add('show');
 }
@@ -2541,12 +2543,12 @@ function submitIncidentStatus(newStatus, rejectReason = '') {
   const rejectInput = document.getElementById('incidentRejectReasonInput');
 
   if (!form || !idInput || !statusInput || !rejectInput) {
-    openCustomAlert('상태 변경 폼을 찾지 못했습니다.');
+    openCustomAlert('?곹깭 蹂寃??쇱쓣 李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   if (!incidentDetailId) {
-    openCustomAlert('신고 ID를 찾지 못했습니다.');
+    openCustomAlert('?좉퀬 ID瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
@@ -2559,38 +2561,38 @@ function submitIncidentStatus(newStatus, rejectReason = '') {
 function submitIncidentReject() {
   const textarea = document.getElementById('incidentRejectReasonText');
   if (!textarea) {
-    openCustomAlert('반려 사유 입력창을 찾지 못했습니다.');
+    openCustomAlert('諛섎젮 ?ъ쑀 ?낅젰李쎌쓣 李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   const reason = textarea.value.trim();
 
   if (!reason) {
-    openCustomAlert('반려 사유를 입력해주세요.');
+    openCustomAlert('諛섎젮 ?ъ쑀瑜??낅젰?댁＜?몄슂.');
     return;
   }
 
   closeIncidentRejectModal();
-  submitIncidentStatus('반려', reason);
+  submitIncidentStatus('諛섎젮', reason);
 }
 
 function applyInlineIncidentStatus() {
   if (!incidentDetailId) {
-    openCustomAlert('사건 정보가 없습니다.');
+    openCustomAlert('?ш굔 ?뺣낫媛 ?놁뒿?덈떎.');
     return;
   }
 
   if (!incidentSelectedStatus) {
-    openCustomAlert('변경할 상태를 선택해주세요.');
+    openCustomAlert('蹂寃쏀븷 ?곹깭瑜??좏깮?댁＜?몄슂.');
     return;
   }
 
   if (incidentSelectedStatus === incidentCurrentStatus) {
-    openCustomAlert('현재 상태와 동일합니다.');
+    openCustomAlert('?꾩옱 ?곹깭? ?숈씪?⑸땲??');
     return;
   }
 
-  if (incidentSelectedStatus === '반려') {
+  if (incidentSelectedStatus === '諛섎젮') {
     openIncidentRejectModal();
     return;
   }
@@ -2622,7 +2624,7 @@ function openIncidentDetailModal(
   const statusWrap = document.getElementById('incidentInlineStatusWrap');
 
   if (!titleEl || !locationEl || !timeEl || !reporterEl || !statusEl || !riskEl || !imgEl || !placeholderEl || !modalEl) {
-    openCustomAlert('상세보기 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('?곸꽭蹂닿린 紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
@@ -2632,13 +2634,13 @@ function openIncidentDetailModal(
   incidentCurrentStatus = status || '';
   incidentSelectedStatus = status || '';
 
-  titleEl.textContent = title || '신고 상세';
-  locationEl.textContent = location || '위치 정보 없음';
+  titleEl.textContent = title || '?좉퀬 ?곸꽭';
+  locationEl.textContent = location || '?꾩튂 ?뺣낫 ?놁쓬';
   timeEl.textContent = time || '-';
   reporterEl.textContent =
     Number(reporterCount || 0) >= 1
-      ? `반복 제보 ${Number(reporterCount)}건`
-      : '반복제보 없음';
+      ? `諛섎났 ?쒕낫 ${Number(reporterCount)}嫄?
+      : '諛섎났?쒕낫 ?놁쓬';
 
   statusEl.textContent = status || '-';
   statusEl.className = 'detail-chip detail-chip-button ' + getIncidentStatusClass(status || '');
@@ -2703,15 +2705,15 @@ async function openIncidentGroupModal(incidentId, reporterCount) {
   const tbody = document.getElementById('incidentGroupTableBody');
 
   if (!modal || !subtitle || !tbody) {
-    openCustomAlert('중복 신고 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('以묐났 ?좉퀬 紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
   modal.classList.add('show');
-  subtitle.textContent = `반복 제보 ${reporterCount}건에 포함된 원본 신고 목록입니다.`;
+  subtitle.textContent = `諛섎났 ?쒕낫 ${reporterCount}嫄댁뿉 ?ы븿???먮낯 ?좉퀬 紐⑸줉?낅땲??`;
   tbody.innerHTML = `
     <tr>
-      <td colspan="7" class="group-modal-empty">불러오는 중입니다.</td>
+      <td colspan="7" class="group-modal-empty">遺덈윭?ㅻ뒗 以묒엯?덈떎.</td>
     </tr>
   `;
 
@@ -2723,17 +2725,17 @@ async function openIncidentGroupModal(incidentId, reporterCount) {
     try {
       data = JSON.parse(text);
     } catch (jsonError) {
-      throw new Error('서버 응답이 JSON 형식이 아닙니다.');
+      throw new Error('?쒕쾭 ?묐떟??JSON ?뺤떇???꾨떃?덈떎.');
     }
 
     if (!response.ok || !data.success) {
-      throw new Error(data.message || '중복 신고 목록을 불러오지 못했습니다.');
+      throw new Error(data.message || '以묐났 ?좉퀬 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲??');
     }
 
     if (!data.items || data.items.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="group-modal-empty">같은 그룹 신고가 없습니다.</td>
+          <td colspan="7" class="group-modal-empty">媛숈? 洹몃９ ?좉퀬媛 ?놁뒿?덈떎.</td>
         </tr>
       `;
       return;
@@ -2741,20 +2743,20 @@ async function openIncidentGroupModal(incidentId, reporterCount) {
 
     tbody.innerHTML = data.items.map(item => `
       <tr>
-        <td class="number">${item.id ?? '-'}</td>
-        <td>${item.title ?? '-'}</td>
-        <td>${item.member_name ?? '-'}</td>
-        <td>${item.location ?? '-'}</td>
-        <td>${getIncidentStatusBadgeHtml(item.status)}</td>
-        <td class="time">${item.first_created_at ?? '-'}</td>
-        <td>${item.is_representative ? '<span class="group-representative-badge">대표</span>' : '-'}</td>
+        <td class="number">${Number(item.id) || '-'}</td>
+        <td>${escapeHtml(item.title ?? '-')}</td>
+        <td>${escapeHtml(item.member_name ?? '-')}</td>
+        <td>${escapeHtml(item.location ?? '-')}</td>
+        <td>${getIncidentStatusBadgeHtml(escapeHtml(item.status))}</td>
+        <td class="time">${escapeHtml(item.first_created_at ?? '-')}</td>
+        <td>${item.is_representative ? '<span class="group-representative-badge">???/span>' : '-'}</td>
       </tr>
     `).join('');
   } catch (error) {
     console.error(error);
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="group-modal-empty">${error.message || '불러오기에 실패했습니다.'}</td>
+          <td colspan="7" class="group-modal-empty">${escapeHtml(error.message || '遺덈윭?ㅺ린???ㅽ뙣?덉뒿?덈떎.')}</td>
       </tr>
     `;
   }
@@ -2765,7 +2767,7 @@ function openIncidentMap() {
   const canvas = document.getElementById('incidentMapCanvas');
 
   if (!modal || !canvas) {
-    openCustomAlert('지도 모달 요소를 찾지 못했습니다.');
+    openCustomAlert('吏??紐⑤떖 ?붿냼瑜?李얠? 紐삵뻽?듬땲??');
     return;
   }
 
@@ -2773,14 +2775,14 @@ function openIncidentMap() {
   const lng = parseFloat(incidentDetailLng);
 
   if (Number.isNaN(lat) || Number.isNaN(lng)) {
-    openCustomAlert('지도 좌표 정보가 없습니다.');
+    openCustomAlert('吏??醫뚰몴 ?뺣낫媛 ?놁뒿?덈떎.');
     return;
   }
 
   modal.classList.add('show');
 
   if (!window.kakao || !window.kakao.maps) {
-    openCustomAlert('카카오 지도 SDK를 불러오지 못했습니다.');
+    openCustomAlert('移댁뭅??吏??SDK瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
     return;
   }
 
@@ -2889,3 +2891,4 @@ window.addEventListener('resize', function () {
 });
 </script>
 {% endblock %}
+

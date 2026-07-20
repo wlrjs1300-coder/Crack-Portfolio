@@ -1,10 +1,10 @@
-{% extends 'layout.html' %}
+﻿{% extends 'layout.html' %}
 
-{% block title %}{{ detail.title }} - 상세 정보{% endblock %}
+{% block title %}{{ detail.title }} - ?곸꽭 ?뺣낫{% endblock %}
 
 {% block content %}
 <style>
-    /* 전역 main 패딩 제거 (상세페이지 전용) */
+    /* ?꾩뿭 main ?⑤뵫 ?쒓굅 (?곸꽭?섏씠吏 ?꾩슜) */
     main {
         padding: 0 !important;
     }
@@ -63,7 +63,7 @@
         object-fit: cover;
     }
 
-    /* 동영상 CV 오버레이 컨테이너 */
+    /* ?숈쁺??CV ?ㅻ쾭?덉씠 而⑦뀒?대꼫 */
     .video-cv-container {
         position: relative;
         width: 100%;
@@ -154,7 +154,7 @@
         border: 1px solid rgba(0, 0, 0, 0.03);
     }
 
-    /* 히스토리 버튼 */
+    /* ?덉뒪?좊━ 踰꾪듉 */
     .history-toggle-btn {
         display: inline-flex;
         align-items: center;
@@ -176,7 +176,7 @@
         transform: scale(0.95);
     }
 
-    /* 히스토리 패널 */
+    /* ?덉뒪?좊━ ?⑤꼸 */
     .detection-history-panel {
         display: none;
         margin-top: 16px;
@@ -250,7 +250,7 @@
         transform: scale(0.9);
     }
 
-    /* 상태별 배경색 */
+    /* ?곹깭蹂?諛곌꼍??*/
     .status-floating.status-done,
     .detail-status-btn.status-done {
         background: #E8F5E9;
@@ -356,7 +356,7 @@
         color: #ef4444;
     }
 
-    /* 커스텀 얼럿 모달 스타일 */
+    /* 而ㅼ뒪? ?쇰읉 紐⑤떖 ?ㅽ???*/
     .custom-alert-backdrop {
         position: fixed;
         inset: 0;
@@ -470,54 +470,54 @@
         </a>
         <h3
             style="margin: 0; font-size: 1.1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            상세 정보</h3>
+            ?곸꽭 ?뺣낫</h3>
 
-        {# 본인이거나, 관리자(admin)이거나, 매니저(manager)인 경우 권한 부여 #}
+        {# 蹂몄씤?닿굅?? 愿由ъ옄(admin)?닿굅?? 留ㅻ땲?(manager)??寃쎌슦 沅뚰븳 遺??#}
         {% if is_owner or is_admin or is_manager %}
-        {% if detail.status == '관리자 확인중' or is_admin or is_manager %}
-        <div onclick="handleEditReport()" style="cursor: pointer; padding: 5px; margin-right: 2px;" title="수정하기">
+        {% if detail.status == '愿由ъ옄 ?뺤씤以? or is_admin or is_manager %}
+        <div onclick="handleEditReport()" style="cursor: pointer; padding: 5px; margin-right: 2px;" title="?섏젙?섍린">
             <i class="bi bi-pencil-square" style="color: var(--point-orange); font-size: 1.2rem;"></i>
         </div>
-        <div onclick="handleDeleteReport()" style="cursor: pointer; padding: 5px;" title="삭제하기">
+        <div onclick="handleDeleteReport()" style="cursor: pointer; padding: 5px;" title="??젣?섍린">
             <i class="bi bi-trash3" style="color: var(--point-orange); font-size: 1.2rem;"></i>
         </div>
         {% else %}
-        {# 일반 사용자가 '관리자 확인중' 단계가 아닐 때만 잠금 표시 #}
+        {# ?쇰컲 ?ъ슜?먭? '愿由ъ옄 ?뺤씤以? ?④퀎媛 ?꾨땺 ?뚮쭔 ?좉툑 ?쒖떆 #}
         <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; margin-right: 2px; opacity: 0.3;"
-            title="수정 불가">
+            title="?섏젙 遺덇?">
             <i class="bi bi-pencil-square" style="color: #aaa; font-size: 1.2rem;"></i>
         </div>
-        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; opacity: 0.3;" title="삭제 불가">
+        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; opacity: 0.3;" title="??젣 遺덇?">
             <i class="bi bi-trash3" style="color: #aaa; font-size: 1.2rem;"></i>
         </div>
         {% endif %}
         {% endif %}
     </div>
 
-    <!-- 동영상 CV 오버레이 모드 (관리자 전용) -->
+    <!-- ?숈쁺??CV ?ㅻ쾭?덉씠 紐⑤뱶 (愿由ъ옄 ?꾩슜) -->
     <div class="media-section">
         {% if can_view_media %}
         {% if detail.file_type == 'video' and detail.file_path %}
         <div class="video-cv-container" id="video-cv-container">
             {% if is_admin %}
             <span class="status-floating
-                        {% if detail.status == '처리완료' %}status-done
-                        {% elif detail.status == '처리중' %}status-processing
-                        {% elif detail.status == '접수완료' %}status-received
-                        {% elif detail.status == '반려' %}status-rejected
-                        {% elif detail.status == 'AI 분석중' %}status-analyzing
+                        {% if detail.status == '泥섎━?꾨즺' %}status-done
+                        {% elif detail.status == '泥섎━以? %}status-processing
+                        {% elif detail.status == '?묒닔?꾨즺' %}status-received
+                        {% elif detail.status == '諛섎젮' %}status-rejected
+                        {% elif detail.status == 'AI 遺꾩꽍以? %}status-analyzing
                         {% else %}status-default{% endif %}
                     ">{{ detail.status }}</span>
             {% endif %}
             <video id="cv-video" poster="{{ detail.thumbnail_path }}" controls playsinline
                 style="width:100%; height:100%; object-fit:contain; border-radius:16px;">
                 <source src="{{ detail.file_path }}" type="video/mp4" onerror="handleVideoError(this)">
-                브라우저가 동영상 재생을 지원하지 않습니다.
+                釉뚮씪?곗?媛 ?숈쁺???ъ깮??吏?먰븯吏 ?딆뒿?덈떎.
             </video>
             <canvas id="cv-canvas"></canvas>
         </div>
         <!-- Video Error Handler -->
-        <script>
+        <script nonce="{{ csp_nonce }}">
             function handleVideoError(sourceElement) {
                 const videoEl = sourceElement.parentElement;
                 console.error("Video failed to play: Unsupported format or corrupted file.", videoEl.currentSrc);
@@ -530,7 +530,7 @@
             onclick="openEnlargeModal('{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}')"
             style="cursor: pointer;">
             {% if detail.file_path or detail.thumbnail_path %}
-            <img src="{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}" alt="신고 사진">
+            <img src="{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}" alt="?좉퀬 ?ъ쭊">
             {% else %}
             <div
                 style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0;">
@@ -543,7 +543,7 @@
         <div class="media-hero"
             style="background: #f8f9fa; cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
             <i class="bi bi-lock-fill" style="font-size: 3.5rem; color: #dee2e6; margin-bottom: 15px;"></i>
-            <p style="color: #adb5bd; font-weight: 700; font-size: 0.95rem;">관리자 및 작성자만 사진을 볼 수 있습니다.</p>
+            <p style="color: #adb5bd; font-weight: 700; font-size: 0.95rem;">愿由ъ옄 諛??묒꽦?먮쭔 ?ъ쭊??蹂????덉뒿?덈떎.</p>
         </div>
         {% endif %}
     </div>
@@ -559,26 +559,25 @@
             {% if is_admin %}
             <div class="ai-badge" style="margin-bottom: 0;">
                 <i class="bi bi-robot"></i>
-                AI 판독: {{ detail.damage_type }} ({{ detail.confidence }}%)
+                AI ?먮룆: {{ detail.damage_type }} ({{ detail.confidence }}%)
             </div>
 
             <div class="status-dropdown-wrap">
                 <button onclick="toggleDetailStatusDropdown(event)"
-                    class="detail-status-btn {% if detail.status == '처리완료' %}status-done{% elif detail.status == '처리중' %}status-processing{% elif detail.status == '접수완료' %}status-received{% elif detail.status == '반려' %}status-rejected{% elif detail.status == 'AI 분석중' %}status-analyzing{% else %}status-default{% endif %}">
+                    class="detail-status-btn {% if detail.status == '泥섎━?꾨즺' %}status-done{% elif detail.status == '泥섎━以? %}status-processing{% elif detail.status == '?묒닔?꾨즺' %}status-received{% elif detail.status == '諛섎젮' %}status-rejected{% elif detail.status == 'AI 遺꾩꽍以? %}status-analyzing{% else %}status-default{% endif %}">
                     {{ detail.status }} <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
                 </button>
                 <div id="detailStatusDropdown" class="status-dropdown-menu">
-                    <div onclick="updateStatusFromDetail('관리자 확인중')" class="dropdown-item" style="color:#607D8B;">관리자 확인
+                    <div onclick="updateStatusFromDetail('愿由ъ옄 ?뺤씤以?)" class="dropdown-item" style="color:#607D8B;">愿由ъ옄 ?뺤씤
                     </div>
-                    <div onclick="updateStatusFromDetail('접수완료')" class="dropdown-item">접수완료</div>
-                    <div onclick="updateStatusFromDetail('처리중')" class="dropdown-item" style="color:#FACC15;">처리중</div>
-                    <div onclick="updateStatusFromDetail('처리완료')" class="dropdown-item" style="color:#2E7D32;">처리완료
+                    <div onclick="updateStatusFromDetail('?묒닔?꾨즺')" class="dropdown-item">?묒닔?꾨즺</div>
+                    <div onclick="updateStatusFromDetail('泥섎━以?)" class="dropdown-item" style="color:#FACC15;">泥섎━以?/div>
+                    <div onclick="updateStatusFromDetail('泥섎━?꾨즺')" class="dropdown-item" style="color:#2E7D32;">泥섎━?꾨즺
                     </div>
-                    <div onclick="updateStatusFromDetail('반려')" class="dropdown-item reject-item">반려</div>
+                    <div onclick="updateStatusFromDetail('諛섎젮')" class="dropdown-item reject-item">諛섎젮</div>
                     <div onclick="reAnalyzeAI()" class="dropdown-item"
                         style="border-top:1px solid #eee; color:var(--point-orange);">
-                        <i class="bi bi-robot"></i> AI 재분석
-                    </div>
+                        <i class="bi bi-robot"></i> AI ?щ텇??                    </div>
                 </div>
             </div>
             {% endif %}
@@ -589,22 +588,22 @@
 
         <div class="meta-grid">
             <div class="meta-item">
-                <span class="meta-label">제보자</span>
+                <span class="meta-label">?쒕낫??/span>
                 <span class="meta-value">{{ detail.reporter_name }}</span>
             </div>
             <div class="meta-item">
-                <span class="meta-label">제보 시간</span>
+                <span class="meta-label">?쒕낫 ?쒓컙</span>
                 <span class="meta-value" style="font-size: 0.8rem;">{{ detail.time }}</span>
             </div>
         </div>
 
         {% if is_admin and detail.file_type == 'video' %}
-        <!-- 검출 히스토리 버튼 (관리자 전용) -->
+        <!-- 寃異??덉뒪?좊━ 踰꾪듉 (愿由ъ옄 ?꾩슜) -->
         <button class="history-toggle-btn" onclick="toggleHistory()">
-            <i class="bi bi-clock-history"></i> AI 검출 히스토리
+            <i class="bi bi-clock-history"></i> AI 寃異??덉뒪?좊━
         </button>
         <div class="detection-history-panel" id="history-panel">
-            <div class="det-empty" id="history-loading"><i class="bi bi-hourglass-split"></i> 검출 기록 로딩 중...</div>
+            <div class="det-empty" id="history-loading"><i class="bi bi-hourglass-split"></i> 寃異?湲곕줉 濡쒕뵫 以?..</div>
         </div>
         {% endif %}
 
@@ -616,26 +615,25 @@
     <div class="custom-alert-card">
         <div class="custom-alert-body">
             <div class="alert-icon" id="alertIcon"><i class="bi bi-exclamation-circle-fill"></i></div>
-            <div class="alert-title" id="alertTitle">확인</div>
-            <div class="alert-desc" id="alertDesc">내용을 확인해주세요.</div>
-            <input type="text" id="alertInput" class="alert-input" placeholder="사유를 입력하세요..." style="display:none;">
+            <div class="alert-title" id="alertTitle">?뺤씤</div>
+            <div class="alert-desc" id="alertDesc">?댁슜???뺤씤?댁＜?몄슂.</div>
+            <input type="text" id="alertInput" class="alert-input" placeholder="?ъ쑀瑜??낅젰?섏꽭??.." style="display:none;">
         </div>
         <div class="alert-footer">
-            <button class="alert-btn btn-secondary" onclick="hideAlert()">취소</button>
-            <button class="alert-btn btn-primary" id="alertConfirmBtn">확인</button>
+            <button class="alert-btn btn-secondary" onclick="hideAlert()">痍⑥냼</button>
+            <button class="alert-btn btn-primary" id="alertConfirmBtn">?뺤씤</button>
         </div>
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce }}">
     // ========================
-    // 1. 전역 상수 및 변수
-    // ========================
+    // 1. ?꾩뿭 ?곸닔 諛?蹂??    // ========================
     const REPORT_ID = document.getElementById('safe-report-context').dataset.reportId;
     let alertPromiseResolve = null;
 
     // ========================
-    // 2. 커스텀 얼럿
+    // 2. 而ㅼ뒪? ?쇰읉
     // ========================
     function showAlert({ title, desc, showInput = false, icon = 'bi-exclamation-circle-fill' }) {
         return new Promise((resolve) => {
@@ -681,12 +679,12 @@
     }
 
     // ========================
-    // 3. 수정 / 삭제 / 잠금
+    // 3. ?섏젙 / ??젣 / ?좉툑
     // ========================
     window.handleEditReport = async function () {
         const ok = await showAlert({
-            title: '게시글 수정',
-            desc: '이 게시글을 수정하시겠습니까?',
+            title: '寃뚯떆湲 ?섏젙',
+            desc: '??寃뚯떆湲???섏젙?섏떆寃좎뒿?덇퉴?',
             icon: 'bi-pencil-square'
         });
         if (ok === true) {
@@ -696,8 +694,8 @@
 
     window.handleDeleteReport = async function () {
         const ok = await showAlert({
-            title: '게시글 삭제',
-            desc: '정말로 이 게시물을 삭제하시겠습니까?',
+            title: '寃뚯떆湲 ??젣',
+            desc: '?뺣쭚濡???寃뚯떆臾쇱쓣 ??젣?섏떆寃좎뒿?덇퉴?',
             icon: 'bi-trash3'
         });
         if (ok === true) {
@@ -707,24 +705,24 @@
                 if (data.success) {
                     window.location.href = '/alert';
                 } else {
-                    alert('삭제 실패: ' + data.message);
+                    alert('??젣 ?ㅽ뙣: ' + data.message);
                 }
             } catch (err) {
-                console.error('삭제 중 오류 발생:', err);
+                console.error('??젣 以??ㅻ쪟 諛쒖깮:', err);
             }
         }
     };
 
     function showLockedAlert() {
         showAlert({
-            title: '수정/삭제 불가',
-            desc: '관리자 확인 후에는 수정, 삭제가 불가능합니다.',
+            title: '?섏젙/??젣 遺덇?',
+            desc: '愿由ъ옄 ?뺤씤 ?꾩뿉???섏젙, ??젣媛 遺덇??ν빀?덈떎.',
             icon: 'bi-lock-fill'
         });
     }
 
     // ========================
-    // 4. 동영상 CV 오버레이 (영상 신고인 경우에만 실행)
+    // 4. ?숈쁺??CV ?ㅻ쾭?덉씠 (?곸긽 ?좉퀬??寃쎌슦?먮쭔 ?ㅽ뻾)
     // ========================
     {% if detail.file_type == 'video' %}
     (function () {
@@ -734,7 +732,7 @@
         var allDetections = [];
         var rafId = null;
 
-        // 검출 데이터 로드
+        // 寃異??곗씠??濡쒕뱶
         fetch('/api/report/' + REPORT_ID + '/detections')
             .then(function (r) { return r.json(); })
             .then(function (data) {
@@ -750,7 +748,7 @@
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
 
-            // 재생 중일 때만 rAF 루프 실행
+            // ?ъ깮 以묒씪 ?뚮쭔 rAF 猷⑦봽 ?ㅽ뻾
             function renderLoop() {
                 drawDetections(video, canvas, ctx);
                 rafId = requestAnimationFrame(renderLoop);
@@ -766,7 +764,7 @@
                     cancelAnimationFrame(rafId);
                     rafId = null;
                 }
-                // 정지 시 현재 프레임 검출 결과는 timeupdate로 처리
+                // ?뺤? ???꾩옱 ?꾨젅??寃異?寃곌낵??timeupdate濡?泥섎━
                 drawDetections(video, canvas, ctx);
             });
 
@@ -777,7 +775,7 @@
                 }
             });
 
-            // 시간 탐색(seek) 시 즉시 반영
+            // ?쒓컙 ?먯깋(seek) ??利됱떆 諛섏쁺
             video.addEventListener('timeupdate', function () {
                 if (video.paused) {
                     drawDetections(video, canvas, ctx);
@@ -788,7 +786,7 @@
         function drawDetections(video, canvas, ctx) {
             if (!allDetections || allDetections.length === 0) return;
 
-            // canvas 크기가 유효한지 확인
+            // canvas ?ш린媛 ?좏슚?쒖? ?뺤씤
             var cw = video.clientWidth;
             var ch = video.clientHeight;
             if (!cw || !ch) return;
@@ -807,7 +805,7 @@
             var vh = video.videoHeight;
             if (!vw || !vh) return;
 
-            // object-fit: contain 레터박스 offset 계산
+            // object-fit: contain ?덊꽣諛뺤뒪 offset 怨꾩궛
             var canvasAspect = canvas.width / canvas.height;
             var videoAspect = vw / vh;
             var renderWidth, renderHeight, offsetX, offsetY;
@@ -844,12 +842,12 @@
             });
         }
 
-        // allDetections를 외부(renderHistory, seekToTime)에서 쓸 수 있도록 window에 노출
+        // allDetections瑜??몃?(renderHistory, seekToTime)?먯꽌 ?????덈룄濡?window???몄텧
         window._cvAllDetections = function () { return allDetections; };
     })();
 
     // ========================
-    // 5. 히스토리 패널 / 시간 이동 (영상 신고인 경우에만 정의)
+    // 5. ?덉뒪?좊━ ?⑤꼸 / ?쒓컙 ?대룞 (?곸긽 ?좉퀬??寃쎌슦?먮쭔 ?뺤쓽)
     // ========================
     function formatTime(sec) {
         var m = Math.floor(sec / 60);
@@ -861,11 +859,11 @@
         var panel = document.getElementById('history-panel');
         if (!panel) return;
         if (!data || data.length === 0) {
-            var emptyHtml = '<div class="det-empty"><i class="bi bi-camera-video-off"></i> 검출된 기록이 없습니다</div>';
+            var emptyHtml = '<div class="det-empty"><i class="bi bi-camera-video-off"></i> 寃異쒕맂 湲곕줉???놁뒿?덈떎</div>';
             {% if is_admin %}
             emptyHtml += '<div style="text-align:center; padding-bottom:15px;">';
             emptyHtml += '<button onclick="reAnalyzeAI()" style="background:none; border:none; color:var(--point-orange); font-size:0.8rem; text-decoration:underline; cursor:pointer;">';
-            emptyHtml += 'AI 재분석 실행 (데이터 생성)</button></div>';
+            emptyHtml += 'AI ?щ텇???ㅽ뻾 (?곗씠???앹꽦)</button></div>';
             {% endif %}
             panel.innerHTML = emptyHtml;
             return;
@@ -875,7 +873,7 @@
             var d = data[i];
             html += '<div class="det-item" onclick="seekToTime(' + d.time + ')">';
             html += '<span class="det-time">' + formatTime(d.time) + '</span>';
-            html += '<span class="det-class">' + d.class + '</span>';
+            html += '<span class="det-class">' + escapeHtml(d.class) + '</span>';
             html += '<span class="det-conf">' + d.conf + '%</span>';
             html += '</div>';
         }
@@ -899,7 +897,7 @@
     {% endif %}
 
     // ========================
-    // 6. 상태 드롭다운 (관리자용)
+    // 6. ?곹깭 ?쒕∼?ㅼ슫 (愿由ъ옄??
     // ========================
     function toggleDetailStatusDropdown(e) {
         e.stopPropagation();
@@ -921,10 +919,10 @@
         document.getElementById('detailStatusDropdown').classList.remove('show');
 
         let rejectReason = '';
-        if (newStatus === '반려') {
+        if (newStatus === '諛섎젮') {
             rejectReason = await showAlert({
-                title: '반려 사유',
-                desc: '반려 사유를 입력해주세요.',
+                title: '諛섎젮 ?ъ쑀',
+                desc: '諛섎젮 ?ъ쑀瑜??낅젰?댁＜?몄슂.',
                 showInput: true,
                 icon: 'bi-x-circle'
             });
@@ -945,21 +943,21 @@
             if (data.ok) {
                 location.reload();
             } else {
-                await showAlert({ title: '실패', desc: data.message || '상태 변경에 실패했습니다.' });
+                await showAlert({ title: '?ㅽ뙣', desc: data.message || '?곹깭 蹂寃쎌뿉 ?ㅽ뙣?덉뒿?덈떎.' });
             }
         } catch (err) {
-            console.error('상태 변경 오류:', err);
+            console.error('?곹깭 蹂寃??ㅻ쪟:', err);
         }
     }
 
     // ========================
-    // 7. AI 재분석 (관리자용)
+    // 7. AI ?щ텇??(愿由ъ옄??
     // ========================
     async function reAnalyzeAI() {
         document.getElementById('detailStatusDropdown').classList.remove('show');
         const ok = await showAlert({
-            title: 'AI 재분석',
-            desc: '이 신고를 AI로 다시 분석하시겠습니까?',
+            title: 'AI ?щ텇??,
+            desc: '???좉퀬瑜?AI濡??ㅼ떆 遺꾩꽍?섏떆寃좎뒿?덇퉴?',
             icon: 'bi-robot'
         });
         if (ok === true) {
@@ -967,19 +965,19 @@
                 const resp = await fetch(`/api/admin/report/${REPORT_ID}/reanalyze`, { method: 'POST' });
                 const data = await resp.json();
                 if (data.success) {
-                    await showAlert({ title: '완료', desc: 'AI 재분석이 시작되었습니다.' });
+                    await showAlert({ title: '?꾨즺', desc: 'AI ?щ텇?앹씠 ?쒖옉?섏뿀?듬땲??' });
                     location.reload();
                 } else {
-                    await showAlert({ title: '실패', desc: data.message });
+                    await showAlert({ title: '?ㅽ뙣', desc: data.message });
                 }
             } catch (err) {
-                console.error('AI 재분석 오류:', err);
+                console.error('AI ?щ텇???ㅻ쪟:', err);
             }
         }
     }
 
     // ========================
-    // 8. 이미지 확대 모달
+    // 8. ?대?吏 ?뺣? 紐⑤떖
     // ========================
     function openEnlargeModal(src) {
         const modal = document.getElementById('enlarge-modal');
@@ -992,8 +990,7 @@
     }
 
     // ========================
-    // 9. 카카오 지도 초기화
-    //    window.onload 대신 DOMContentLoaded 사용 → layout.html과 충돌 방지
+    // 9. 移댁뭅??吏??珥덇린??    //    window.onload ???DOMContentLoaded ?ъ슜 ??layout.html怨?異⑸룎 諛⑹?
     // ========================
     document.addEventListener('DOMContentLoaded', function () {
         const lat = parseFloat('{{ detail.lat or 37.5665 }}');
@@ -1001,8 +998,7 @@
         const mapContainer = document.getElementById('view-map');
         if (!mapContainer) return;
 
-        // 카카오 SDK가 아직 로드 안 됐을 경우 대비
-        if (typeof kakao === 'undefined' || !kakao.maps) {
+        // 移댁뭅??SDK媛 ?꾩쭅 濡쒕뱶 ???먯쓣 寃쎌슦 ?鍮?        if (typeof kakao === 'undefined' || !kakao.maps) {
             console.warn('[Map] Kakao Maps SDK not loaded yet.');
             return;
         }
@@ -1013,3 +1009,4 @@
     });
 </script>
 {% endblock %}
+

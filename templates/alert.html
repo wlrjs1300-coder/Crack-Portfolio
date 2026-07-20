@@ -653,7 +653,7 @@
 </div>
 
 
-<script>
+<script nonce="{{ csp_nonce }}">
   let currentFilterStatus = 'all';
   let alertVisibleCount = 8;
   const alertLoadStep = 6;
@@ -743,33 +743,45 @@
       const json = await res.json();
       if (json.success && json.data) {
         const item = json.data;
-        const statusClass = item.status_class || 'status-default';
+        const statusClass = /^[a-z0-9_-]+$/i.test(item.status_class || '') ? item.status_class : 'status-default';
+        const safe = {
+          id: Number(item.id) || 0,
+          imagePath: escapeHtml(item.image_path || ''),
+          title: escapeHtml(item.title),
+          address: escapeHtml(item.address),
+          content: escapeHtml(item.content),
+          status: escapeHtml(item.status),
+          riskClass: /^[a-z0-9_-]+$/i.test(item.risk_class || '') ? item.risk_class : '',
+          riskScore: Number(item.risk_score) || 0,
+          createdAt: escapeHtml(item.created_at),
+          reporterCount: Number(item.group_reporter_count) || 0
+        };
         const imgHtml = item.file_type === 'video' ?
           `<div style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;"><svg viewBox="0 0 24 24" width="12" height="12" fill="white"><path d="M8 5v14l11-7z" /></svg></div>` +
-          (item.image_path ? `<img src="${item.image_path}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`)
-          : (item.image_path ? `<img src="${item.image_path}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`);
+          (safe.imagePath ? `<img src="${safe.imagePath}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`)
+          : (safe.imagePath ? `<img src="${safe.imagePath}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`);
 
         const cardHtml = `
-                <div class="alert-card ${statusClass} new-injected-card" data-id="${item.id}"
-                  data-search-title="${item.title}" data-search-location="${item.address}"
-                  data-search-content="${item.content}" data-status="${item.status}"
-                  onclick="window.location.href='/alert/view/${item.id}'" style="display:none;">
+                <div class="alert-card ${statusClass} new-injected-card" data-id="${safe.id}"
+                  data-search-title="${safe.title}" data-search-location="${safe.address}"
+                  data-search-content="${safe.content}" data-status="${safe.status}"
+                  onclick="window.location.href='/alert/view/${safe.id}'" style="display:none;">
                   <div class="alert-card-inner">
                     <div class="alert-thumbnail-wrap" style="position: relative;">
                       ${imgHtml}
                     </div>
                     <div class="alert-main-content" style="flex: 1; min-width: 0;">
                       <div class="alert-top">
-                        <div class="alert-status ${statusClass}">${item.status}</div>
-                        <div class="alert-risk ${item.risk_class}">
+                        <div class="alert-status ${statusClass}">${safe.status}</div>
+                        <div class="alert-risk ${safe.riskClass}">
                           <span class="risk-label">AI</span>
-                          <span class="risk-value">${item.risk_score}%</span>
+                          <span class="risk-value">${safe.riskScore}%</span>
                         </div>
                       </div>
                       <div class="alert-main" style="margin-top: 6px;">
-                        <div class="alert-title">${item.title}</div>
-                        <div class="alert-location">${item.address}</div>
-                        <div class="alert-meta">${item.created_at} · 반복 ${item.group_reporter_count}건</div>
+                        <div class="alert-title">${safe.title}</div>
+                        <div class="alert-location">${safe.address}</div>
+                        <div class="alert-meta">${safe.createdAt} · 반복 ${safe.reporterCount}건</div>
                       </div>
                     </div>
                   </div>
@@ -875,3 +887,4 @@
   }
 </script>
 {% endblock %}
+

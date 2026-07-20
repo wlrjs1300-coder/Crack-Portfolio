@@ -8,6 +8,8 @@ from sqlalchemy import text
 
 from extensions import db
 from models import Report, AiResult, Member, Notice, PointLog, VideoDetection
+from services.report_workflow import transition_report
+from services.security import can_access_report, canonical_role
 
 alert_bp = Blueprint('alert', __name__)
 
@@ -81,39 +83,7 @@ def haversine_m(lat1, lon1, lat2, lon2):
 
 
 def _current_user_role():
-    # 세션 캐시 대신 실시간 DB 체크를 선호하거나, 최소한 admin 여부는 확실히 체크해야 함
-    user_id = session.get('user_id')
-    if not user_id:
-        return 'user'
-
-    sql = text("""
-        SELECT
-            COALESCE(role, CASE WHEN is_admin = 1 THEN 'admin' ELSE 'user' END) AS role_value,
-            is_admin,
-            nickname,
-            username
-        FROM members
-        WHERE id = :user_id
-        LIMIT 1
-    """)
-    row = db.session.execute(sql, {'user_id': user_id}).mappings().first()
-    if not row:
-        return 'user'
-
-    # is_admin이 1이면 role에 상관없이 admin으로 취급 (권한 충돌 방지)
-    is_admin_db = _safe_int(row.get('is_admin'))
-    role_db = row.get('role_value')
-
-    if is_admin_db == 1:
-        role_value = 'admin'
-    else:
-        role_value = role_db or 'user'
-
-    session['user_role'] = role_value
-    session['role'] = role_value
-    session['is_admin'] = (is_admin_db == 1) or (role_value == 'admin')
-    session['user_name'] = row.get('nickname') or row.get('username') or '사용자'
-    return role_value
+    return session.get('user_role', 'user')
 
 
 def _get_manager_region():
@@ -421,7 +391,9 @@ def alert_page():
         manager_region = normalize_region_name(manager_region) or manager_region
 
         # 🔸 지역 정보가 없는 경우 (순수 우선순위 점수 + 최신순)
-        if not manager_region:
+        if not manager_region and role == 'manager':
+            filtered = []
+        elif not manager_region:
             filtered = [
                 item for item in items
                 if (item.get('status') or '') in ADMIN_ALERT_STATUSES
@@ -468,7 +440,7 @@ def alert_page():
             secondary_list.sort(key=sort_func, reverse=True)
             others.sort(key=sort_func, reverse=True)
 
-            if region_filter_on:
+            if region_filter_on or role == 'manager':
                 filtered = priority_list + secondary_list
             else:
                 filtered = priority_list + secondary_list + others
@@ -528,7 +500,15 @@ def alert_page():
             reverse=True
         )
 
-    alerts = [_serialize_alert_item(item, selected_lat, selected_lng) for item in filtered]
+    alerts = []
+    for item in filtered:
+        serialized = _serialize_alert_item(item, selected_lat, selected_lng)
+        is_owner = str(item.get('user_id')) == str(user_id)
+        if not is_owner:
+            for key in ('image_path', 'file_path', 'thumbnail_path', 'original_file_path',
+                        'username', 'nickname', 'reporter_name', 'reject_reason'):
+                serialized.pop(key, None)
+        alerts.append(serialized)
 
     # 공지사항 조회
     notices = []
@@ -564,17 +544,19 @@ def alert_page():
 # 이는 카카오 지도 로더와의 충돌을 방지하기 위함이므로, 상세페이지 레이아웃 유지 시 주의하십시오.
 @alert_bp.route('/alert/view/<int:report_id>')
 def alert_view(report_id):
-    rpt = Report.query.get_or_404(report_id)
+    rpt = db.get_or_404(Report, report_id)
     ai_res = AiResult.query.filter_by(report_id=rpt.id).first()
 
     current_user_id = session.get('user_id')
     role = _current_user_role()  # admin, manager, user 중 하나 반환
+    if rpt.status == '삭제' and role != 'admin':
+        return jsonify({'success': False, 'message': '신고를 찾을 수 없습니다.'}), 404
 
-    is_privileged = role in ('admin', 'manager')
     is_owner = (current_user_id is not None) and (str(rpt.user_id) == str(current_user_id))
-    can_view_media = is_privileged or is_owner
+    viewer = db.session.get(Member, current_user_id) if current_user_id else None
+    can_view_media = can_access_report(viewer, rpt)
 
-    reporter = Member.query.get(rpt.user_id)
+    reporter = db.session.get(Member, rpt.user_id)
     reporter_name = reporter.nickname if reporter and reporter.nickname else (
         reporter.username if reporter else '알 수 없음')
 
@@ -585,15 +567,15 @@ def alert_view(report_id):
         'status': rpt.status,
         'time': rpt.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         'address': rpt.address,
-        'lat': rpt.latitude,
-        'lng': rpt.longitude,
+        'lat': rpt.latitude if can_view_media else None,
+        'lng': rpt.longitude if can_view_media else None,
         'file_path': _normalize_path(rpt.file_path) if can_view_media else '',
         'thumbnail_path': _normalize_path(rpt.thumbnail_path) if can_view_media else '',
         'file_type': 'video' if (rpt.file_path or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')) else (
                     rpt.file_type or 'image'),
-        'reporter_name': reporter_name,
-        'confidence': ai_res.confidence if ai_res else 0,
-        'damage_type': ai_res.damage_type if ai_res else 'N/A'
+        'reporter_name': reporter_name if can_view_media else '비공개',
+        'confidence': (ai_res.confidence if ai_res else 0) if can_view_media else 0,
+        'damage_type': (ai_res.damage_type if ai_res else 'N/A') if can_view_media else '비공개'
     }
 
     # [SECURITY POLICY] 상세 페이지 가시성 권한 제어
@@ -611,9 +593,11 @@ def alert_edit(report_id):
     if not current_user_id:
         return redirect(url_for('auth.login'))
 
-    rpt = Report.query.get_or_404(report_id)
+    rpt = db.get_or_404(Report, report_id)
     role = _current_user_role()
     is_admin = (role == 'admin')
+    if rpt.status == '삭제' and not is_admin:
+        return redirect(url_for('alert.alert_page'))
 
     # ✅ 관리자는 모든 글 수정 가능
     if not is_admin and str(rpt.user_id) != str(current_user_id):
@@ -641,7 +625,7 @@ def edit_report(report_id):
     if not current_user_id:
         return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
 
-    rpt = Report.query.get_or_404(report_id)
+    rpt = db.get_or_404(Report, report_id)
     role = _current_user_role()
     is_admin = (role == 'admin')
 
@@ -651,12 +635,14 @@ def edit_report(report_id):
     if rpt.status == '삭제':
         return jsonify({'success': False, 'message': '삭제된 게시글은 수정할 수 없습니다.'}), 400
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     title = (data.get('title') or '').strip()
     content = (data.get('content') or '').strip()
 
     if not title:
         return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
+    if len(title) > 30 or len(content) > 5000:
+        return jsonify({'success': False, 'message': '제목 또는 내용이 허용 길이를 초과했습니다.'}), 400
 
     try:
         rpt.title = title
@@ -665,7 +651,8 @@ def edit_report(report_id):
         return jsonify({'success': True, 'message': '수정이 완료되었습니다.'})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        current_app.logger.exception('신고 수정 실패')
+        return jsonify({'success': False, 'message': '신고 수정 중 오류가 발생했습니다.'}), 500
 
 
 @alert_bp.route('/api/admin/report/<int:report_id>/status', methods=['POST'])
@@ -673,56 +660,41 @@ def update_report_status(report_id):
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     new_status = data.get('status')
     if not new_status:
         return jsonify({'success': False, 'message': '상태 값이 누락되었습니다.'}), 400
 
     try:
-        rpt = Report.query.get_or_404(report_id)
-        old_status = rpt.status
-        rpt.status = new_status
-        if data.get('reject_reason'):
-            rpt.reject_reason = data.get('reject_reason')
-
-        # 크래커 포인트 처리
-        if rpt.user_id:
-            member = Member.query.get(rpt.user_id)
-            if member:
-                if new_status == '처리완료' and old_status != '처리완료':
-                    member.points += 20
-                    db.session.add(PointLog(user_id=rpt.user_id, amount=20, reason='신고 처리 완료 보상'))
-                elif new_status == '반려' and old_status != '반려':
-                    member.points = max(0, member.points - 10)
-                    db.session.add(PointLog(user_id=rpt.user_id, amount=-10, reason='신고 반려 (포인트 차감)'))
-
+        rpt = db.get_or_404(Report, report_id)
+        new_status = transition_report(rpt, new_status, data.get('reject_reason'))
         db.session.commit()
         return jsonify({'success': True, 'message': f'상태가 {new_status}(으)로 변경되었습니다.'})
-    except Exception as e:
+    except ValueError as exc:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({'success': False, 'message': str(exc)}), 400
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception('관리자 신고 상태 변경 실패')
+        return jsonify({'success': False, 'message': '상태 변경 중 오류가 발생했습니다.'}), 500
 
 
 @alert_bp.route('/api/admin/report/<int:report_id>/delete', methods=['POST'])
 def delete_report(report_id):
-    current_user_id = session.get('user_id')
-    if not current_user_id:
-        return jsonify({'success': False, 'message': '권한이 없습니다.'}), 401
+    if session.get('user_role') != 'admin':
+        return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    rpt = Report.query.get_or_404(report_id)
-
-    # 본인 게시글이 아니면 거부 (관리자도 동일하게 본인 게시글만 삭제 가능)
-    if str(rpt.user_id) != str(current_user_id):
-        return jsonify({'success': False, 'message': '본인 제보만 삭제할 수 있습니다.'}), 403
+    rpt = db.get_or_404(Report, report_id)
 
     try:
         # 실제 DB 삭제 없이 상태만 '삭제'로 변경
         rpt.status = '삭제'
         db.session.commit()
         return jsonify({'success': True, 'message': '제보가 삭제되었습니다.'})
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        current_app.logger.exception('신고 삭제 실패')
+        return jsonify({'success': False, 'message': '삭제 처리 중 오류가 발생했습니다.'}), 500
 
 
 @alert_bp.route('/api/admin/notice', methods=['POST'])
@@ -730,13 +702,15 @@ def add_notice():
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
     title = data.get('title')
     content = data.get('content')
     category = data.get('category', '일반')
 
     if not title or not content:
         return jsonify({'success': False, 'message': '제목과 내용을 입력해주세요.'}), 400
+    if len(title) > 255 or len(content) > 10000 or len(category) > 50:
+        return jsonify({'success': False, 'message': '공지 내용이 허용 길이를 초과했습니다.'}), 400
 
     try:
         new_notice = Notice(
@@ -748,14 +722,21 @@ def add_notice():
         db.session.add(new_notice)
         db.session.commit()
         return jsonify({'success': True, 'message': '공지사항이 등록되었습니다.'})
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        current_app.logger.exception('공지 등록 실패')
+        return jsonify({'success': False, 'message': '공지 등록 중 오류가 발생했습니다.'}), 500
 
 
 @alert_bp.route('/api/report/<int:report_id>/detections')
 def get_video_detections(report_id):
     """동영상 프레임별 AI 검출 결과 API"""
+    report = db.get_or_404(Report, report_id)
+    viewer = db.session.get(Member, session.get('user_id')) if session.get('user_id') else None
+    if report.status == '삭제' and (not viewer or canonical_role(viewer) != 'admin'):
+        return jsonify({'success': False, 'message': '신고를 찾을 수 없습니다.'}), 404
+    if not can_access_report(viewer, report):
+        return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
     detections = VideoDetection.query.filter_by(report_id=report_id).order_by(VideoDetection.frame_time).all()
     return jsonify([{
         'time': d.frame_time,
@@ -797,6 +778,18 @@ def get_alert_json(report_id):
     serialized = _serialize_alert_item(item)
     if 'created_at_obj' in serialized:
         del serialized['created_at_obj']  # datetime 객체는 JSON 직렬화 불가하므로 제거
+
+    viewer = db.session.get(Member, session.get('user_id')) if session.get('user_id') else None
+    report = db.session.get(Report, report_id)
+    if report is None:
+        return jsonify({'success': False, 'message': 'Not found'}), 404
+    if report.status == '삭제' and (not viewer or canonical_role(viewer) != 'admin'):
+        return jsonify({'success': False, 'message': 'Not found'}), 404
+    if not can_access_report(viewer, report):
+        for key in ('image_path', 'file_path', 'thumbnail_path', 'original_file_path',
+                    'username', 'nickname', 'reporter_name', 'reject_reason',
+                    'latitude', 'longitude', 'lat', 'lng'):
+            serialized.pop(key, None)
         
     return jsonify({'success': True, 'data': serialized})
 
@@ -807,7 +800,7 @@ def mark_alert_read(report_id):
     if not session.get('is_admin'):
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
     
-    report = Report.query.get(report_id)
+    report = db.session.get(Report, report_id)
     if not report:
         return jsonify({'success': False, 'message': 'Not found'}), 404
         
@@ -817,4 +810,3 @@ def mark_alert_read(report_id):
         return jsonify({'success': True, 'message': 'Marked as read'})
         
     return jsonify({'success': True, 'message': 'Already processed'})
-

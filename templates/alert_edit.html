@@ -1,6 +1,6 @@
-{% extends 'layout.html' %}
+﻿{% extends 'layout.html' %}
 
-{% block title %}게시글 수정{% endblock %}
+{% block title %}寃뚯떆湲 ?섏젙{% endblock %}
 
 {% block content %}
 <style>
@@ -196,7 +196,7 @@
         cursor: not-allowed;
     }
 
-    /* 커스텀 얼럿 모달 */
+    /* 而ㅼ뒪? ?쇰읉 紐⑤떖 */
     .custom-alert-backdrop {
         position: fixed;
         inset: 0;
@@ -281,24 +281,24 @@
 
 <div class="edit-container">
 
-    <!-- 헤더 -->
+    <!-- ?ㅻ뜑 -->
     <div class="edit-header">
         <button class="back-btn" onclick="history.back()">
             <i class="bi bi-chevron-left"></i>
         </button>
-        <h3 style="margin:0; font-size:1.1rem; font-weight:800; flex:1;">게시글 수정</h3>
-        <span style="font-size:0.75rem; color:#aaa; font-weight:600;">본인 게시글</span>
+        <h3 style="margin:0; font-size:1.1rem; font-weight:800; flex:1;">寃뚯떆湲 ?섏젙</h3>
+        <span style="font-size:0.75rem; color:#aaa; font-weight:600;">蹂몄씤 寃뚯떆湲</span>
     </div>
 
-    <!-- 미디어 미리보기 (클릭하여 변경하능) -->
+    <!-- 誘몃뵒??誘몃━蹂닿린 (?대┃?섏뿬 蹂寃쏀븯?? -->
 <div class="media-preview-section" style="position: relative; cursor: pointer;" onclick="document.getElementById('edit-file').click()">
     <div id="current-media-display" style="width:100%; height:100%;">
         {% if detail.file_type == 'video' and detail.file_path %}
         <video src="{{ detail.file_path }}" muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
         {% elif detail.thumbnail_path %}
-        <img src="{{ detail.thumbnail_path }}" alt="신고 사진">
+        <img src="{{ detail.thumbnail_path }}" alt="?좉퀬 ?ъ쭊">
         {% elif detail.file_path %}
-        <img src="{{ detail.file_path }}" alt="신고 사진">
+        <img src="{{ detail.file_path }}" alt="?좉퀬 ?ъ쭊">
         {% else %}
         <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#1a1a2e;">
             <i class="bi bi-image" style="font-size:3rem; opacity:0.15; color:white;"></i>
@@ -306,27 +306,26 @@
         {% endif %}
     </div>
 
-    <img id="new-image-preview" src="" alt="새 사진 미리보기" style="display:none; width:100%; height:100%; object-fit:cover;">
+    <img id="new-image-preview" src="" alt="???ъ쭊 誘몃━蹂닿린" style="display:none; width:100%; height:100%; object-fit:cover;">
 
     <input type="file" id="edit-file" name="file" accept="image/*,video/*" style="display:none;" onchange="previewNewFile(this)">
 
     <div class="media-overlay-badge" style="background: rgba(var(--point-orange-rgb, 255, 140, 0), 0.7);">
         <i class="bi bi-camera-fill"></i>
-        클릭하여 미디어 변경
-    </div>
+        ?대┃?섏뿬 誘몃뵒??蹂寃?    </div>
 </div>
 
-    <!-- 제목 카드 -->
+    <!-- ?쒕ぉ 移대뱶 -->
     <div class="edit-card" style="border-radius: 24px 24px 0 0; margin: 10px 20px 0 20px;">
         <div class="section-label">
-            <i class="bi bi-pencil-fill"></i> 제목
+            <i class="bi bi-pencil-fill"></i> ?쒕ぉ
         </div>
         <input
             id="edit-title"
             type="text"
             class="edit-input"
             maxlength="100"
-            placeholder="제목을 입력하세요"
+            placeholder="?쒕ぉ???낅젰?섏꽭??
             value="{{ detail.title or '' }}"
             oninput="updateCharCount('edit-title', 'title-counter', 100)"
         >
@@ -335,16 +334,16 @@
         </div>
     </div>
 
-    <!-- 내용 카드 -->
+    <!-- ?댁슜 移대뱶 -->
     <div class="edit-card" style="border-radius: 0; margin: 2px 20px 0 20px;">
         <div class="section-label">
-            <i class="bi bi-card-text"></i> 내용
+            <i class="bi bi-card-text"></i> ?댁슜
         </div>
         <textarea
             id="edit-content"
             class="edit-textarea"
             maxlength="500"
-            placeholder="신고 내용을 입력하세요"
+            placeholder="?좉퀬 ?댁슜???낅젰?섏꽭??
             oninput="updateCharCount('edit-content', 'content-counter', 500)"
         >{{ detail.content or '' }}</textarea>
         <div class="char-counter" id="content-counter">
@@ -352,52 +351,52 @@
         </div>
     </div>
 
-        <!-- 위치 카드 (읽기 전용) -->
+        <!-- ?꾩튂 移대뱶 (?쎄린 ?꾩슜) -->
     <div class="edit-card" style="border-radius: 0 0 24px 24px; margin: 2px 20px 20px 20px;">
         <div class="section-label">
-            <i class="bi bi-geo-alt-fill"></i> 신고 위치
+            <i class="bi bi-geo-alt-fill"></i> ?좉퀬 ?꾩튂
         </div>
         <div style="font-size:0.85rem; font-weight:600; color:#475569; background:#f8fafc; border-radius:12px; padding:12px 14px;">
             <i class="bi bi-pin-map" style="color:var(--point-orange); margin-right:6px;"></i>
-            {{ detail.address or '위치 정보 없음' }}
+            {{ detail.address or '?꾩튂 ?뺣낫 ?놁쓬' }}
         </div>
         <div id="edit-map"></div>
         <div class="map-readonly-badge">
             <i class="bi bi-lock-fill"></i>
-            위치는 수정할 수 없습니다
+            ?꾩튂???섏젙?????놁뒿?덈떎
         </div>
     </div>  
 
-    <!-- 저장 버튼 (edit-container 안, edit-card 밖) -->
+    <!-- ???踰꾪듉 (edit-container ?? edit-card 諛? -->
     <div class="save-btn-wrap">
         <button class="save-btn" id="updateBtn" onclick="handleUpdate()">
-            <i class="bi bi-check-lg"></i> 수정 완료
+            <i class="bi bi-check-lg"></i> ?섏젙 ?꾨즺
         </button>
     </div>
 
 </div>
 
-<!-- 커스텀 얼럿 모달 -->
+<!-- 而ㅼ뒪? ?쇰읉 紐⑤떖 -->
 <div id="customAlert" class="custom-alert-backdrop" onclick="if(event.target===this) hideAlert()">
     <div class="custom-alert-card">
         <div class="custom-alert-body">
             <div class="alert-icon" id="alertIcon"><i class="bi bi-exclamation-circle-fill"></i></div>
-            <div class="alert-title" id="alertTitle">확인</div>
-            <div class="alert-desc" id="alertDesc">내용을 확인해주세요.</div>
+            <div class="alert-title" id="alertTitle">?뺤씤</div>
+            <div class="alert-desc" id="alertDesc">?댁슜???뺤씤?댁＜?몄슂.</div>
         </div>
         <div class="alert-footer">
-            <button class="alert-btn btn-secondary" id="alertCancelBtn" onclick="hideAlert()">취소</button>
-            <button class="alert-btn btn-primary" id="alertConfirmBtn">확인</button>
+            <button class="alert-btn btn-secondary" id="alertCancelBtn" onclick="hideAlert()">痍⑥냼</button>
+            <button class="alert-btn btn-primary" id="alertConfirmBtn">?뺤씤</button>
         </div>
     </div>
 </div>
 
 
-<script>
-    /* ── [FIX] 전역 Promise resolve 참조 (hideAlert에서 사용) ── */
+<script nonce="{{ csp_nonce }}">
+    /* ?? [FIX] ?꾩뿭 Promise resolve 李몄“ (hideAlert?먯꽌 ?ъ슜) ?? */
     let alertPromiseResolve = null;
 
-     /* ── [신규] 새 파일 미리보기 함수 ── */
+     /* ?? [?좉퇋] ???뚯씪 誘몃━蹂닿린 ?⑥닔 ?? */
     function previewNewFile(input) {
         const currentMedia = document.getElementById('current-media-display');
         const newPreview = document.getElementById('new-image-preview');
@@ -414,10 +413,10 @@
                 } else if (file.type.startsWith('video/')) {
                     newPreview.style.display = 'none';
                     if (currentMedia) {
-                        currentMedia.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111;"><i class="bi bi-file-earmark-play" style="font-size:3rem; color:white;"></i><span style="color:white; margin-left:10px;">새 비디오 선택됨</span></div>';
+                        currentMedia.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111;"><i class="bi bi-file-earmark-play" style="font-size:3rem; color:white;"></i><span style="color:white; margin-left:10px;">??鍮꾨뵒???좏깮??/span></div>';
                         currentMedia.style.display = 'flex';
                     }
-                    showAlert({ title: '알림', desc: '비디오 파일이 선택되었습니다. 저장 후 확인 가능합니다.', confirmOnly: true });
+                    showAlert({ title: '?뚮┝', desc: '鍮꾨뵒???뚯씪???좏깮?섏뿀?듬땲?? ??????뺤씤 媛?ν빀?덈떎.', confirmOnly: true });
                 }
             };
 
@@ -425,12 +424,12 @@
         }
     }
 
-    /* ── 1. 데이터 로드 확인 ── */
+    /* ?? 1. ?곗씠??濡쒕뱶 ?뺤씤 ?? */
     const contextEl = document.getElementById('safe-report-context');
     const REPORT_ID = contextEl ? contextEl.dataset.reportId : null;
-    console.log("스크립트 로드 완료. REPORT_ID:", REPORT_ID);
+    console.log("?ㅽ겕由쏀듃 濡쒕뱶 ?꾨즺. REPORT_ID:", REPORT_ID);
 
-    /* ── 2. 글자 수 카운터 ── */
+    /* ?? 2. 湲????移댁슫???? */
     function updateCharCount(inputId, counterId, max) {
         const el = document.getElementById(inputId);
         const counter = document.getElementById(counterId);
@@ -439,7 +438,7 @@
         counter.textContent = `${len} / ${max}`;
     }
 
-    /* ── 3. 커스텀 얼럿 함수 ── */
+    /* ?? 3. 而ㅼ뒪? ?쇰읉 ?⑥닔 ?? */
     function showAlert({ title, desc, icon = 'bi-exclamation-circle', confirmOnly = false }) {
         return new Promise((resolve) => {
             const modal = document.getElementById('customAlert');
@@ -454,7 +453,7 @@
             const cancelBtn = document.getElementById('alertCancelBtn');
             if(cancelBtn) cancelBtn.style.display = confirmOnly ? 'none' : 'block';
 
-            // [FIX] 이전 Promise가 남아있으면 null로 resolve하여 정리
+            // [FIX] ?댁쟾 Promise媛 ?⑥븘?덉쑝硫?null濡?resolve?섏뿬 ?뺣━
             if (alertPromiseResolve) {
                 alertPromiseResolve(null);
             }
@@ -464,7 +463,7 @@
             setTimeout(() => modal.classList.add('show'), 10);
 
             document.getElementById('alertConfirmBtn').onclick = () => {
-                alertPromiseResolve = null; // resolve 전에 참조 해제
+                alertPromiseResolve = null; // resolve ?꾩뿉 李몄“ ?댁젣
                 modal.classList.remove('show');
                 setTimeout(() => { modal.style.display = 'none'; }, 200);
                 resolve(true);
@@ -481,7 +480,7 @@
         });
     }
 
-    /* ── [FIX] hideAlert 함수 정의 (backdrop 클릭 시 호출됨) ── */
+    /* ?? [FIX] hideAlert ?⑥닔 ?뺤쓽 (backdrop ?대┃ ???몄텧?? ?? */
     function hideAlert() {
         const modal = document.getElementById('customAlert');
         modal.classList.remove('show');
@@ -494,36 +493,35 @@
         }, 200);
     }
 
-    /* ── 4. [FIX] 수정 완료 처리 - FormData 사용 (파일 업로드 지원) ── */
+    /* ?? 4. [FIX] ?섏젙 ?꾨즺 泥섎━ - FormData ?ъ슜 (?뚯씪 ?낅줈??吏?? ?? */
     async function handleUpdate() {
-        console.log("수정 완료 버튼 클릭됨");
+        console.log("?섏젙 ?꾨즺 踰꾪듉 ?대┃??);
 
         const btn = document.getElementById('updateBtn');
         const titleVal = document.getElementById('edit-title').value.trim();
         const contentVal = document.getElementById('edit-content').value.trim();
 
         if (!titleVal || !contentVal) {
-            await showAlert({ title: '오류', desc: '제목과 내용을 모두 입력해주세요.', confirmOnly: true });
+            await showAlert({ title: '?ㅻ쪟', desc: '?쒕ぉ怨??댁슜??紐⑤몢 ?낅젰?댁＜?몄슂.', confirmOnly: true });
             return;
         }
 
         const ok = await showAlert({
-            title: '수정 확인',
-            desc: '변경사항을 저장하시겠습니까?',
+            title: '?섏젙 ?뺤씤',
+            desc: '蹂寃쎌궗??쓣 ??ν븯?쒓쿋?듬땲源?',
             icon: 'bi-question-circle'
         });
 
         if (ok) {
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 저장 중...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> ???以?..';
 
             try {
-                // [FIX] JSON 대신 FormData 사용 → 파일 업로드 + 텍스트 동시 전송 가능
-                const formData = new FormData();
+                // [FIX] JSON ???FormData ?ъ슜 ???뚯씪 ?낅줈??+ ?띿뒪???숈떆 ?꾩넚 媛??                const formData = new FormData();
                 formData.append('title', titleVal);
                 formData.append('content', contentVal);
 
-                // 새로 선택한 파일이 있으면 함께 전송
+                // ?덈줈 ?좏깮???뚯씪???덉쑝硫??④퍡 ?꾩넚
                 const fileInput = document.getElementById('edit-file');
                 if (fileInput.files && fileInput.files[0]) {
                     formData.append('file', fileInput.files[0]);
@@ -531,32 +529,32 @@
 
                 const resp = await fetch(`/api/report/${REPORT_ID}/update`, {
                     method: 'POST',
-                    // [FIX] Content-Type 헤더를 명시하지 않음 (FormData가 자동으로 multipart/form-data 설정)
+                    // [FIX] Content-Type ?ㅻ뜑瑜?紐낆떆?섏? ?딆쓬 (FormData媛 ?먮룞?쇰줈 multipart/form-data ?ㅼ젙)
                     body: formData
                 });
 
                 const data = await resp.json();
 
                 if (data.success) {
-                    await showAlert({ title: '수정 완료', desc: '성공적으로 수정되었습니다.', confirmOnly: true });
+                    await showAlert({ title: '?섏젙 ?꾨즺', desc: '?깃났?곸쑝濡??섏젙?섏뿀?듬땲??', confirmOnly: true });
                     window.location.href = '/status';
                 } else {
-                    throw new Error(data.message || '저장 실패');
+                    throw new Error(data.message || '????ㅽ뙣');
                 }
             } catch (e) {
-                console.error("에러:", e);
-                await showAlert({ title: '실패', desc: '서버 저장 중 오류가 발생했습니다.', confirmOnly: true });
+                console.error("?먮윭:", e);
+                await showAlert({ title: '?ㅽ뙣', desc: '?쒕쾭 ???以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', confirmOnly: true });
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-lg"></i> 수정 완료';
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> ?섏젙 ?꾨즺';
             }
         }
     }
 
-    /* ── [NEW] 소프트 삭제 (DB 보존, status='삭제'로 변경) ── */
+    /* ?? [NEW] ?뚰봽????젣 (DB 蹂댁〈, status='??젣'濡?蹂寃? ?? */
     async function handleSoftDelete() {
         const ok = await showAlert({
-            title: '게시글 삭제',
-            desc: '이 게시물을 삭제하시겠습니까?\n삭제 후에는 목록에서 사라집니다.',
+            title: '寃뚯떆湲 ??젣',
+            desc: '??寃뚯떆臾쇱쓣 ??젣?섏떆寃좎뒿?덇퉴?\n??젣 ?꾩뿉??紐⑸줉?먯꽌 ?щ씪吏묐땲??',
             icon: 'bi-trash3'
         });
 
@@ -568,20 +566,20 @@
                 const data = await resp.json();
 
                 if (data.success) {
-                    await showAlert({ title: '삭제 완료', desc: '게시물이 삭제되었습니다.', confirmOnly: true });
+                    await showAlert({ title: '??젣 ?꾨즺', desc: '寃뚯떆臾쇱씠 ??젣?섏뿀?듬땲??', confirmOnly: true });
                     window.location.href = '/status';
                 } else {
-                    await showAlert({ title: '실패', desc: data.message || '삭제에 실패했습니다.', confirmOnly: true });
+                    await showAlert({ title: '?ㅽ뙣', desc: data.message || '??젣???ㅽ뙣?덉뒿?덈떎.', confirmOnly: true });
                 }
             } catch (err) {
-                console.error("삭제 오류:", err);
-                await showAlert({ title: '오류', desc: '서버 통신 중 오류가 발생했습니다.', confirmOnly: true });
+                console.error("??젣 ?ㅻ쪟:", err);
+                await showAlert({ title: '?ㅻ쪟', desc: '?쒕쾭 ?듭떊 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', confirmOnly: true });
             }
         }
     }
 
 
-    /* ── 카카오 지도 ── */
+    /* ?? 移댁뭅??吏???? */
     window.onload = () => {
         try {
             const lat = parseFloat('{{ detail.lat or 37.5665 }}');
@@ -590,7 +588,7 @@
             const map = new kakao.maps.Map(document.getElementById('edit-map'), mapOption);
             new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat, lng) }).setMap(map);
         } catch (e) {
-            console.log("지도 로드 실패:", e);
+            console.log("吏??濡쒕뱶 ?ㅽ뙣:", e);
         }
     };
 </script>

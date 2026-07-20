@@ -1,17 +1,17 @@
-{% extends "admin_layout.html" %}
+﻿{% extends "admin_layout.html" %}
 
-{% block title %}CRACK 회원 상세{% endblock %}
+{% block title %}CRACK ?뚯썝 ?곸꽭{% endblock %}
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="알림">🔔</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="?뚮┝">?뵒</a>
 </div>
 {% endblock %}
 {% block account_area %}
 <div class="account-chip">
-  <strong>{{ session.get('user_name', '관리자') }}님</strong>
+  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </div>
-<a href="/logout" class="logout-pill">로그아웃</a>
+<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -400,7 +400,7 @@
   .summary-label {
     font-size: 11px;
     font-weight: 700;
-    color: #94a3b8;   /* 더 흐리게 */
+    color: #94a3b8;   /* ???먮━寃?*/
     letter-spacing: 0.2px;
   }
 
@@ -927,7 +927,7 @@
     <div class="member-profile-card">
       <a href="/admin/members?page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
         class="back-btn member-back-btn js-page-transition-link">
-        ← 목록으로
+        ??紐⑸줉?쇰줈
       </a>
 
       <div class="member-profile-top">
@@ -939,39 +939,39 @@
             {% if request.args.get('edit') == '1' %}
             <form method="post" action="/admin/members/{{ member.id }}/role" class="member-role-edit-form">
               <select name="role" class="member-role-select">
-                <option value="user" {% if member.role=='user' %}selected{% endif %}>일반회원</option>
-                <option value="manager" {% if member.role=='manager' %}selected{% endif %}>매니저</option>
-                <option value="admin" {% if member.role=='admin' %}selected{% endif %}>관리자</option>
+                <option value="user" {% if member.role=='user' %}selected{% endif %}>?쇰컲?뚯썝</option>
+                <option value="manager" {% if member.role=='manager' %}selected{% endif %}>留ㅻ땲?</option>
+                <option value="admin" {% if member.role=='admin' %}selected{% endif %}>愿由ъ옄</option>
               </select>
-              <button type="submit" class="member-save-btn" data-confirm-message="역할을 변경하시겠습니까?">저장</button>
+              <button type="submit" class="member-save-btn" data-confirm-message="??븷??蹂寃쏀븯?쒓쿋?듬땲源?">???/button>
             </form>
 
             <div class="member-status-edit-wrap">
               {% if member.active %}
               <form method="post" action="/admin/members/{{ member.id }}/suspend" class="member-inline-form">
                 <button type="submit" class="member-suspend-btn danger"
-                  data-confirm-message="이 회원을 정지하시겠습니까?">정지</button>
+                  data-confirm-message="???뚯썝???뺤??섏떆寃좎뒿?덇퉴?">?뺤?</button>
               </form>
               {% else %}
               <form method="post" action="/admin/members/{{ member.id }}/unsuspend" class="member-inline-form">
-                <button type="submit" class="member-suspend-btn" data-confirm-message="이 회원의 정지를 해제하시겠습니까?">정지
-                  해제</button>
+                <button type="submit" class="member-suspend-btn" data-confirm-message="???뚯썝???뺤?瑜??댁젣?섏떆寃좎뒿?덇퉴?">?뺤?
+                  ?댁젣</button>
               </form>
               {% endif %}
             </div>
             {% else %}
             {% if member.role == 'admin' %}
-            <span class="role-badge role-admin">관리자</span>
+            <span class="role-badge role-admin">愿由ъ옄</span>
             {% elif member.role == 'manager' %}
-            <span class="role-badge role-manager">매니저</span>
+            <span class="role-badge role-manager">留ㅻ땲?</span>
             {% else %}
-            <span class="role-badge role-user">일반회원</span>
+            <span class="role-badge role-user">?쇰컲?뚯썝</span>
             {% endif %}
 
             {% if member.active %}
-            <span class="status-badge">활성</span>
+            <span class="status-badge">?쒖꽦</span>
             {% else %}
-            <span class="status-badge status-inactive">정지</span>
+            <span class="status-badge status-inactive">?뺤?</span>
             {% endif %}
             {% endif %}
           </div>
@@ -979,30 +979,29 @@
 
         <div class="member-profile-meta">
           <span class="member-profile-chip">
-            가입일 {{ member.created_at.strftime('%Y-%m-%d') if member.created_at else '-' }}
+            媛?낆씪 {{ member.created_at.strftime('%Y-%m-%d') if member.created_at else '-' }}
           </span>
 
           {% if member.role == 'manager' %}
           <span class="member-profile-chip">
-            지역 · {{ member.manager_region if member.manager_region else '미지정' }}
+            吏??쨌 {{ member.manager_region if member.manager_region else '誘몄??? }}
           </span>
           {% endif %}
 
           <span class="member-profile-chip">
-            누적 신고 {{ member_stats.total_reports or 0 }}건
-          </span>
+            ?꾩쟻 ?좉퀬 {{ member_stats.total_reports or 0 }}嫄?          </span>
         </div>
 
         <div class="member-profile-edit-row">
           {% if request.args.get('edit') == '1' %}
           <a href="/admin/members/{{ member.id }}?page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
             class="member-cancel-btn js-page-transition-link">
-            편집 종료
+            ?몄쭛 醫낅즺
           </a>
           {% else %}
           <a href="/admin/members/{{ member.id }}?edit=1&page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
             class="member-edit-btn js-page-transition-link">
-            편집
+            ?몄쭛
           </a>
           {% endif %}
         </div>
@@ -1012,36 +1011,36 @@
     <div class="member-info-grid">
       <div class="stats-card">
         <div class="stats-card-head">
-          <div class="stats-card-title">신고 상태</div>
+          <div class="stats-card-title">?좉퀬 ?곹깭</div>
         </div>
 
         <div class="stats-grid">
           <div class="stats-item received">
-            <div class="stats-label"><span class="stats-dot"></span>접수완료</div>
+            <div class="stats-label"><span class="stats-dot"></span>?묒닔?꾨즺</div>
             <div class="stats-value">{{ member_stats.received_reports or 0 }}</div>
-            <div class="stats-sub">전체 신고 접수</div>
+            <div class="stats-sub">?꾩껜 ?좉퀬 ?묒닔</div>
           </div>
 
           <div class="stats-item processing">
-            <div class="stats-label"><span class="stats-dot"></span>처리중</div>
+            <div class="stats-label"><span class="stats-dot"></span>泥섎━以?/div>
             <div class="stats-value">{{ member_stats.processing_reports or 0 }}</div>
-            <div class="stats-sub">관리자 검토 진행</div>
+            <div class="stats-sub">愿由ъ옄 寃??吏꾪뻾</div>
           </div>
 
           <div class="stats-item completed">
-            <div class="stats-label"><span class="stats-dot"></span>처리완료</div>
+            <div class="stats-label"><span class="stats-dot"></span>泥섎━?꾨즺</div>
             <div class="stats-value">{{ member_stats.completed_reports or 0 }}</div>
-            <div class="stats-sub">조치 완료</div>
+            <div class="stats-sub">議곗튂 ?꾨즺</div>
           </div>
 
           <div class="stats-item rejected">
-            <div class="stats-label"><span class="stats-dot"></span>반려</div>
+            <div class="stats-label"><span class="stats-dot"></span>諛섎젮</div>
             <div class="stats-value">{{ member_stats.rejected_reports or 0 }}</div>
             <div class="stats-sub">
               {% if (member_stats.rejected_reports or 0) > 0 %}
-              반려 이력 있음
+              諛섎젮 ?대젰 ?덉쓬
               {% else %}
-              반려 처리 없음
+              諛섎젮 泥섎━ ?놁쓬
               {% endif %}
             </div>
           </div>
@@ -1050,32 +1049,32 @@
 
       <div class="risk-card">
         <div class="risk-card-head">
-          <div class="risk-card-title">주의 현황</div>
+          <div class="risk-card-title">二쇱쓽 ?꾪솴</div>
         </div>
 
         <div class="risk-grid">
           <div class="risk-item avg">
-            <div class="risk-label"><span class="risk-dot"></span>미처리</div>
+            <div class="risk-label"><span class="risk-dot"></span>誘몄쿂由?/div>
             <div class="risk-value">{{ member_stats.pending_reports or 0 }}</div>
-            <div class="risk-sub">접수완료 + 처리중</div>
+            <div class="risk-sub">?묒닔?꾨즺 + 泥섎━以?/div>
           </div>
 
           <div class="risk-item high">
-            <div class="risk-label"><span class="risk-dot"></span>고위험 미처리</div>
+            <div class="risk-label"><span class="risk-dot"></span>怨좎쐞??誘몄쿂由?/div>
             <div class="risk-value">{{ member_stats.high_risk_pending_reports or 0 }}</div>
-            <div class="risk-sub">위험도 70점 이상</div>
+            <div class="risk-sub">?꾪뿕??70???댁긽</div>
           </div>
 
           <div class="risk-item medium">
-            <div class="risk-label"><span class="risk-dot"></span>장기 미처리</div>
+            <div class="risk-label"><span class="risk-dot"></span>?κ린 誘몄쿂由?/div>
             <div class="risk-value">{{ member_stats.long_pending_reports or 0 }}</div>
-            <div class="risk-sub">24시간 이상 경과</div>
+            <div class="risk-sub">24?쒓컙 ?댁긽 寃쎄낵</div>
           </div>
 
           <div class="risk-item low">
-            <div class="risk-label"><span class="risk-dot"></span>최근 7일</div>
+            <div class="risk-label"><span class="risk-dot"></span>理쒓렐 7??/div>
             <div class="risk-value">{{ member_stats.recent_7d_reports or 0 }}</div>
-            <div class="risk-sub">최근 활동량</div>
+            <div class="risk-sub">理쒓렐 ?쒕룞??/div>
           </div>
         </div>
       </div>
@@ -1085,37 +1084,37 @@
   <div class="member-side">
     <div class="summary-card">
       <div class="summary-card-head">
-        <div class="summary-card-title">활동 요약</div>
-        <div class="summary-card-badge">핵심 지표</div>
+        <div class="summary-card-title">?쒕룞 ?붿빟</div>
+        <div class="summary-card-badge">?듭떖 吏??/div>
       </div>
 
       <div class="summary-grid">
         <div class="summary-item avg">
-          <div class="summary-label">승인율</div>
+          <div class="summary-label">?뱀씤??/div>
           <div class="summary-value">{{ member_stats.approved_rate or 0 }}%</div>
         </div>
 
         <div class="summary-item reject">
-          <div class="summary-label">반려율</div>
+          <div class="summary-label">諛섎젮??/div>
           <div class="summary-value">{{ member_stats.rejected_rate or 0 }}%</div>
         </div>
 
         <div class="summary-item grouped">
-          <div class="summary-label">중복 신고율</div>
+          <div class="summary-label">以묐났 ?좉퀬??/div>
           <div class="summary-value">{{ member_stats.duplicate_rate or 0 }}%</div>
         </div>
 
         <div class="summary-item date">
-          <div class="summary-label">최근 30일 활동</div>
-          <div class="summary-value">{{ member_stats.recent_30d_reports or 0 }}건</div>
+          <div class="summary-label">理쒓렐 30???쒕룞</div>
+          <div class="summary-value">{{ member_stats.recent_30d_reports or 0 }}嫄?/div>
         </div>
       </div>
     </div>
 
     <div class="activity-card">
       <div class="section-card-head">
-        <div class="section-card-title">최근 신고</div>
-        <div class="section-card-count">누적 신고 {{ member_stats.total_reports or 0 }}건</div>
+        <div class="section-card-title">理쒓렐 ?좉퀬</div>
+        <div class="section-card-count">?꾩쟻 ?좉퀬 {{ member_stats.total_reports or 0 }}嫄?/div>
       </div>
 
       {% if member_incidents and member_incidents|length > 0 %}
@@ -1123,34 +1122,34 @@
         {% for post in member_incidents %}
         <a href="/admin/incidents?member_id={{ member.id }}" class="post-item js-page-transition-link">
           <div class="post-item-top">
-            <div class="post-title">{{ post.title if post.title else '제목 없는 게시글' }}</div>
+            <div class="post-title">{{ post.title if post.title else '?쒕ぉ ?녿뒗 寃뚯떆湲' }}</div>
             <div class="post-date">{{ post.first_created_at.strftime('%Y-%m-%d') if post.first_created_at else '-' }}
             </div>
           </div>
 
           <div class="post-meta">
             {% if post.risk_score >= 70 %}
-            <span class="mini-badge mini-risk-high">위험도 높음</span>
+            <span class="mini-badge mini-risk-high">?꾪뿕???믪쓬</span>
             {% elif post.risk_score >= 40 %}
-            <span class="mini-badge mini-risk-medium">위험도 중간</span>
+            <span class="mini-badge mini-risk-medium">?꾪뿕??以묎컙</span>
             {% else %}
-            <span class="mini-badge mini-risk-low">위험도 낮음</span>
+            <span class="mini-badge mini-risk-low">?꾪뿕????쓬</span>
             {% endif %}
 
-            {% if post.status == '접수완료' %}
-            <span class="mini-badge mini-status-received">접수완료</span>
-            {% elif post.status == '처리중' %}
-            <span class="mini-badge mini-status-processing">처리중</span>
-            {% elif post.status == '처리완료' %}
-            <span class="mini-badge mini-status-done">처리완료</span>
-            {% elif post.status == '반려' %}
-            <span class="mini-badge mini-status-rejected">반려</span>
+            {% if post.status == '?묒닔?꾨즺' %}
+            <span class="mini-badge mini-status-received">?묒닔?꾨즺</span>
+            {% elif post.status == '泥섎━以? %}
+            <span class="mini-badge mini-status-processing">泥섎━以?/span>
+            {% elif post.status == '泥섎━?꾨즺' %}
+            <span class="mini-badge mini-status-done">泥섎━?꾨즺</span>
+            {% elif post.status == '諛섎젮' %}
+            <span class="mini-badge mini-status-rejected">諛섎젮</span>
             {% else %}
             <span class="mini-badge mini-status-rejected">{{ post.status }}</span>
             {% endif %}
 
             <span class="post-location">
-              {{ post.region_name if post.region_name else (post.location if post.location else '위치 정보 없음') }}
+              {{ post.region_name if post.region_name else (post.location if post.location else '?꾩튂 ?뺣낫 ?놁쓬') }}
             </span>
           </div>
         </a>
@@ -1158,11 +1157,11 @@
       </div>
 
       <div class="section-card-footer">
-        <a href="/admin/incidents?member_id={{ member.id }}" class="section-link js-page-transition-link">전체 보기 →</a>
+        <a href="/admin/incidents?member_id={{ member.id }}" class="section-link js-page-transition-link">?꾩껜 蹂닿린 ??/a>
       </div>
       {% else %}
       <div class="empty-box">
-        등록한 게시글이 없습니다.
+        ?깅줉??寃뚯떆湲???놁뒿?덈떎.
       </div>
       {% endif %}
     </div>
@@ -1173,18 +1172,18 @@
 
 <div id="confirmModal" class="confirm-modal-backdrop">
   <div class="confirm-modal">
-    <div class="confirm-modal-title">한 번 더 확인해주세요</div>
-    <div id="confirmModalMessage" class="confirm-modal-message">정말 진행하시겠습니까?</div>
+    <div class="confirm-modal-title">??踰????뺤씤?댁＜?몄슂</div>
+    <div id="confirmModalMessage" class="confirm-modal-message">?뺣쭚 吏꾪뻾?섏떆寃좎뒿?덇퉴?</div>
     <div class="confirm-modal-actions">
-      <button type="button" id="confirmCancelBtn" class="confirm-modal-btn secondary">취소</button>
-      <button type="button" id="confirmOkBtn" class="confirm-modal-btn primary">확인</button>
+      <button type="button" id="confirmCancelBtn" class="confirm-modal-btn secondary">痍⑥냼</button>
+      <button type="button" id="confirmOkBtn" class="confirm-modal-btn primary">?뺤씤</button>
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_script %}
-<script>
+<script nonce="{{ csp_nonce }}">
   let pageTransitionRunning = false;
   let pendingConfirmForm = null;
 
@@ -1269,3 +1268,4 @@
   });
 </script>
 {% endblock %}
+
