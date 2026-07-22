@@ -528,10 +528,10 @@
         </script>
         {% else %}
         <div class="media-hero"
-            onclick="openEnlargeModal('{{ detail.display_image_path }}')"
+            onclick="openEnlargeModal({{ detail.display_image_path | tojson }})"
             style="cursor: pointer;">
             {% if detail.display_image_path %}
-            <img src="{{ detail.display_image_path }}" alt="?좉퀬 ?ъ쭊" onerror="this.src='/static/images/yolo/v5/val_batch0_pred.jpg'">
+            <img src="{{ detail.display_image_path }}" alt="상세 이미지" onerror="this.src='/static/images/yolo/v5/val_batch0_pred.jpg'">
             {% else %}
             <div
                 style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0;">
@@ -994,8 +994,8 @@
     // 9. 상세 페이지 진입 처리: window.onload 대신 DOMContentLoaded 사용
     // ========================
     document.addEventListener('DOMContentLoaded', function () {
-        const lat = parseFloat('{{ detail.lat or 37.5665 }}');
-        const lng = parseFloat('{{ detail.lng or 126.9780 }}');
+        const lat = Number({{ (detail.lat if detail.lat is not none else 37.5665) | tojson }});
+        const lng = Number({{ (detail.lng if detail.lng is not none else 126.9780) | tojson }});
         const mapContainer = document.getElementById('view-map');
         if (!mapContainer) return;
 
