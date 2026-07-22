@@ -472,27 +472,28 @@
             style="margin: 0; font-size: 1.1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ?곸꽭 ?뺣낫</h3>
 
-        {# 蹂몄씤?닿굅?? 愿由ъ옄(admin)?닿굅?? 留ㅻ땲?(manager)??寃쎌슦 沅뚰븳 遺??#}
+        {# 수정/삭제 메뉴: 작성자(또는 관리자/매니저만 수정 삭제 가능 #}
         {% if is_owner or is_admin or is_manager %}
-        {% if detail.status == '愿由ъ옄 ?뺤씤以? or is_admin or is_manager %}
-        <div onclick="handleEditReport()" style="cursor: pointer; padding: 5px; margin-right: 2px;" title="?섏젙?섍린">
+        {% if detail.status == "관리자 확인중" or is_admin or is_manager %}
+        <div onclick="handleEditReport()" style="cursor: pointer; padding: 5px; margin-right: 2px;" title="수정">
             <i class="bi bi-pencil-square" style="color: var(--point-orange); font-size: 1.2rem;"></i>
         </div>
-        <div onclick="handleDeleteReport()" style="cursor: pointer; padding: 5px;" title="??젣?섍린">
+        <div onclick="handleDeleteReport()" style="cursor: pointer; padding: 5px;" title="삭제">
             <i class="bi bi-trash3" style="color: var(--point-orange); font-size: 1.2rem;"></i>
         </div>
         {% else %}
-        {# ?쇰컲 ?ъ슜?먭? '愿由ъ옄 ?뺤씤以? ?④퀎媛 ?꾨땺 ?뚮쭔 ?좉툑 ?쒖떆 #}
+        {# 접근 권한이 없으면 수정/삭제 잠금 표시 #}
         <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; margin-right: 2px; opacity: 0.3;"
-            title="?섏젙 遺덇?">
+            title="수정 잠금">
             <i class="bi bi-pencil-square" style="color: #aaa; font-size: 1.2rem;"></i>
         </div>
-        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; opacity: 0.3;" title="??젣 遺덇?">
+        <div onclick="showLockedAlert()" style="cursor: pointer; padding: 5px; opacity: 0.3;" title="삭제 잠금">
             <i class="bi bi-trash3" style="color: #aaa; font-size: 1.2rem;"></i>
         </div>
         {% endif %}
         {% endif %}
     </div>
+
 
     <!-- ?숈쁺??CV ?ㅻ쾭?덉씠 紐⑤뱶 (愿由ъ옄 ?꾩슜) -->
     <div class="media-section">
@@ -501,11 +502,11 @@
         <div class="video-cv-container" id="video-cv-container">
             {% if is_admin %}
             <span class="status-floating
-                        {% if detail.status == '泥섎━?꾨즺' %}status-done
-                        {% elif detail.status == '泥섎━以? %}status-processing
-                        {% elif detail.status == '?묒닔?꾨즺' %}status-received
-                        {% elif detail.status == '諛섎젮' %}status-rejected
-                        {% elif detail.status == 'AI 遺꾩꽍以? %}status-analyzing
+                        {% if detail.status == '처리완료' %}status-done
+                        {% elif detail.status == '처리중' %}status-processing
+                        {% elif detail.status == '접수완료' %}status-received
+                        {% elif detail.status == '반려' %}status-rejected
+                        {% elif detail.status == 'AI 분석중' %}status-analyzing
                         {% else %}status-default{% endif %}
                     ">{{ detail.status }}</span>
             {% endif %}
@@ -527,10 +528,10 @@
         </script>
         {% else %}
         <div class="media-hero"
-            onclick="openEnlargeModal('{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}')"
+            onclick="openEnlargeModal('{{ detail.display_image_path }}')"
             style="cursor: pointer;">
-            {% if detail.file_path or detail.thumbnail_path %}
-            <img src="{{ detail.thumbnail_path if detail.thumbnail_path else detail.file_path }}" alt="?좉퀬 ?ъ쭊">
+            {% if detail.display_image_path %}
+            <img src="{{ detail.display_image_path }}" alt="?좉퀬 ?ъ쭊" onerror="this.src='/static/images/yolo/v5/val_batch0_pred.jpg'">
             {% else %}
             <div
                 style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0;">
@@ -562,27 +563,28 @@
                 AI ?먮룆: {{ detail.damage_type }} ({{ detail.confidence }}%)
             </div>
 
+            {% endif %}
             <div class="status-dropdown-wrap">
                 <button onclick="toggleDetailStatusDropdown(event)"
-                    class="detail-status-btn {% if detail.status == '泥섎━?꾨즺' %}status-done{% elif detail.status == '泥섎━以? %}status-processing{% elif detail.status == '?묒닔?꾨즺' %}status-received{% elif detail.status == '諛섎젮' %}status-rejected{% elif detail.status == 'AI 遺꾩꽍以? %}status-analyzing{% else %}status-default{% endif %}">
+                    class="detail-status-btn {% if detail.status == '처리완료' %}status-done{% elif detail.status == '처리중' %}status-processing{% elif detail.status == '접수완료' %}status-received{% elif detail.status == '반려' %}status-rejected{% elif detail.status == 'AI 분석중' %}status-analyzing{% else %}status-default{% endif %}">
                     {{ detail.status }} <i class="bi bi-chevron-down" style="font-size: 0.7rem; margin-left: 2px;"></i>
                 </button>
                 <div id="detailStatusDropdown" class="status-dropdown-menu">
-                    <div onclick="updateStatusFromDetail('愿由ъ옄 ?뺤씤以?)" class="dropdown-item" style="color:#607D8B;">愿由ъ옄 ?뺤씤
-                    </div>
-                    <div onclick="updateStatusFromDetail('?묒닔?꾨즺')" class="dropdown-item">?묒닔?꾨즺</div>
-                    <div onclick="updateStatusFromDetail('泥섎━以?)" class="dropdown-item" style="color:#FACC15;">泥섎━以?/div>
-                    <div onclick="updateStatusFromDetail('泥섎━?꾨즺')" class="dropdown-item" style="color:#2E7D32;">泥섎━?꾨즺
-                    </div>
-                    <div onclick="updateStatusFromDetail('諛섎젮')" class="dropdown-item reject-item">諛섎젮</div>
+                    <div onclick="updateStatusFromDetail('관리자 확인중')" class="dropdown-item" style="color:#607D8B;">관리자 확인중</div>
+                    <div onclick="updateStatusFromDetail('접수완료')" class="dropdown-item">접수완료</div>
+                    <div onclick="updateStatusFromDetail('처리중')" class="dropdown-item" style="color:#FACC15;">처리중</div>
+                    <div onclick="updateStatusFromDetail('처리완료')" class="dropdown-item" style="color:#2E7D32;">처리완료</div>
+                    <div onclick="updateStatusFromDetail('반려')" class="dropdown-item reject-item">반려</div>
                     <div onclick="reAnalyzeAI()" class="dropdown-item"
                         style="border-top:1px solid #eee; color:var(--point-orange);">
-                        <i class="bi bi-robot"></i> AI ?щ텇??                    </div>
+                        <i class="bi bi-robot"></i> AI 재분석
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
 
+
+    </div>
         <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 12px;">{{ detail.title }}</h2>
         <p style="font-size: 0.95rem; line-height: 1.6; opacity: 0.7;">{{ detail.content }}</p>
 
@@ -628,7 +630,7 @@
 
 <script nonce="{{ csp_nonce }}">
     // ========================
-    // 1. ?꾩뿭 ?곸닔 諛?蹂??    // ========================
+    // 1. ?占쎌뿭 ?占쎌닔 占?占???    // ========================
     const REPORT_ID = document.getElementById('safe-report-context').dataset.reportId;
     let alertPromiseResolve = null;
 
@@ -873,7 +875,7 @@
             var d = data[i];
             html += '<div class="det-item" onclick="seekToTime(' + d.time + ')">';
             html += '<span class="det-time">' + formatTime(d.time) + '</span>';
-            html += '<span class="det-class">' + escapeHtml(d.class) + '</span>';
+            html += '<span class="det-class">' + d.class + '</span>';
             html += '<span class="det-conf">' + d.conf + '%</span>';
             html += '</div>';
         }
@@ -951,13 +953,13 @@
     }
 
     // ========================
-    // 7. AI ?щ텇??(愿由ъ옄??
+    // 7. AI 재분석 기능
     // ========================
     async function reAnalyzeAI() {
         document.getElementById('detailStatusDropdown').classList.remove('show');
         const ok = await showAlert({
-            title: 'AI ?щ텇??,
-            desc: '???좉퀬瑜?AI濡??ㅼ떆 遺꾩꽍?섏떆寃좎뒿?덇퉴?',
+            title: 'AI 재분석',
+            desc: '이상징후의 기존 AI 판정을 다시 분석하시겠습니까?',
             icon: 'bi-robot'
         });
         if (ok === true) {
@@ -965,18 +967,17 @@
                 const resp = await fetch(`/api/admin/report/${REPORT_ID}/reanalyze`, { method: 'POST' });
                 const data = await resp.json();
                 if (data.success) {
-                    await showAlert({ title: '?꾨즺', desc: 'AI ?щ텇?앹씠 ?쒖옉?섏뿀?듬땲??' });
+                    await showAlert({ title: '요청', desc: 'AI 재분석 요청이 접수되었습니다.' });
                     location.reload();
                 } else {
-                    await showAlert({ title: '?ㅽ뙣', desc: data.message });
+                    await showAlert({ title: '실패', desc: data.message });
                 }
             } catch (err) {
-                console.error('AI ?щ텇???ㅻ쪟:', err);
+                console.error('AI 재분석 요청 실패:', err);
             }
         }
     }
 
-    // ========================
     // 8. ?대?吏 ?뺣? 紐⑤떖
     // ========================
     function openEnlargeModal(src) {
@@ -990,7 +991,7 @@
     }
 
     // ========================
-    // 9. 移댁뭅??吏??珥덇린??    //    window.onload ???DOMContentLoaded ?ъ슜 ??layout.html怨?異⑸룎 諛⑹?
+    // 9. 移댁뭅??占???珥덇린??    //    window.onload ????DOMContentLoaded ?占쎌슜 ??layout.html占?異⑸룎 諛⑼옙?
     // ========================
     document.addEventListener('DOMContentLoaded', function () {
         const lat = parseFloat('{{ detail.lat or 37.5665 }}');
@@ -998,7 +999,7 @@
         const mapContainer = document.getElementById('view-map');
         if (!mapContainer) return;
 
-        // 移댁뭅??SDK媛 ?꾩쭅 濡쒕뱶 ???먯쓣 寃쎌슦 ?鍮?        if (typeof kakao === 'undefined' || !kakao.maps) {
+        // 移댁뭅??SDK占? ?占쎌쭅 濡쒕뱶 ???占쎌쓣 寃쎌슦 ??占?        if (typeof kakao === 'undefined' || !kakao.maps) {
             console.warn('[Map] Kakao Maps SDK not loaded yet.');
             return;
         }
