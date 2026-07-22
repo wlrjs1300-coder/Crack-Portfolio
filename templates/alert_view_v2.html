@@ -528,7 +528,7 @@
         </script>
         {% else %}
         <div class="media-hero"
-            onclick='openEnlargeModal({{ detail.display_image_path | tojson }})'
+            onclick="openEnlargeModal({{ detail.display_image_path | tojson }})"
             style="cursor: pointer;">
             {% if detail.display_image_path %}
             <img src="{{ detail.display_image_path }}" alt="상세 이미지" onerror="this.src='/static/images/yolo/v5/val_batch0_pred.jpg'">
@@ -1000,10 +1000,7 @@
         if (!mapContainer) return;
 
         // 카카오 지도 SDK가 안 잡히면 지도를 건너뜁니다.
-        if (typeof kakao === 'undefined' ||
-            !kakao.maps ||
-            typeof kakao.maps.LatLng !== 'function' ||
-            typeof kakao.maps.Map !== 'function') {
+        if (typeof kakao === 'undefined' || !kakao.maps) {
             console.warn('[Map] Kakao Maps SDK not loaded yet.');
             return;
         }
