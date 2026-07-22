@@ -991,7 +991,7 @@
     }
 
     // ========================
-    // 9. 移댁뭅??占???珥덇린??    //    window.onload ????DOMContentLoaded ?占쎌슜 ??layout.html占?異⑸룎 諛⑼옙?
+    // 9. 상세 페이지 진입 처리: window.onload 대신 DOMContentLoaded 사용
     // ========================
     document.addEventListener('DOMContentLoaded', function () {
         const lat = parseFloat('{{ detail.lat or 37.5665 }}');
@@ -999,7 +999,8 @@
         const mapContainer = document.getElementById('view-map');
         if (!mapContainer) return;
 
-        // 移댁뭅??SDK占? ?占쎌쭅 濡쒕뱶 ???占쎌쓣 寃쎌슦 ??占?        if (typeof kakao === 'undefined' || !kakao.maps) {
+        // 카카오 지도 SDK가 안 잡히면 지도를 건너뜁니다.
+        if (typeof kakao === 'undefined' || !kakao.maps) {
             console.warn('[Map] Kakao Maps SDK not loaded yet.');
             return;
         }
