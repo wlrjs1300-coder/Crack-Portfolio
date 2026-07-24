@@ -59,6 +59,15 @@ def _parse_dt(value):
     return None
 
 
+def _display_location(address, region_name):
+    """관리자 목록에는 도로명 전체가 아닌 시·군·구 단위 위치를 표시한다."""
+    raw_location = address or region_name or ''
+    hierarchy = parse_region_hierarchy(raw_location)
+    if hierarchy and hierarchy != ['기타']:
+        return ' '.join(hierarchy)
+    return raw_location or '위치 정보 없음'
+
+
 def haversine_m(lat1, lon1, lat2, lon2):
     lat1 = _safe_float(lat1)
     lon1 = _safe_float(lon1)
@@ -146,7 +155,7 @@ def _fetch_reports():
         if (item.get('file_path') or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')):
             item['file_type'] = 'video'
 
-        item['location'] = item.get('region_name') or item.get('address') or '위치 정보 없음'
+        item['location'] = _display_location(item.get('address'), item.get('region_name'))
         item['first_created_at'] = item['created_at']
         rows.append(item)
     return rows
@@ -171,9 +180,13 @@ def _build_groups(items):
                 other_dt = other.get('created_at')
                 if current_dt is None or other_dt is None:
                     continue
-                if abs((current_dt - other_dt).total_seconds()) > 86400:
+                both_open = (
+                    (current.get('status') or '') in ('접수완료', '처리중')
+                    and (other.get('status') or '') in ('접수완료', '처리중')
+                )
+                if not both_open and abs((current_dt - other_dt).total_seconds()) > 86400:
                     continue
-                if haversine_m(current.get('latitude'), current.get('longitude'), other.get('latitude'), other.get('longitude')) > 50:
+                if haversine_m(current.get('latitude'), current.get('longitude'), other.get('latitude'), other.get('longitude')) > 30:
                     continue
                 visited.add(other['id'])
                 queue.append(other)
@@ -199,7 +212,7 @@ def _build_groups(items):
                 urgent_reasons.append('고위험')
             if repeat_count >= 2:
                 urgent_reasons.append('반복 제보')
-            if created_at and status in ('접수완료', '관리자 확인중') and (datetime.now() - created_at).total_seconds() >= 86400:
+            if created_at and status == '접수완료' and (datetime.now() - created_at).total_seconds() >= 86400:
                 urgent_reasons.append('처리 지연')
             member['group_reporter_count'] = repeat_count
             member['urgent_reason'] = ', '.join(urgent_reasons)
@@ -222,9 +235,7 @@ def _priority_score(item):
     repeat_count = _safe_int(item.get('group_reporter_count'), 0)
     created_at = item.get('created_at')
 
-    if status in ('접수완료', '관리자 확인중'):
-        score += 100
-
+    # 접수완료는 모든 신고의 기본 시작 상태이므로 긴급도 가점을 주지 않는다.
     if risk_score >= 80:
         score += 50
     elif risk_score >= 50:
@@ -237,7 +248,7 @@ def _priority_score(item):
     elif repeat_count >= 1:
         score += 10
 
-    if created_at and status in ('접수완료', '관리자 확인중') and (datetime.now() - created_at).total_seconds() >= 86400:
+    if created_at and status == '접수완료' and (datetime.now() - created_at).total_seconds() >= 86400:
         score += 40
 
     return score
@@ -245,13 +256,10 @@ def _priority_score(item):
 
 def _status_rank(status):
     order = {
-        '관리자 확인중': 0,
-        '접수완료': 1,
-        '처리중': 2,
-        '처리중': 3,
-        '처리완료': 4,
-        '반려': 5,
-        '삭제': 6,
+        '접수완료': 0,
+        '처리중': 1,
+        '처리완료': 2,
+        '삭제': 3,
     }
     return order.get((status or '').strip(), 99)
 
@@ -307,7 +315,7 @@ def admin_dashboard():
     dashboard_items = []
 
     def is_pending(item):
-        return (item.get('status') or '') in ('관리자 확인중', '접수완료')
+        return (item.get('status') or '') == '접수완료'
 
     def is_long_pending(item):
         created_at = item.get('created_at')
@@ -325,7 +333,7 @@ def admin_dashboard():
         'today_count': sum(1 for item in reports if item.get('created_at') and item['created_at'].date() == today),
         'pending_count': sum(1 for item in reports if is_pending(item)),
         'processing_count': sum(1 for item in reports if (item.get('status') or '') == '처리중'),
-        'rejected_count': sum(1 for item in reports if (item.get('status') or '') == '반려'),
+        'completed_count': sum(1 for item in reports if (item.get('status') or '') == '처리완료'),
     }
 
     if selected_tab == 'urgent':
@@ -340,10 +348,10 @@ def admin_dashboard():
         dashboard_items = [item for item in reports if (item.get('status') or '') == '처리중']
         dashboard_section_title = '처리중'
         dashboard_section_subtitle = '현재 처리중인 신고 목록입니다.'
-    elif selected_tab == 'rejected':
-        dashboard_items = [item for item in reports if (item.get('status') or '') == '반려']
-        dashboard_section_title = '반려 신고'
-        dashboard_section_subtitle = '반려 처리된 신고 목록입니다.'
+    elif selected_tab == 'completed':
+        dashboard_items = [item for item in reports if (item.get('status') or '') == '처리완료']
+        dashboard_section_title = '처리완료'
+        dashboard_section_subtitle = '처리가 완료된 신고 목록입니다.'
     else:
         selected_tab = 'pending'
         dashboard_items = [item for item in reports if is_pending(item)]
@@ -407,8 +415,12 @@ def admin_incidents():
 
     reports, representative_reports, _ = _hydrate_reports()
 
+    # 전체 관리 화면은 같은 장소의 제보를 사고 대표 건으로 표시한다.
+    # 회원 상세에서 진입한 경우에는 해당 회원이 실제로 남긴 제보 기록을 유지한다.
+    source_reports = reports if member_id else representative_reports
+
     filtered = []
-    for item in reports:
+    for item in source_reports:
         status = item.get('status') or ''
         if status == '삭제':
             continue
@@ -419,7 +431,7 @@ def admin_incidents():
         if member_id and _safe_int(item.get('user_id')) != member_id:
             continue
 
-        if quick_filter == 'pending' and status not in ('관리자 확인중', '접수완료'):
+        if quick_filter == 'pending' and status != '접수완료':
             continue
         if quick_filter == 'urgent' and not (risk_score >= 80 or _safe_int(item.get('group_reporter_count'), 0) >= 2):
             continue
@@ -568,9 +580,20 @@ def incident_update_status():
         return redirect(request.referrer or url_for('admin.admin_dashboard'))
 
     target_ids = group_map.get(incident_id, {}).get('group_ids', [incident_id])
-    for report in Report.query.filter(Report.id.in_(target_ids)).all():
-        transition_report(report, new_status, reject_reason)
-    db.session.commit()
+    try:
+        rewarded_users = set()
+        grouped_reports = Report.query.filter(Report.id.in_(target_ids)).order_by(Report.id.asc()).all()
+        for report in grouped_reports:
+            award_points = report.user_id not in rewarded_users
+            transition_report(report, new_status, reject_reason, award_points=award_points)
+            if report.user_id is not None:
+                rewarded_users.add(report.user_id)
+        db.session.commit()
+    except ValueError as exc:
+        db.session.rollback()
+        if request.is_json:
+            return jsonify({'ok': False, 'message': str(exc)}), 400
+        return redirect(request.referrer or url_for('admin.admin_dashboard'))
 
     if request.is_json:
         socketio.emit(
@@ -609,19 +632,40 @@ def bulk_update_incidents():
 
     reports, _, group_map = _hydrate_reports()
 
-    target_ids = set()
+    target_groups = []
+    seen_groups = set()
     for incident_id in incident_ids:
         grouped_ids = group_map.get(incident_id, {}).get('group_ids', [incident_id])
-        for rid in grouped_ids:
-            target_ids.add(_safe_int(rid))
+        normalized_group = tuple(sorted({
+            _safe_int(rid) for rid in grouped_ids if _safe_int(rid) > 0
+        }))
+        if normalized_group and normalized_group not in seen_groups:
+            seen_groups.add(normalized_group)
+            target_groups.append(normalized_group)
 
-    target_ids = [rid for rid in target_ids if rid > 0]
+    target_ids = sorted({rid for group in target_groups for rid in group})
     if not target_ids:
         return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
-    for report in Report.query.filter(Report.id.in_(target_ids)).all():
-        transition_report(report, new_status, reject_reason)
-    db.session.commit()
+    try:
+        reports_by_id = {
+            report.id: report
+            for report in Report.query.filter(Report.id.in_(target_ids)).all()
+        }
+        for group_ids in target_groups:
+            rewarded_users = set()
+            for report_id in group_ids:
+                report = reports_by_id.get(report_id)
+                if report is None:
+                    continue
+                award_points = report.user_id not in rewarded_users
+                transition_report(report, new_status, reject_reason, award_points=award_points)
+                if report.user_id is not None:
+                    rewarded_users.add(report.user_id)
+        db.session.commit()
+    except ValueError:
+        db.session.rollback()
+        return redirect(f"/admin/incidents?{return_query}" if return_query else url_for('admin.admin_incidents'))
 
     for rid in target_ids:
         socketio.emit(
@@ -653,8 +697,6 @@ def admin_reanalyze_report(report_id):
     for ai in existing_ai:
         db.session.delete(ai)
 
-    # 상태를 'AI 분석중'으로 변경
-    report.status = 'AI 분석중'
     db.session.commit()
 
     # 파일 타입 판별
@@ -663,9 +705,6 @@ def admin_reanalyze_report(report_id):
 
     # AI 분석을 백그라운드 스레드로 실행 (app.run_ai_analysis 사용)
     if not current_app.submit_ai_analysis(report_id, report.file_path, file_type):
-        report.status = '관리자 확인중'
-        report.reject_reason = 'AI 분석 대기열이 가득 차 관리자 수동 확인으로 전환되었습니다.'
-        db.session.commit()
         return jsonify({'success': False, 'message': 'AI 분석 대기열이 가득 찼습니다.'}), 503
 
     return jsonify({'success': True, 'message': 'AI 재분석이 시작되었습니다.'})
@@ -679,6 +718,7 @@ def admin_members():
 
     keyword = request.args.get('keyword', '').strip()
     role = request.args.get('role', '').strip()
+    status = request.args.get('status', '').strip()
     sort = request.args.get('sort', 'role').strip() or 'role'
     order = request.args.get('order', 'asc').strip().lower() or 'asc'
     page = max(_safe_int(request.args.get('page', 1), 1), 1)
@@ -700,6 +740,10 @@ def admin_members():
             active,
             manager_region,
             email,
+            address,
+            region_city,
+            region_district,
+            COALESCE(points, 0) AS points,
             COALESCE(role, CASE WHEN is_admin = 1 THEN 'admin' ELSE 'user' END) AS role
         FROM members
         ORDER BY id DESC
@@ -714,16 +758,37 @@ def admin_members():
         item['created_at'] = _parse_dt(row.get('created_at'))
         members.append(item)
 
+    member_summary = {
+        'total': len(members),
+        'active': sum(1 for member in members if _safe_int(member.get('active')) == 1),
+        'suspended': sum(1 for member in members if _safe_int(member.get('active')) != 1),
+        'staff': sum(1 for member in members if (member.get('role') or '') in ('admin', 'manager')),
+    }
+
     if keyword:
-        members = [m for m in members if keyword.lower() in (m.get('name') or '').lower() or keyword.lower() in (m.get('uid') or '').lower() or keyword == str(m.get('id'))]
-    if role:
+        members = [
+            member for member in members
+            if keyword.lower() in (member.get('name') or '').lower()
+            or keyword.lower() in (member.get('uid') or '').lower()
+            or keyword.lower() in (member.get('email') or '').lower()
+            or keyword == str(member.get('id'))
+        ]
+    if role == 'staff':
+        members = [m for m in members if (m.get('role') or '') in ('admin', 'manager')]
+    elif role:
         members = [m for m in members if (m.get('role') or '') == role]
+    if status == 'active':
+        members = [m for m in members if _safe_int(m.get('active')) == 1]
+    elif status == 'suspended':
+        members = [m for m in members if _safe_int(m.get('active')) != 1]
 
     reverse = order == 'desc'
     if sort == 'name':
         members.sort(key=lambda x: (x.get('name') or '').lower(), reverse=reverse)
     elif sort == 'uid':
         members.sort(key=lambda x: (x.get('uid') or '').lower(), reverse=reverse)
+    elif sort == 'email':
+        members.sort(key=lambda x: (x.get('email') or '').lower(), reverse=reverse)
     elif sort == 'created_at':
         members.sort(key=lambda x: x.get('created_at') or datetime.min, reverse=reverse)
     elif sort == 'active':
@@ -735,7 +800,8 @@ def admin_members():
         rank = {'admin': 1, 'manager': 2, 'user': 3}
         members.sort(key=lambda x: (rank.get(x.get('role') or 'user', 99), (x.get('name') or '').lower()), reverse=reverse)
 
-    total_pages = max(1, math.ceil(len(members) / per_page))
+    total_count = len(members)
+    total_pages = max(1, math.ceil(total_count / per_page))
 
     if anchor_index is not None and anchor_index >= 0:
         page = (anchor_index // per_page) + 1
@@ -750,10 +816,13 @@ def admin_members():
         members=members,
         keyword=keyword,
         role=role,
+        status=status,
         sort=sort,
         order=order,
         page=page,
         total_pages=total_pages,
+        total_count=total_count,
+        member_summary=member_summary,
     )
 
 
@@ -796,14 +865,12 @@ def admin_member_detail(member_id):
     received = sum(1 for r in member_reports if (r.get('status') or '') == '접수완료')
     processing = sum(1 for r in member_reports if (r.get('status') or '') == '처리중')
     completed = sum(1 for r in member_reports if (r.get('status') or '') == '처리완료')
-    rejected = sum(1 for r in member_reports if (r.get('status') or '') == '반려')
-    pending = sum(1 for r in member_reports if (r.get('status') or '') in ('관리자 확인중', '접수완료', '처리중'))
-    high_risk_pending = sum(1 for r in member_reports if (r.get('status') or '') in ('관리자 확인중', '접수완료', '처리중') and _safe_float(r.get('risk_score')) >= 80)
-    long_pending = sum(1 for r in member_reports if (r.get('status') or '') in ('관리자 확인중', '접수완료') and r.get('created_at') and (datetime.now() - r['created_at']).total_seconds() >= 86400)
+    pending = sum(1 for r in member_reports if (r.get('status') or '') in ('접수완료', '처리중'))
+    high_risk_pending = sum(1 for r in member_reports if (r.get('status') or '') in ('접수완료', '처리중') and _safe_float(r.get('risk_score')) >= 80)
+    long_pending = sum(1 for r in member_reports if (r.get('status') or '') == '접수완료' and r.get('created_at') and (datetime.now() - r['created_at']).total_seconds() >= 86400)
     recent_7d = sum(1 for r in member_reports if r.get('created_at') and (datetime.now() - r['created_at']).days < 7)
     recent_30d = sum(1 for r in member_reports if r.get('created_at') and (datetime.now() - r['created_at']).days < 30)
     approved_rate = round((completed / total) * 100, 1) if total else 0
-    rejected_rate = round((rejected / total) * 100, 1) if total else 0
     duplicate_count = sum(1 for r in member_reports if _safe_int(r.get('group_reporter_count'), 0) >= 1)
     duplicate_rate = round((duplicate_count / total) * 100, 1) if total else 0
 
@@ -812,14 +879,12 @@ def admin_member_detail(member_id):
         'received_reports': received,
         'processing_reports': processing,
         'completed_reports': completed,
-        'rejected_reports': rejected,
         'pending_reports': pending,
         'high_risk_pending_reports': high_risk_pending,
         'long_pending_reports': long_pending,
         'recent_7d_reports': recent_7d,
         'recent_30d_reports': recent_30d,
         'approved_rate': approved_rate,
-        'rejected_rate': rejected_rate,
         'duplicate_rate': duplicate_rate,
     }
 
@@ -828,8 +893,6 @@ def admin_member_detail(member_id):
     summary_parts = []
     if recent_30d >= 5:
         summary_parts.append('최근 30일 활동 많음')
-    if rejected_rate >= 40:
-        summary_parts.append('반려 비율 높음')
     if duplicate_rate <= 20 and total > 0:
         summary_parts.append('중복 신고 낮음')
     if not summary_parts:
@@ -848,6 +911,7 @@ def _member_detail_redirect(member_id):
     page = request.form.get('page', request.args.get('page', 1))
     keyword = request.form.get('keyword', request.args.get('keyword', ''))
     role = request.form.get('role_filter', request.args.get('role', ''))
+    status = request.form.get('status_filter', request.args.get('status', ''))
     sort = request.form.get('sort', request.args.get('sort', 'role'))
     order = request.form.get('order', request.args.get('order', 'asc'))
 
@@ -857,6 +921,7 @@ def _member_detail_redirect(member_id):
         page=page,
         keyword=keyword,
         role=role,
+        status=status,
         sort=sort,
         order=order
     ))
@@ -963,6 +1028,7 @@ def admin_statistics():
     # 1) 지역별 계층 집계
     # -----------------------------
     region_data_map = {"all": {}}
+    region_report_details = {}
 
     for r in reports:
         raw_address = r.get('region_name') or r.get('location') or ''
@@ -973,6 +1039,23 @@ def admin_statistics():
             continue
 
         add_to_region_tree(region_data_map["all"], parts)
+
+        created_at = r.get('created_at')
+        report_detail = {
+            "id": r.get('id'),
+            "title": r.get('title') or f"신고 #{r.get('id')}",
+            "location": _display_location(r.get('address'), r.get('region_name')),
+            "status": r.get('status') or '접수완료',
+            "ai_score": round(_safe_float(r.get('risk_score'))),
+            "damage_type": r.get('damage_type') or '분류 전',
+            "created_at": created_at.strftime('%Y-%m-%d %H:%M') if created_at else '-',
+        }
+
+        # 전국 → 시·도 → 시·군·구 어느 단계에서도 같은 신고를 집계할 수
+        # 있도록 각 상위 경로별 상세 데이터를 함께 만든다.
+        for depth in range(1, len(parts) + 1):
+            region_key = '||'.join(parts[:depth])
+            region_report_details.setdefault(region_key, []).append(report_detail)
 
     # -----------------------------
     # 2) 기간별 추이 데이터 생성 헬퍼
@@ -1058,43 +1141,11 @@ def admin_statistics():
         }
     }
 
-    # -----------------------------
-    # 4) 상단 요약
-    # -----------------------------
-    total_reports = len(reports)
-    pending_count = sum(
-        1 for r in reports
-        if (r.get('status') or '') in ('관리자 확인중', '접수완료')
-    )
-    danger_count = sum(
-        1 for r in reports
-        if _safe_float(r.get('risk_score')) >= 80
-    )
-    processing_count = sum(
-        1 for r in reports
-        if (r.get('status') or '') == '처리중'
-    )
-    today_count = sum(
-        1 for r in reports
-        if r.get('created_at') and r['created_at'].date() == now.date()
-    )
-
-    statistics_summary = {
-        "total_reports": total_reports,
-        "pending_count": pending_count,
-        "danger_count": danger_count,
-        "processing_count": processing_count,
-        "today_count": today_count,
-    }
-
     return render_template(
         'admin_statistics.html',
         region_data_map=region_data_map,
+        region_report_details=region_report_details,
         trend_data_map=trend_data_map,
-        statistics_summary=statistics_summary,
-        page=1,
-        total_pages=1,
-        total_count=total_reports,
     )
 
 @admin_bp.route('/admin/ppt')

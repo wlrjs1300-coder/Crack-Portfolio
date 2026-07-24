@@ -11,6 +11,16 @@ from sqlalchemy import update
 
 status_bp = Blueprint('status', __name__)
 
+
+@status_bp.before_request
+def require_status_login():
+    if session.get('user_id'):
+        return None
+    if request.path.startswith('/api/') or request.is_json:
+        return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+    return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
+
+
 # [용어 정의] 상단바와 하단바를 제외한 실질적인 본문 영역을 '메인 콘텐츠 영역' 또는 '메인 영역'으로 정의합니다.
 MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
 import os
@@ -41,7 +51,7 @@ def _normalize_path(path):
 def status():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
 
     db_reports = Report.query.filter(
         Report.user_id == user_id,
@@ -242,17 +252,10 @@ def update_report(report_id):
             file_path = report.file_path
             file_type = report.file_type or (
                 'video' if (file_path or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')) else 'image')
-            report.status = 'AI 분석중'
-            db.session.commit()
             if not current_app.config.get('AI_AVAILABLE', False) or not current_app.submit_ai_analysis(report.id, file_path, file_type):
-                report.status = '관리자 확인중'
-                report.reject_reason = 'AI 분석 대기열이 가득 차 관리자 수동 확인으로 전환되었습니다.'
-                db.session.commit()
+                current_app.logger.warning('AI 재분석 작업이 등록되지 않았습니다 (report=%s).', report.id)
         except Exception as ai_err:
             current_app.logger.exception('AI 재분석 작업 등록 실패')
-            report.status = '관리자 확인중'
-            report.reject_reason = 'AI 분석 작업을 등록하지 못해 관리자 수동 확인으로 전환되었습니다.'
-            db.session.commit()
 
         return jsonify({'success': True})
     except Exception as e:

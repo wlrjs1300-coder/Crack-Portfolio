@@ -3,9 +3,8 @@ import re
 import subprocess
 import logging
 import threading
-from datetime import timedelta
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify, current_app
-from extensions import db
+from extensions import db, socketio
 from models import Report
 from utils import extract_gps_from_exif, haversine, reverse_geocode, get_now_kst
 from services.region_service import normalize_region_name
@@ -17,6 +16,17 @@ from services.security import can_access_report, rate_limit
 from services.privacy_filter import PrivacyFilterError, blur_image_in_place, blur_video_in_place
 
 report_bp = Blueprint('report', __name__)
+
+
+@report_bp.before_request
+def require_report_login():
+    if session.get('user_id'):
+        return None
+    if request.path.startswith('/api/') or request.is_json:
+        return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+    return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
+
+
 logger = logging.getLogger(__name__)
 _ocr_reader = None
 _ocr_lock = threading.Lock()
@@ -30,6 +40,72 @@ ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'mov', 'avi', 'm4v'}
 
 UPLOAD_IMAGE_DIR = os.path.join('uploads', 'images')
 UPLOAD_VIDEO_DIR = os.path.join('uploads', 'videos')
+
+OPEN_INCIDENT_STATUSES = ('접수완료', '처리중')
+NEARBY_INCIDENT_RADIUS_M = 30
+
+
+def _parse_report_coordinates(latitude, longitude):
+    import math
+    try:
+        lat = float(latitude) if latitude not in (None, '') else None
+        lng = float(longitude) if longitude not in (None, '') else None
+        if lat is not None and (not math.isfinite(lat) or not -90 <= lat <= 90):
+            raise ValueError
+        if lng is not None and (not math.isfinite(lng) or not -180 <= lng <= 180):
+            raise ValueError
+        return lat, lng
+    except (ValueError, TypeError):
+        raise ValueError('위치 좌표 형식이 올바르지 않습니다.')
+
+
+def _nearby_open_reports(latitude, longitude):
+    if latitude is None or longitude is None:
+        return []
+    candidates = Report.query.filter(
+        Report.status.in_(OPEN_INCIDENT_STATUSES),
+        Report.latitude.isnot(None),
+        Report.longitude.isnot(None),
+    ).order_by(Report.created_at.asc(), Report.id.asc()).all()
+    nearby = []
+    for report in candidates:
+        distance_m = haversine(
+            latitude, longitude, report.latitude, report.longitude
+        )
+        if distance_m <= NEARBY_INCIDENT_RADIUS_M:
+            nearby.append((report, distance_m))
+    nearby.sort(key=lambda pair: (
+        pair[1],
+        pair[0].created_at.timestamp() if pair[0].created_at else 0,
+        pair[0].id,
+    ))
+    return nearby
+
+
+def _duplicate_incident_response(nearby, user_id):
+    representative, distance_m = nearby[0]
+    distinct_reporters = {
+        report.user_id for report, _ in nearby if report.user_id is not None
+    }
+    same_reporter = any(report.user_id == user_id for report, _ in nearby)
+    return jsonify({
+        'success': False,
+        'duplicate': True,
+        'same_reporter': same_reporter,
+        'message': (
+            '이미 같은 장소에 제보하신 사고가 있습니다.'
+            if same_reporter
+            else '이 위치와 가까운 곳에 이미 접수된 도로 위험이 있습니다.'
+        ),
+        'existing_report': {
+            'id': representative.id,
+            'title': representative.title or '도로 위험 제보',
+            'address': representative.address or '위치 정보 없음',
+            'status': representative.status,
+            'distance_m': int(round(distance_m)),
+            'reporter_count': len(distinct_reporters) or 1,
+        },
+    }), 409
 
 
 def convert_to_mp4(save_path: str, video_dir: str, filename: str):
@@ -148,7 +224,7 @@ def extract_gps_from_video(video_path, original_filename=None):
 @report_bp.route('/report', methods=['GET'])
 def report_page():
     if not session.get('user_id'):
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
     return render_template('report.html')
 
 
@@ -235,6 +311,20 @@ def submit_report():
     if len(content) > 5000 or len(address or '') > 255:
         return jsonify({'success': False, 'message': '신고 내용 또는 주소가 허용 길이를 초과했습니다.'}), 400
 
+    try:
+        lat, lng = _parse_report_coordinates(latitude, longitude)
+    except ValueError as exc:
+        return jsonify({'success': False, 'message': str(exc)}), 400
+
+    related_report_id = request.form.get('related_report_id', type=int)
+    if lat is not None and lng is not None:
+        nearby = _nearby_open_reports(lat, lng)
+        if nearby:
+            nearby_ids = {report.id for report, _ in nearby}
+            same_reporter = any(report.user_id == user_id for report, _ in nearby)
+            if same_reporter or related_report_id not in nearby_ids:
+                return _duplicate_incident_response(nearby, user_id)
+
     file_path = None
     file_type = None
     save_path = None
@@ -301,15 +391,9 @@ def submit_report():
     if not file_path or not file_type:
         return jsonify({'success': False, 'message': '신고할 이미지 또는 동영상을 첨부해주세요.'}), 400
 
-    import math
     try:
-        lat = float(latitude) if latitude else None
-        lng = float(longitude) if longitude else None
-        if lat is not None and (not math.isfinite(lat) or not -90 <= lat <= 90):
-            raise ValueError
-        if lng is not None and (not math.isfinite(lng) or not -180 <= lng <= 180):
-            raise ValueError
-    except (ValueError, TypeError):
+        lat, lng = _parse_report_coordinates(latitude, longitude)
+    except ValueError:
         if save_path and os.path.isfile(save_path):
             os.remove(save_path)
         return jsonify({'success': False, 'message': '위치 좌표 형식이 올바르지 않습니다.'}), 400
@@ -317,20 +401,16 @@ def submit_report():
     if lat is not None and lng is not None and not address:
         address = reverse_geocode(lat, lng)
 
-    # 중복 신고 제한
+    # 파일에서 좌표를 추출한 경우에도 동일 장소 사고를 다시 확인한다.
     if lat is not None and lng is not None:
-        yesterday = get_now_kst() - timedelta(hours=24)
-        duplicate = Report.query.filter(
-            Report.user_id == user_id,
-            Report.created_at >= yesterday,
-            Report.latitude.isnot(None),
-            Report.longitude.isnot(None)
-        ).all()
-        for r in duplicate:
-            if haversine(lat, lng, r.latitude, r.longitude) <= 50:
+        nearby = _nearby_open_reports(lat, lng)
+        if nearby:
+            nearby_ids = {report.id for report, _ in nearby}
+            same_reporter = any(report.user_id == user_id for report, _ in nearby)
+            if same_reporter or related_report_id not in nearby_ids:
                 if save_path and os.path.isfile(save_path):
                     os.remove(save_path)
-                return jsonify({'success': False, 'message': '이미 1일 내 반경 50m 이내에 신고하신 건이 있습니다.'}), 400
+                return _duplicate_incident_response(nearby, user_id)
 
     new_report = Report(
         user_id=user_id,
@@ -342,29 +422,28 @@ def submit_report():
         region_name=normalize_region_name(address),
         file_path=file_path,
         file_type=file_type,
-        status='AI 분석중'
+        status='접수완료'
     )
     db.session.add(new_report)
     db.session.commit()
+    socketio.emit(
+        'new_report',
+        {'address': new_report.address or '위치 미상', 'report_id': new_report.id},
+        to='authenticated',
+    )
 
     queued = current_app.config.get('AI_AVAILABLE', False) and hasattr(current_app, 'submit_ai_analysis') and current_app.submit_ai_analysis(
         new_report.id, file_path, file_type
     )
     if not queued:
-        new_report.status = '관리자 확인중'
-        ai_available = current_app.config.get('AI_AVAILABLE', False)
-        new_report.reject_reason = (
-            'AI 분석 대기열이 가득 차 관리자 수동 확인으로 전환되었습니다.' if ai_available
-            else 'AI 모델이 설정되지 않아 관리자 수동 확인으로 전환되었습니다.'
-        )
-        db.session.commit()
+        current_app.logger.warning('AI 분석 작업이 등록되지 않았습니다 (report=%s).', new_report.id)
         return jsonify({
             'success': True,
-            'message': '신고가 접수되어 관리자 수동 확인으로 전환되었습니다.',
+            'message': '제보가 접수되었습니다.',
             'report_id': new_report.id,
         }), 202
 
-    return jsonify({'success': True, 'message': '제보가 성공적으로 접수되어 AI 분석을 시작합니다.', 'report_id': new_report.id})
+    return jsonify({'success': True, 'message': '제보가 성공적으로 접수되었습니다.', 'report_id': new_report.id})
 
 
 @report_bp.route('/api/report/status/<int:report_id>', methods=['GET'])
@@ -376,5 +455,5 @@ def get_report_status(report_id):
         return jsonify({'success': False, 'message': '권한이 없습니다.'}), 403
     return jsonify({
         'status': rpt.status,
-        'is_analyzing': rpt.status == 'AI 분석중'
+        'is_analyzing': False
     })

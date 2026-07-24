@@ -10,14 +10,25 @@ from extensions import db
 from models import Report, AiResult, Member, Notice, PointLog, VideoDetection
 from services.report_workflow import transition_report
 from services.security import can_access_report, canonical_role
+from utils import get_now_kst
 
 alert_bp = Blueprint('alert', __name__)
+
+
+@alert_bp.before_request
+def require_alert_login():
+    if session.get('user_id'):
+        return None
+    if request.path.startswith('/api/') or request.is_json:
+        return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+    return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
+
 
 # [용어 정의] 상단바와 하단바를 제외한 실질적인 본문 영역을 '메인 콘텐츠 영역' 또는 '메인 영역'으로 정의합니다.
 MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
 
 VISIBLE_USER_STATUSES = {'접수완료', '처리중', '처리완료'}
-ADMIN_ALERT_STATUSES = {'관리자 확인중', '접수완료', '처리중', '처리완료', '반려'}
+ADMIN_ALERT_STATUSES = {'접수완료', '처리중', '처리완료'}
 
 
 def _safe_float(value, default=0.0):
@@ -50,6 +61,21 @@ def _normalize_path(path):
         else:
             path = '/uploads/' + path
     return path
+
+
+DEFAULT_ALERT_THUMBNAILS = (
+    '/static/images/yolo/v5/val_batch0_pred.jpg',
+    '/static/images/yolo/v5/val_batch1_pred.jpg',
+    '/static/images/yolo/v5/val_batch2_pred.jpg',
+    '/static/images/yolo/v7/val_batch0_pred.jpg',
+    '/static/images/yolo/v7/val_batch1_pred.jpg',
+    '/static/images/yolo/v7/val_batch2_pred.jpg',
+)
+
+
+def _fallback_alert_image(item):
+    image_index = abs(_safe_int(item.get('id', 0))) % len(DEFAULT_ALERT_THUMBNAILS)
+    return DEFAULT_ALERT_THUMBNAILS[image_index]
 
 
 def _parse_dt(value):
@@ -192,10 +218,14 @@ def _build_groups(items):
                 other_dt = other.get('created_at')
                 if current_dt is None or other_dt is None:
                     continue
-                if abs((current_dt - other_dt).total_seconds()) > 86400:
+                both_open = (
+                    (current.get('status') or '') in VISIBLE_USER_STATUSES - {'처리완료'}
+                    and (other.get('status') or '') in VISIBLE_USER_STATUSES - {'처리완료'}
+                )
+                if not both_open and abs((current_dt - other_dt).total_seconds()) > 86400:
                     continue
                 if haversine_m(current.get('latitude'), current.get('longitude'), other.get('latitude'),
-                               other.get('longitude')) > 50:
+                               other.get('longitude')) > 30:
                     continue
                 visited.add(other_id)
                 queue.append(other)
@@ -216,7 +246,7 @@ def _build_groups(items):
                 urgent_reasons.append('반복 제보')
             created_at = member.get('created_at')
             status = member.get('status') or ''
-            if created_at and status in ('접수완료', '관리자 확인중') and (datetime.now() - created_at).total_seconds() >= 86400:
+            if created_at and status == '접수완료' and (datetime.now() - created_at).total_seconds() >= 86400:
                 urgent_reasons.append('장기 미처리')
             member['group_reporter_count'] = distinct_users or 1
             member['urgent_reason'] = ', '.join(urgent_reasons)
@@ -242,10 +272,6 @@ def _status_class(status):
         return 'status-processing'
     if status == '처리완료':
         return 'status-done'
-    if status == '반려':
-        return 'status-rejected'
-    if status == '관리자 확인중':
-        return 'status-review'
     return 'status-default'
 
 
@@ -264,8 +290,8 @@ def _priority_score(item):
     risk_score = _safe_float(item.get('risk_score'))
     reporters = _safe_int(item.get('group_reporter_count'), 1)
     created_at = item.get('created_at')
-    if status in ('접수완료', '관리자 확인중'):
-        score += 100
+
+    # 접수완료는 모든 신고의 기본 시작 상태이므로 긴급도 가점을 주지 않는다.
     if risk_score >= 80:
         score += 50
     elif risk_score >= 50:
@@ -276,7 +302,7 @@ def _priority_score(item):
         score += 30
     elif reporters >= 2:
         score += 10
-    if created_at and status in ('접수완료', '관리자 확인중') and (datetime.now() - created_at).total_seconds() >= 86400:
+    if created_at and status == '접수완료' and (datetime.now() - created_at).total_seconds() >= 86400:
         score += 40
     return score
 
@@ -311,15 +337,16 @@ def _serialize_alert_item(item, selected_lat=None, selected_lng=None):
         'damage_type': item.get('damage_type') or 'N/A',
         'status': item.get('status') or '-',
         'status_class': _status_class(item.get('status') or ''),
+        'is_unread': not bool(item.get('last_checked_at')),
         'group_reporter_count': _safe_int(item.get('group_reporter_count'), 1),
         'reporter_count': _safe_int(item.get('group_reporter_count'), 1),
         'created_at': item.get('created_at').strftime('%m-%d %H:%M') if item.get('created_at') else '-',
         'time': item.get('created_at').strftime('%Y-%m-%d %H:%M:%S') if item.get('created_at') else '알 수 없음',
         'created_at_obj': item.get('created_at'),
-        'image_path': _normalize_path(item.get('thumbnail_path') or item.get('file_path')),
-        'file_path': _normalize_path(item.get('file_path')),
-        'thumbnail_path': _normalize_path(item.get('thumbnail_path')),
-        'original_file_path': _normalize_path(item.get('file_path')),
+        'image_path': _normalize_path(item.get('thumbnail_path') or item.get('file_path')) or _fallback_alert_image(item),
+        'file_path': _normalize_path(item.get('file_path')) or '',
+        'thumbnail_path': _normalize_path(item.get('thumbnail_path')) or '',
+        'original_file_path': _normalize_path(item.get('file_path')) or '',
         'file_type': 'video' if (item.get('file_path') or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')) else (
                     item.get('file_type') or 'image'),
         'latitude': item.get('latitude'),
@@ -338,12 +365,16 @@ def _serialize_alert_item(item, selected_lat=None, selected_lng=None):
 def _load_alert_items():
     raw = _fetch_reports()
     normalized, group_map = _build_groups(raw)
+    representative_items = []
     for item in normalized:
         meta = group_map.get(item['id'], {})
         item['group_reporter_count'] = meta.get('group_reporter_count', 1)
         item['urgent_reason'] = meta.get('urgent_reason', '')
         item['group_ids'] = meta.get('group_ids', [item['id']])
-    return normalized
+        item['representative_id'] = meta.get('representative_id', item['id'])
+        if _safe_int(item['id']) == _safe_int(item['representative_id']):
+            representative_items.append(item)
+    return representative_items
 
 
 def _split_region_levels(region_text):
@@ -374,6 +405,42 @@ def _get_user_interest_region():
     if not row:
         return '', ''
     return row.get('region_city') or '', row.get('region_district') or ''
+
+
+def _get_user_location():
+    """현재 회원의 주소 기준 좌표를 반환한다. 기존 회원은 좌표가 없을 수 있다."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return None, None, ''
+    row = db.session.execute(
+        text("""
+            SELECT latitude, longitude, address
+            FROM members
+            WHERE id = :user_id
+            LIMIT 1
+        """),
+        {'user_id': user_id},
+    ).mappings().first()
+    if not row:
+        return None, None, ''
+    return _safe_float(row.get('latitude'), None), _safe_float(row.get('longitude'), None), row.get('address') or ''
+
+
+def _get_requested_location():
+    """Alert 조회에만 사용할 임시 기준점을 검증한다. 회원 주소는 변경하지 않는다."""
+    latitude = _safe_float(request.args.get('lat'), None)
+    longitude = _safe_float(request.args.get('lng'), None)
+    address = (request.args.get('address') or '').strip()
+    if (
+        latitude is None
+        or longitude is None
+        or not (-90 <= latitude <= 90)
+        or not (-180 <= longitude <= 180)
+        or not address
+        or len(address) > 255
+    ):
+        return None, None, ''
+    return latitude, longitude, address
 
 
 @alert_bp.route('/alert')
@@ -452,44 +519,62 @@ def alert_page():
             alerts=alerts,
             kakao_js_key=current_app.config.get('KAKAO_JS_KEY', ''),
             region_filter_on=region_filter_on,
-            current_role=role
+            current_role=role,
+            location_required=False,
+            address_filter_radius_m=None,
+            selected_address='',
+            member_address='',
+            custom_location_on=False,
         )
 
     # =========================
     # 🔥 일반 사용자 (관심지역 우선 정렬 적용)
     # =========================
-    region_city, region_district = _get_user_interest_region()
-
     filtered = []
     user_id = session.get('user_id')
+    location_required = False
+    selected_address = ''
+    member_address = ''
+    custom_location_on = False
+
+    # 로그인한 일반 회원은 가입 시 저장한 주소 반경 1km만 조회한다.
+    # 주소 검색으로 임시 기준점을 선택하면 회원 주소를 변경하지 않고 조회 기준만 바꾼다.
+    # 비로그인 조회는 개인 기준점이 없으므로 기존 공개 피드를 유지한다.
+    if user_id:
+        member_lat, member_lng, member_address = _get_user_location()
+        requested_lat, requested_lng, requested_address = _get_requested_location()
+        if requested_lat is not None and requested_lng is not None:
+            selected_lat, selected_lng = requested_lat, requested_lng
+            selected_address = requested_address
+            custom_location_on = True
+        else:
+            selected_lat, selected_lng = member_lat, member_lng
+            selected_address = member_address
+        location_required = selected_lat is None or selected_lng is None
 
     for item in items:
         status = item.get('status') or ''
 
         # 일반 사용자 / 비로그인 → 허용된 상태만
-        if status in VISIBLE_USER_STATUSES:
-            filtered.append(item)
+        if status not in VISIBLE_USER_STATUSES:
+            continue
+        if user_id:
+            if location_required or item.get('latitude') is None or item.get('longitude') is None:
+                continue
+            distance_m = haversine_m(selected_lat, selected_lng, item.get('latitude'), item.get('longitude'))
+            if distance_m > 1000:
+                continue
+            item['_member_distance_m'] = distance_m
+        filtered.append(item)
 
         # [필터 완화] 위험도가 낮아도 모든 접수된 건은 보여주도록 수정 (사용자 요청 반영)
         # 이전: if risk_score >= 80 or reporters >= 3:
 
-    # 관심지역 기반 우선 정렬
-    if region_city or region_district:
-        def user_sort_key(item):
-            addr = item.get('address') or item.get('location') or ''
-            is_region_match = False
-            if region_city and region_city in addr:
-                if region_district:
-                    if region_district in addr:
-                        is_region_match = True
-                else:
-                    is_region_match = True
-
-            match_score = 0 if is_region_match else 1
-            ts = item['created_at'].timestamp() if item.get('created_at') else 0
-            return (match_score, -ts)
-
-        filtered.sort(key=user_sort_key)
+    if user_id and not location_required:
+        filtered.sort(key=lambda item: (
+            item.get('_member_distance_m', 999999.0),
+            -(item['created_at'].timestamp() if item.get('created_at') else 0),
+        ))
     else:
         filtered.sort(
             key=lambda x: (
@@ -508,6 +593,7 @@ def alert_page():
             for key in ('image_path', 'file_path', 'thumbnail_path', 'original_file_path',
                         'username', 'nickname', 'reporter_name', 'reject_reason'):
                 serialized.pop(key, None)
+            serialized['image_path'] = _fallback_alert_image(item)
         alerts.append(serialized)
 
     # 공지사항 조회
@@ -531,7 +617,12 @@ def alert_page():
         alerts=alerts,
         notices=notices,
         kakao_js_key=current_app.config.get('KAKAO_JS_KEY', ''),
-        current_role=role
+        current_role=role,
+        location_required=location_required,
+        address_filter_radius_m=1000 if user_id and not location_required else None,
+        selected_address=selected_address,
+        member_address=member_address,
+        custom_location_on=custom_location_on,
     )
 
 
@@ -560,6 +651,30 @@ def alert_view(report_id):
     reporter_name = reporter.nickname if reporter and reporter.nickname else (
         reporter.username if reporter else '알 수 없음')
 
+    raw_file_path = _normalize_path(rpt.file_path) if can_view_media else ''
+    raw_thumbnail_path = _normalize_path(rpt.thumbnail_path) if can_view_media else ''
+    display_image_path = (
+        raw_thumbnail_path
+        or raw_file_path
+        or _fallback_alert_image({'id': rpt.id})
+    ) if can_view_media else ''
+
+    grouped_reports, group_map = _build_groups(_fetch_reports())
+    group_meta = group_map.get(rpt.id, {})
+    group_ids = group_meta.get('group_ids', [rpt.id])
+    group_reporter_count = group_meta.get('group_reporter_count', 1)
+    related_reports = [
+        {
+            'id': item.get('id'),
+            'title': item.get('title') or '도로 위험 제보',
+            'status': item.get('status') or '-',
+            'time': item.get('created_at').strftime('%m-%d %H:%M') if item.get('created_at') else '-',
+        }
+        for item in grouped_reports
+        if item.get('id') in group_ids and item.get('id') != rpt.id
+    ]
+    related_reports.sort(key=lambda item: item['id'], reverse=True)
+
     detail = {
         'id': rpt.id,
         'title': rpt.title or '도로 파손 신고',
@@ -569,13 +684,17 @@ def alert_view(report_id):
         'address': rpt.address,
         'lat': rpt.latitude if can_view_media else None,
         'lng': rpt.longitude if can_view_media else None,
-        'file_path': _normalize_path(rpt.file_path) if can_view_media else '',
-        'thumbnail_path': _normalize_path(rpt.thumbnail_path) if can_view_media else '',
+        'file_path': raw_file_path,
+        'thumbnail_path': raw_thumbnail_path,
+        'display_image_path': display_image_path,
         'file_type': 'video' if (rpt.file_path or '').lower().endswith(('.mp4', '.mov', '.avi', '.m4v')) else (
                     rpt.file_type or 'image'),
         'reporter_name': reporter_name if can_view_media else '비공개',
         'confidence': (ai_res.confidence if ai_res else 0) if can_view_media else 0,
-        'damage_type': (ai_res.damage_type if ai_res else 'N/A') if can_view_media else '비공개'
+        'damage_type': (ai_res.damage_type if ai_res else 'N/A') if can_view_media else '비공개',
+        'group_reporter_count': group_reporter_count,
+        'group_submission_count': len(group_ids),
+        'related_reports': related_reports,
     }
 
     # [SECURITY POLICY] 상세 페이지 가시성 권한 제어
@@ -667,9 +786,23 @@ def update_report_status(report_id):
 
     try:
         rpt = db.get_or_404(Report, report_id)
-        new_status = transition_report(rpt, new_status, data.get('reject_reason'))
+        reports, group_map = _build_groups(_fetch_reports())
+        target_ids = group_map.get(report_id, {}).get('group_ids', [report_id])
+        rewarded_users = set()
+        transitioned_status = None
+        grouped_reports = Report.query.filter(Report.id.in_(target_ids)).order_by(Report.id.asc()).all()
+        for grouped_report in grouped_reports:
+            award_points = grouped_report.user_id not in rewarded_users
+            transitioned_status = transition_report(
+                grouped_report,
+                new_status,
+                data.get('reject_reason'),
+                award_points=award_points,
+            )
+            if grouped_report.user_id is not None:
+                rewarded_users.add(grouped_report.user_id)
         db.session.commit()
-        return jsonify({'success': True, 'message': f'상태가 {new_status}(으)로 변경되었습니다.'})
+        return jsonify({'success': True, 'message': f'상태가 {transitioned_status}(으)로 변경되었습니다.'})
     except ValueError as exc:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(exc)}), 400
@@ -790,7 +923,8 @@ def get_alert_json(report_id):
                     'username', 'nickname', 'reporter_name', 'reject_reason',
                     'latitude', 'longitude', 'lat', 'lng'):
             serialized.pop(key, None)
-        
+        serialized['image_path'] = _fallback_alert_image(item)
+
     return jsonify({'success': True, 'data': serialized})
 
 
@@ -804,9 +938,9 @@ def mark_alert_read(report_id):
     if not report:
         return jsonify({'success': False, 'message': 'Not found'}), 404
         
-    if report.status == '관리자 확인중':
-        report.status = '접수완료'
+    if report.status == '접수완료' and report.last_checked_at is None:
+        report.last_checked_at = get_now_kst()
         db.session.commit()
         return jsonify({'success': True, 'message': 'Marked as read'})
-        
+
     return jsonify({'success': True, 'message': 'Already processed'})

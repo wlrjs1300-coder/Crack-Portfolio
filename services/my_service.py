@@ -4,8 +4,19 @@ from extensions import db
 from models import Member, Report, UserSettings, PointLog
 from utils import check_profanity
 from services.security import rate_limit
+from services.location import validate_member_location
 
 my_bp = Blueprint('my', __name__)
+
+
+@my_bp.before_request
+def require_mypage_login():
+    if session.get('user_id'):
+        return None
+    if request.path.startswith('/api/') or request.is_json:
+        return jsonify({'success': False, 'message': '로그인이 필요합니다.'}), 401
+    return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
+
 
 # [용어 정의] 상단바와 하단바를 제외한 실질적인 본문 영역을 '메인 콘텐츠 영역' 또는 '메인 영역'으로 정의합니다.
 MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
@@ -15,7 +26,7 @@ MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
 def mypage():
     user_id = session.get('user_id')
     if not user_id:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login', next=request.full_path.rstrip('?')))
 
     member = db.session.get(Member, user_id)
     if not member:
@@ -37,6 +48,15 @@ def mypage():
                            )
 
 
+@my_bp.route('/mypage/profile')
+def profile_page():
+    member = db.session.get(Member, session['user_id'])
+    if not member:
+        session.clear()
+        return redirect(url_for('auth.login'))
+    return render_template('profile_edit.html', member=member)
+
+
 @my_bp.route('/api/mypage/profile', methods=['POST'])
 @rate_limit(10, 3600)
 def update_profile():
@@ -46,6 +66,23 @@ def update_profile():
 
     data = request.get_json(silent=True) or {}
     member = db.session.get(Member, user_id)
+    if not member:
+        return jsonify({'success': False, 'message': '회원 정보를 찾을 수 없습니다.'}), 404
+
+    if 'address' in data:
+        location, location_error = validate_member_location(
+            data.get('address'), data.get('latitude'), data.get('longitude'),
+            data.get('region_city'), data.get('region_district')
+        )
+        if location_error:
+            return jsonify({'success': False, 'message': location_error}), 400
+        member.address = location['address']
+        member.latitude = location['latitude']
+        member.longitude = location['longitude']
+        member.region_city = location['region_city']
+        member.region_district = location['region_district']
+        db.session.commit()
+        return jsonify({'success': True, 'message': '내 주소가 저장되었습니다.'})
 
     # 닉네임 변경 로직
     if 'nickname' in data:
@@ -58,9 +95,19 @@ def update_profile():
             return jsonify({'success': False, 'message': '닉네임은 최대 20자까지 가능합니다.'}), 400
         if not check_profanity(new_nickname):
             return jsonify({'success': False, 'message': '부적절한 단어가 포함되어 있습니다.'}), 400
+        duplicate = Member.query.filter(
+            Member.nickname == new_nickname,
+            Member.id != member.id,
+        ).first()
+        if duplicate:
+            return jsonify({'success': False, 'message': '이미 사용 중인 닉네임입니다.'}), 409
 
         member.nickname = new_nickname
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': '닉네임을 저장하지 못했습니다.'}), 500
         session['user_name'] = new_nickname  # 세션 닉네임 동기화
         return jsonify({'success': True, 'message': '닉네임이 변경되었습니다.'})
 

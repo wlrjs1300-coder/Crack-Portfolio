@@ -180,10 +180,6 @@ class AIJobQueue:
             else:
                 job.status = 'failed'
                 job.active_key = None
-                report = db.session.get(Report, job.report_id)
-                if report and report.status == 'AI 분석중':
-                    report.status = '관리자 확인중'
-                    report.reject_reason = 'AI 자동 분석에 실패하여 관리자 수동 확인으로 전환되었습니다.'
             db.session.commit()
 
 

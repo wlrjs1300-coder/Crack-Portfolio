@@ -267,15 +267,13 @@ def parse_region_hierarchy(address: str) -> list[str]:
     top_region = result[0]
 
     for token in parts[1:]:
-        # 1) 서울/광역시/세종: 구가 있으면 구까지, 없으면 동/읍/면까지
+        # 1) 서울/광역시/세종: 구/군까지만 집계한다.
         if top_region.endswith("시") and top_region != "경기도":
             if len(result) == 1:
                 if token.endswith(("구", "군")) and token not in result:
                     result.append(token)
-                elif token.endswith(("동", "읍", "면")) and token not in result:
-                    result.append(token)
 
-        # 2) 경기도: 시 -> (구/군 있으면 그거, 없으면 동/읍/면)
+        # 2) 경기도: 시/군 -> 구/군까지만 집계한다.
         elif top_region == "경기도":
             if len(result) == 1:
                 if token.endswith(("시", "군")) and token not in result:
@@ -283,18 +281,14 @@ def parse_region_hierarchy(address: str) -> list[str]:
             elif len(result) == 2:
                 if token.endswith(("구", "군")) and token not in result:
                     result.append(token)
-                elif token.endswith(("동", "읍", "면")) and token not in result:
-                    result.append(token)
 
-        # 3) 그 외 도 지역: 시/군 -> (구 있으면 구, 없으면 동/읍/면)
+        # 3) 그 외 도 지역: 시/군 -> 구/군까지만 집계한다.
         else:
             if len(result) == 1:
                 if token.endswith(("시", "군")) and token not in result:
                     result.append(token)
             elif len(result) == 2:
                 if token.endswith(("구", "군")) and token not in result:
-                    result.append(token)
-                elif token.endswith(("동", "읍", "면")) and token not in result:
                     result.append(token)
 
         if len(result) >= 3:

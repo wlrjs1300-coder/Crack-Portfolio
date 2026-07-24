@@ -6,7 +6,7 @@ import secrets
 import smtplib
 from datetime import timedelta
 from email.message import EmailMessage
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
@@ -14,6 +14,7 @@ from models import Member, PasswordResetToken
 from sqlalchemy.exc import IntegrityError
 from utils import check_profanity, get_now_kst
 from services.security import rate_limit
+from services.location import validate_member_location
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -21,16 +22,35 @@ auth_bp = Blueprint('auth', __name__)
 MAIN_CONTENT_AREA = "메인 콘텐츠 영역 (Main Content Area)"
 
 
+def _safe_next_path(value):
+    """로그인 후 이동할 서비스 내부 경로만 허용한다."""
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if not value.startswith('/') or value.startswith('//') or '\\' in value:
+        return None
+    parsed = urlsplit(value)
+    if parsed.scheme or parsed.netloc:
+        return None
+    return value
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 @rate_limit(10, 300)
 def login():
+    next_path = _safe_next_path(request.values.get('next'))
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
         user = Member.query.filter_by(username=username).first()
         if user and not user.active:
-            return render_template('login.html', error="사용이 정지된 계정입니다. 관리자에게 문의해주세요."), 403
+            return render_template(
+                'login.html',
+                error="사용이 정지된 계정입니다. 관리자에게 문의해주세요.",
+                next_url=next_path,
+            ), 403
         if user and check_password_hash(user.password_hash, password):
             session.clear()
             session['user_id'] = user.id
@@ -41,11 +61,15 @@ def login():
             session['is_admin'] = role == 'admin'
             session['user_role'] = role
             session['role'] = role
-            return redirect(url_for('index'))
+            return redirect(next_path or url_for('index'))
         else:
-            return render_template('login.html', error="아이디 또는 비밀번호가 잘못되었습니다.")
+            return render_template(
+                'login.html',
+                error="아이디 또는 비밀번호가 잘못되었습니다.",
+                next_url=next_path,
+            )
 
-    return render_template('login.html')
+    return render_template('login.html', next_url=next_path)
 
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -62,46 +86,73 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        password_confirm = request.form.get('password_confirm')
         nickname = request.form.get('nickname')
         email = (request.form.get('email') or '').strip().lower()
+        location, location_error = validate_member_location(
+            request.form.get('address'),
+            request.form.get('address_lat'),
+            request.form.get('address_lng'),
+            request.form.get('region_city'),
+            request.form.get('region_district'),
+        )
+
+        def signup_error(message, status=400):
+            return render_template('signup.html', error=message, form_data=request.form), status
 
         if not username or not re.fullmatch(r'[A-Za-z0-9_]{4,30}', username):
-            return render_template('signup.html', error="아이디는 영문, 숫자, 밑줄 조합 4~30자로 입력해주세요."), 400
+            return signup_error("아이디는 영문, 숫자, 밑줄 조합 4~30자로 입력해주세요.")
         if not password or len(password) < 10 or len(password) > 128:
-            return render_template('signup.html', error="비밀번호는 10자 이상 128자 이하로 입력해주세요."), 400
+            return signup_error("비밀번호는 10자 이상 128자 이하로 입력해주세요.")
+        if password != password_confirm:
+            return signup_error("비밀번호와 비밀번호 확인이 일치하지 않습니다.")
 
         # 1. 이메일 형식 및 @ 앞부분 영문/숫자 체크
         # 규칙: 시작은 영문/숫자, @ 앞까지 영문/숫자만 허용
         email_pattern = r'^[a-zA-Z0-9]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
 
         if not email or not re.match(email_pattern, email):
-            return render_template('signup.html', error="이메일 형식이 올바르지 않거나, 아이디 부분에 특수문자를 사용할 수 없습니다.")
+            return signup_error("이메일 형식이 올바르지 않거나, 아이디 부분에 특수문자를 사용할 수 없습니다.")
         # 기본 검증
         if not nickname or len(nickname) > 20:
-            return render_template('signup.html', error="닉네임은 1자 이상 20자 이하로 입력해주세요.")
+            return signup_error("닉네임은 1자 이상 20자 이하로 입력해주세요.")
 
         if not check_profanity(nickname):
-            return render_template('signup.html', error="닉네임에 부적절한 단어가 포함되어 있습니다.")
+            return signup_error("닉네임에 부적절한 단어가 포함되어 있습니다.")
+
+        if location_error:
+            return signup_error(location_error)
 
         # 중복 검사 (아이디, 닉네임, 이메일)
         if Member.query.filter_by(username=username).first():
-            return render_template('signup.html', error="이미 존재하는 아이디입니다.")
+            return signup_error("이미 존재하는 아이디입니다.")
 
         if Member.query.filter_by(nickname=nickname).first():
-            return render_template('signup.html', error="이미 존재하는 닉네임입니다. 다른 닉네임을 사용해주세요.")
+            return signup_error("이미 존재하는 닉네임입니다. 다른 닉네임을 사용해주세요.")
 
         if Member.query.filter_by(email=email).first():  # 이메일 중복 체크 추가
-            return render_template('signup.html', error="이미 등록된 이메일입니다.")
+            return signup_error("이미 등록된 이메일입니다.")
 
         hashed_pw = generate_password_hash(password)
         # DB 모델에 email 필드가 있다고 가정 (new_user 생성 시 추가)
-        new_user = Member(username=username, password_hash=hashed_pw, nickname=nickname, email=email, points=0)
+        new_user = Member(
+            username=username,
+            password_hash=hashed_pw,
+            nickname=nickname,
+            email=email,
+            points=0,
+            address=location['address'],
+            latitude=location['latitude'],
+            longitude=location['longitude'],
+            region_city=location['region_city'],
+            region_district=location['region_district'],
+        )
         try:
             db.session.add(new_user)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
-            return render_template('signup.html', error="이미 사용 중인 회원 정보입니다."), 409
+            return signup_error("이미 사용 중인 회원 정보입니다.", 409)
 
         return redirect(url_for('auth.login'))
 

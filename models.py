@@ -12,6 +12,9 @@ class Member(db.Model):
     points = db.Column(db.Integer, default=0) # 크래커 포인트
     created_at = db.Column(db.DateTime, default=get_now_kst)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    address = db.Column(db.String(255), nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
     region_city = db.Column(db.String(50), nullable=True)
     region_district = db.Column(db.String(50), nullable=True)
     role = db.Column(db.String(20), nullable=True)  # 'admin' / 'manager' / 'user'
@@ -34,7 +37,7 @@ class Report(db.Model):
     file_path = db.Column(db.String(512), nullable=True)
     file_type = db.Column(db.String(50), nullable=True)
     thumbnail_path = db.Column(db.String(512), nullable=True) # AI가 생성한 썸네일 경로
-    status = db.Column(db.String(20), default='관리자 확인중', index=True)
+    status = db.Column(db.String(20), default='접수완료', index=True)
     reject_reason = db.Column(db.String(500), nullable=True)
     region_name = db.Column(db.String(255), nullable=True)
     last_checked_at = db.Column(db.DateTime, nullable=True)

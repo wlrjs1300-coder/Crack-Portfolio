@@ -1,5 +1,7 @@
 import os
 import io
+import json
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -20,13 +22,16 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import app as app_module
 from extensions import db
-from models import AIJob, Member, PasswordResetToken, PointLog, Report
+from models import AIJob, AiResult, Member, PasswordResetToken, PointLog, Report
 from services.privacy_filter import blur_image_in_place
 from services.retention import apply_retention_policy
 from services.media_security import MediaValidationError, sanitize_image_to_jpeg, validate_saved_media
 from services.report_workflow import transition_report
 from services.security import can_access_report
 from services.backup import create_sqlite_backup, verify_backup
+from services.region_service import parse_region_hierarchy
+from services.alert_service import _priority_score as alert_priority_score
+from services.admin_service import _priority_score as admin_priority_score
 
 
 class P1RegressionTests(unittest.TestCase):
@@ -39,6 +44,181 @@ class P1RegressionTests(unittest.TestCase):
     def test_password_reset_table_is_created(self):
         with app_module.app.app_context():
             self.assertEqual(PasswordResetToken.query.count(), 0)
+
+    def test_region_hierarchy_stops_at_district_level(self):
+        self.assertEqual(
+            parse_region_hierarchy('경기도 수원시 영통구 매탄동'),
+            ['경기도', '수원시', '영통구'],
+        )
+        self.assertEqual(
+            parse_region_hierarchy('강원특별자치도 춘천시 효자동'),
+            ['강원특별자치도', '춘천시'],
+        )
+        self.assertEqual(
+            parse_region_hierarchy('서울특별시 중구 태평로1가'),
+            ['서울특별시', '중구'],
+        )
+
+    def test_received_status_does_not_add_priority_score(self):
+        received = {
+            'status': '접수완료',
+            'risk_score': 0,
+            'group_reporter_count': 0,
+            'created_at': None,
+        }
+        processing = {**received, 'status': '처리중'}
+
+        self.assertEqual(admin_priority_score(received), 0)
+        self.assertEqual(admin_priority_score(processing), 0)
+
+        # 알림 서비스는 단일 신고자 수를 1명으로 표현한다.
+        received['group_reporter_count'] = 1
+        processing['group_reporter_count'] = 1
+        self.assertEqual(alert_priority_score(received), 0)
+        self.assertEqual(alert_priority_score(processing), 0)
+
+    def test_image_ai_analysis_saves_result_without_video_scope_error(self):
+        source = Path(app_module.UPLOAD_IMAGE_DIR) / 'ai-regression-test.jpg'
+        Image.new('RGB', (24, 24), 'gray').save(source, 'JPEG')
+        self.addCleanup(lambda: source.unlink(missing_ok=True))
+
+        with app_module.app.app_context():
+            member = Member(
+                username='ai_regression_user',
+                password_hash='x',
+                email='ai-regression@example.com',
+            )
+            db.session.add(member)
+            db.session.flush()
+            report = Report(
+                user_id=member.id,
+                title='AI 회귀 테스트',
+                status='접수완료',
+                file_path='/uploads/images/ai-regression-test.jpg',
+                file_type='image',
+            )
+            db.session.add(report)
+            db.session.commit()
+            report_id = report.id
+
+        class EmptyResult:
+            boxes = []
+
+            @staticmethod
+            def plot():
+                return np.zeros((24, 24, 3), dtype=np.uint8)
+
+        class FakeModel:
+            def __call__(self, *_args, **_kwargs):
+                return [EmptyResult()]
+
+        with patch.object(app_module, 'model', FakeModel()):
+            app_module.run_ai_analysis(
+                report_id,
+                '/uploads/images/ai-regression-test.jpg',
+                'image',
+            )
+
+        with app_module.app.app_context():
+            result = AiResult.query.filter_by(report_id=report_id).one()
+            self.assertFalse(result.is_damaged)
+            self.assertEqual(result.confidence, 0)
+
+    def test_admin_statistics_includes_leaf_region_modal_data(self):
+        with app_module.app.app_context():
+            admin = Member(
+                username='statistics_admin',
+                password_hash='x',
+                email='statistics-admin@example.com',
+                role='admin',
+                is_admin=True,
+            )
+            db.session.add(admin)
+            db.session.flush()
+            db.session.add_all([
+                Report(
+                    user_id=admin.id,
+                    title='수원 도로 파손',
+                    status='접수완료',
+                    address='경기도 수원시 영통구 매탄동',
+                ),
+                Report(
+                    user_id=admin.id,
+                    title='성남 도로 파손',
+                    status='처리중',
+                    address='경기도 성남시 분당구 정자동',
+                ),
+            ])
+            db.session.commit()
+            admin_id = admin.id
+
+        client = app_module.app.test_client()
+        with client.session_transaction() as flask_session:
+            flask_session['user_id'] = admin_id
+            flask_session['user_role'] = 'admin'
+
+        html = client.get('/admin/statistics').get_data(as_text=True)
+        self.assertIn('id="regionStatsModal"', html)
+        match = re.search(r'const regionReportDetails = (\{.*?\});', html)
+        self.assertIsNotNone(match)
+        region_details = json.loads(match.group(1))
+        self.assertEqual(region_details['경기도||수원시'][0]['title'], '수원 도로 파손')
+
+    def test_signup_requires_and_saves_geocoded_address(self):
+        client = app_module.app.test_client()
+        with client.session_transaction() as flask_session:
+            flask_session['_csrf_token'] = 'csrf-signup'
+        payload = {
+            'username': 'location_user',
+            'password': 'safe-password-123',
+            'password_confirm': 'safe-password-123',
+            'nickname': '위치회원',
+            'email': 'location@example.com',
+            'csrf_token': 'csrf-signup',
+        }
+        with patch('services.auth_service.check_profanity', return_value=True):
+            missing = client.post('/signup', data=payload)
+            self.assertEqual(missing.status_code, 400)
+
+            payload.update({
+                'address': '서울특별시 중구 세종대로 110',
+                'address_lat': '37.5665',
+                'address_lng': '126.9780',
+                'region_city': '서울특별시',
+                'region_district': '중구',
+            })
+            created = client.post('/signup', data=payload)
+        self.assertEqual(created.status_code, 302, created.get_data(as_text=True))
+        with app_module.app.app_context():
+            member = Member.query.filter_by(username='location_user').one()
+            self.assertEqual(member.address, '서울특별시 중구 세종대로 110')
+            self.assertAlmostEqual(member.latitude, 37.5665)
+            self.assertAlmostEqual(member.longitude, 126.9780)
+
+    def test_alert_feed_only_shows_reports_within_one_kilometer(self):
+        with app_module.app.app_context():
+            member = Member(
+                username='nearby_user', password_hash='x', email='nearby@example.com',
+                address='서울특별시 중구 세종대로 110', latitude=37.5665, longitude=126.9780,
+            )
+            db.session.add(member)
+            db.session.flush()
+            db.session.add_all([
+                Report(user_id=member.id, title='반경 안 제보', status='접수완료',
+                       latitude=37.5710, longitude=126.9780, address='서울특별시 중구'),
+                Report(user_id=member.id, title='반경 밖 제보', status='접수완료',
+                       latitude=37.5865, longitude=126.9780, address='서울특별시 종로구'),
+            ])
+            db.session.commit()
+            member_id = member.id
+
+        client = app_module.app.test_client()
+        with client.session_transaction() as flask_session:
+            flask_session['user_id'] = member_id
+            flask_session['user_role'] = 'user'
+        html = client.get('/alert').get_data(as_text=True)
+        self.assertIn('반경 안 제보', html)
+        self.assertNotIn('반경 밖 제보', html)
 
     def test_create_admin_cli_hashes_password_and_assigns_role(self):
         runner = app_module.app.test_cli_runner()
@@ -58,10 +238,14 @@ class P1RegressionTests(unittest.TestCase):
             member = Member(username='tester', password_hash='x', email='tester@example.com', points=0)
             db.session.add(member)
             db.session.flush()
-            report = Report(user_id=member.id, status='관리자 확인중')
+            report = Report(user_id=member.id, status='접수완료')
             db.session.add(report)
             db.session.flush()
 
+            transition_report(report, '처리완료')
+            db.session.commit()
+            transition_report(report, '처리중')
+            db.session.commit()
             transition_report(report, '처리완료')
             db.session.commit()
             transition_report(report, '처리 완료')
@@ -69,12 +253,10 @@ class P1RegressionTests(unittest.TestCase):
             self.assertEqual(member.points, 20)
             self.assertEqual(PointLog.query.filter(PointLog.amount == 20).count(), 1)
 
-            transition_report(report, '반려', '테스트')
-            db.session.commit()
-            transition_report(report, '반려', '테스트')
-            db.session.commit()
-            self.assertEqual(member.points, 10)
-            self.assertEqual(PointLog.query.filter(PointLog.amount < 0).count(), 1)
+            with self.assertRaises(ValueError):
+                transition_report(report, '반려', '테스트')
+            self.assertEqual(member.points, 20)
+            self.assertEqual(PointLog.query.filter(PointLog.amount < 0).count(), 0)
 
     def test_jpeg_is_sanitized_without_in_place_corruption(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -162,7 +344,7 @@ class P1RegressionTests(unittest.TestCase):
             stored = Path(app_module.app.root_path, report.file_path.lstrip('/'))
             self.addCleanup(lambda: stored.unlink(missing_ok=True))
             self.assertEqual(validate_saved_media(str(stored), 'mp4'), 'video')
-            self.assertEqual(report.status, '관리자 확인중')
+            self.assertEqual(report.status, '접수완료')
 
     def test_csrf_protects_mutating_api(self):
         client = app_module.app.test_client()

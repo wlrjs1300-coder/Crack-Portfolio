@@ -124,6 +124,9 @@ if not database_url and db_user and db_password and db_host and db_name:
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 app.config['MAX_FORM_MEMORY_SIZE'] = 512 * 1024
 app.config['MAX_FORM_PARTS'] = 50
+app.config['TEMPLATES_AUTO_RELOAD'] = not is_production
+app.config['APP_BUILD_VERSION'] = os.getenv('APP_BUILD_VERSION') or datetime.utcnow().strftime('%Y%m%d%H%M%S')
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 if not is_production else 31536000
 UPLOAD_BASE_DIR = os.path.join(base_dir, 'uploads')
 UPLOAD_IMAGE_DIR = os.path.join(UPLOAD_BASE_DIR, 'images')
 UPLOAD_VIDEO_DIR = os.path.join(UPLOAD_BASE_DIR, 'videos')
@@ -205,12 +208,23 @@ def expose_csp_nonce():
     return {'csp_nonce': getattr(g, 'csp_nonce', '')}
 
 
+@app.context_processor
+def expose_build_version():
+    return {
+        'build_version': app.config.get('APP_BUILD_VERSION', 'dev')
+    }
+
+
 @app.after_request
 def apply_security_headers(response):
     response.headers.setdefault('X-Content-Type-Options', 'nosniff')
     response.headers.setdefault('X-Frame-Options', 'DENY')
     response.headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
     response.headers.setdefault('Permissions-Policy', 'camera=(self), geolocation=(self), microphone=()')
+    if not is_production:
+        response.headers.setdefault('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        response.headers.setdefault('Pragma', 'no-cache')
+        response.headers.setdefault('Expires', '0')
     nonce = getattr(g, 'csp_nonce', '')
     script_src = [
         "'self'",
@@ -218,16 +232,22 @@ def apply_security_headers(response):
         'https://cdnjs.cloudflare.com',
         'https://cdn.jsdelivr.net',
         'https://cdn.socket.io',
-        'https://t1.daumcdn.net',
+        't1.daumcdn.net',
         'https://dapi.kakao.com',
     ]
+    # 개발/로컬에서만 임시 완화: 기존 마크업의 inline 핸들러가
+    # 아직 남아 있는 페이지에서 UI가 멈추는 현상을 방지하기 위해 사용합니다.
+    is_local_host = request.host.split(':', 1)[0] in ('localhost', '127.0.0.1')
+    if not is_production or is_local_host:
+        script_src.append("'unsafe-inline'")
     response.headers.setdefault('Content-Security-Policy', (
         "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; "
         f"script-src {' '.join(script_src)}; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-        "img-src 'self' data: blob: https:; media-src 'self' blob:; "
-        "connect-src 'self' ws: wss: https://dapi.kakao.com https://*.kakao.com; frame-src 'self' https://postcode.map.daum.net"
+        "img-src 'self' data: blob: https: http://t1.daumcdn.net http://mts.daumcdn.net; media-src 'self' blob:; "
+        "connect-src 'self' ws: wss: dapi.kakao.com *.kakao.com https://cdn.socket.io; "
+        "frame-src 'self' https://postcode.map.daum.net https://postcode.map.kakao.com http://postcode.map.kakao.com;"
     ))
     if request.is_secure:
         response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
@@ -360,7 +380,10 @@ def inject_global_vars():
     """모든 템플릿에서 쓸 수 있는 전역 변수 주입"""
     admin_unread_count = 0
     if session.get('is_admin'):
-        admin_unread_count = Report.query.filter_by(status='관리자 확인중').count()
+        admin_unread_count = Report.query.filter(
+            Report.status == '접수완료',
+            Report.last_checked_at.is_(None),
+        ).count()
     return dict(kakao_js_key=kakao_js_key, admin_unread_count=admin_unread_count, csrf_token=csrf_token())
 
 
@@ -375,6 +398,14 @@ def serve_sw():
     response = make_response(send_from_directory('static', 'sw.js'))
     response.headers['Content-Type'] = 'application/javascript'
     return response
+
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    favicon_path = os.path.join(base_dir, 'static', 'favicon.ico')
+    if os.path.exists(favicon_path):
+        return send_from_directory('static', 'favicon.ico', mimetype='image/png')
+    return send_from_directory('static/icons', 'icon-192.png', mimetype='image/png')
 
 
 @app.route('/uploads/<path:filename>')
@@ -403,9 +434,6 @@ def serve_ppt_images(filename):
 # 메인 및 공통 라우트
 @app.route('/')
 def index():
-    if not session.get('user_id'):
-        return redirect(url_for('alert.alert_page'))
-
     return render_template('index.html')
 
 
@@ -445,14 +473,14 @@ def get_priority_score(report, now=None):
     status = report.status
     created_at = report.created_at
 
-    if status == '관리자 확인중': score += 100
+    if status == '접수완료': score += 100
     if confidence >= 80:
         score += 50
     elif confidence >= 50:
         score += 20
 
     # 반복 제보(그룹화 시 계산됨) - 여기서는 기본 점수만
-    if status == '관리자 확인중' and created_at and (now - created_at).total_seconds() >= 86400:
+    if status == '접수완료' and created_at and (now - created_at).total_seconds() >= 86400:
         score += 40
     return score
 
@@ -619,7 +647,6 @@ def run_ai_analysis(report_id, file_path, file_type):
             # 프레임별 검출 결과를 DB에 일괄 저장
             if frame_detections:
                 with app.app_context():
-                    from models import VideoDetection
                     for det in frame_detections:
                         db.session.add(VideoDetection(
                             report_id=report_id,
@@ -693,20 +720,10 @@ def run_ai_analysis(report_id, file_path, file_type):
                 # AI 분석 승인 조건: (포트홀 60% 이상) OR (단일 프레임 포트홀 3개 이상) OR (싱크홀 1개 이상)
                 is_valid_report = (pothole_max_conf >= 0.6) or (max_pothole_in_frame >= 3) or (sinkhole_count > 0)
 
-                if is_valid_report:
-                    rpt.status = '관리자 확인중'
-                    app.logger.info('신규 신고 알림 전송 (report=%s)', rpt.id)
-                    socketio.emit(
-                        'new_report',
-                        {'address': rpt.address or '위치 미상', 'report_id': rpt.id},
-                        to='authenticated',
-                    )
-                else:
-                    rpt.status = '반려'
-                    if total_pothole_count == 0 and sinkhole_count == 0:
-                        rpt.reject_reason = 'AI 분석 결과 도로 파손(포트홀/싱크홀)이 감지되지 않았습니다. 다시 정확하게 촬영해주세요.'
-                    else:
-                        rpt.reject_reason = 'AI 분석 결과 도로 파손 유효성 기준(포트홀 신뢰도 60% 미만 등)에 미달했습니다. 명확하게 다시 촬영해주세요.'
+                rpt.reject_reason = None
+                app.logger.info(
+                    'AI 분석 완료 (report=%s, valid=%s)', rpt.id, is_valid_report
+                )
                 db.session.commit()
     except Exception:
         app.logger.exception('AI Analysis Error for report %s', report_id)

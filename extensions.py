@@ -14,5 +14,5 @@ def enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
         cursor.close()
 
 db = SQLAlchemy()
-socketio = SocketIO(async_mode='eventlet')
+socketio = SocketIO(async_mode='eventlet', manage_session=False)
 migrate = Migrate(compare_type=True)

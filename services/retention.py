@@ -40,7 +40,6 @@ def apply_retention_policy(app):
     now = get_now_kst()
     media_cutoffs = {
         '삭제': now - timedelta(days=_days('DELETED_MEDIA_RETENTION_DAYS', 7)),
-        '반려': now - timedelta(days=_days('REJECTED_MEDIA_RETENTION_DAYS', 30)),
     }
     stats = {
         'media_files': 0, 'orphan_files': 0, 'reports_redacted': 0,
