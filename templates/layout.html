@@ -3,14 +3,15 @@
 
 <head>
     <script nonce="{{ csp_nonce }}">
-        // [FOUC Guard] 利됱떆 ?ㅽ뻾?섏뿬 ?뚮뜑留????대줈??紐⑤뱶 吏꾩엯
+        // [FOUC Guard] 즉시 ?�행?�여 ?�더�????�로??모드 진입
         document.documentElement.classList.add('is-loading');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Crack{% endblock %}</title>
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <script src="{{ url_for('static', filename='security.js') }}"></script>
+    <meta name="app-build-version" content="{{ build_version }}">
+    <script src="{{ url_for('static', filename='security.js') }}?v={{ build_version }}"></script>
 
     <!-- Preload Critical Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,23 +23,31 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/font/bootstrap-icons.css') }}">
 
     <!-- Third-Party Libraries -->
     <!-- Cropper.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js" crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/cropperjs/cropper.min.css') }}" />
+    <script src="{{ url_for('static', filename='vendor/cropperjs/cropper.min.js') }}"></script>
     <!-- Daum Postcode API -->
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <!-- Kakao Maps SDK -->
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&libraries=services"
-        onload="window.kakaoSdkLoaded = true" onerror="window.kakaoSdkLoaded = false"></script>
+    <script id="kakao-sdk-script" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&libraries=services&autoload=false"></script>
+    <script nonce="{{ csp_nonce }}">
+        const kakaoSdkScript = document.getElementById('kakao-sdk-script');
+        if (kakaoSdkScript) {
+            kakaoSdkScript.addEventListener('load', function () {
+                window.kakaoSdkLoaded = true;
+            }, { once: true });
+            kakaoSdkScript.addEventListener('error', function () {
+                window.kakaoSdkLoaded = false;
+            }, { once: true });
+        }
+    </script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
     <!-- PWA -->
-    <link rel="manifest" href="/manifest.json?v=1.3.0">
+        <link rel="manifest" href="/manifest.json?v={{ build_version }}">
     <meta name="theme-color" content="#FF8C00">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,7 +56,7 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png?v=3">
 
     <!-- iOS Splash Screen (Startup Image) -->
-    <!-- iOS??留ㅻ땲?섏뒪?몃? ?吏 ?딆쑝誘濡?媛쒕퀎 ?쒓렇濡?吏?뺥븯???ㅽ뵆?섏떆 ?붾㈃???댁쭏媛?理쒖냼??-->
+    <!-- iOS??매니?�스?��? ??�? ?�으�?�?개별 ?�그�?�??�하???�플?�시 ?�면???�질�?최소??-->
     <link rel="apple-touch-startup-image" href="/static/icons/icon-512.png?v=3">
 
     <!-- [BRIDGE] Admin Transition State Check (Must be here to prevent flicker) -->
@@ -82,6 +91,62 @@
             --footer-h: 70px;
         }
 
+        main.page-transition-out {
+            opacity: 0;
+            transform: translateY(7px) scale(.995);
+            pointer-events: none;
+            transition: opacity .15s ease, transform .15s ease;
+        }
+
+        main.page-transition-in {
+            animation: global-page-enter .3s cubic-bezier(.2, .72, .25, 1);
+        }
+
+        @keyframes global-page-enter {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(.994);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @view-transition {
+            navigation: auto;
+        }
+
+        ::view-transition-old(root) {
+            animation: global-page-leave .14s ease both;
+        }
+
+        ::view-transition-new(root) {
+            animation: global-page-enter .3s cubic-bezier(.2, .72, .25, 1) both;
+        }
+
+        @keyframes global-page-leave {
+            to {
+                opacity: 0;
+                transform: translateY(6px) scale(.996);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            main.page-transition-out,
+            main.page-transition-in {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+            }
+
+            ::view-transition-old(root),
+            ::view-transition-new(root) {
+                animation: none !important;
+            }
+        }
+
         /* Unified Brand Status Colors (No !important to avoid card conflicts) */
         .status-received {
             background: #fff7ed;
@@ -108,7 +173,7 @@
             color: #616161;
         }
 
-        /* [FOUC Guard Style] 理쒖긽??諛곗튂: 濡쒕뵫 以묒뿉??Header? Footer???몄텧?섎룄濡??섏젙 */
+        /* [FOUC Guard Style] 최상??배치: 로딩 중에??Header?? Footer???�출?�도�??�정 */
         .is-loading .app-container>*:not(#premium-loader):not(header):not(.bottom-nav) {
             opacity: 0 !important;
             visibility: hidden !important;
@@ -128,7 +193,7 @@
 
         body {
             background-color: #D6D6D6;
-            /* 諛곌꼍?됱쓣 ?쎄컙 ???대몼寃??섏뿬 ???곸뿭??媛뺤“ */
+            /* 배경?�을 ?�간 ???�둡�??�여 ???�역??강조 */
             color: var(--text-asphalt);
             font-family: 'Inter', sans-serif;
             overflow: hidden;
@@ -142,7 +207,7 @@
 
         .app-container {
             height: calc(100dvh - 40px);
-            /* ?붾㈃?먯꽌 ?댁쭩 ?꾩썙??怨〓쪧 媛뺤“ */
+            /* ?�면?�서 ?�짝 ?�워??곡률 강조 */
             width: 100vw;
             max-width: 480px;
             margin: 20px auto;
@@ -299,7 +364,7 @@
         main {
             flex: 1;
             padding: 24px 20px 24px 20px;
-            /* ?곷떒 ?⑤뵫??8px?먯꽌 24px濡?蹂듦뎄?섏뿬 ?ㅻ뜑???媛꾧꺽 ?뺣낫 */
+            /* ?�단 ?�딩??8px?�서 24px�?복구?�여 ?�더????간격 ?�보 */
             overflow-y: auto;
         }
 
@@ -345,7 +410,7 @@
             flex-direction: column;
             align-items: center;
             color: rgba(69, 75, 82, 0.35);
-            /* opacity ????щ챸???됱긽???ъ슜?섏뿬 諛곗? ?좊챸???좎? */
+            /* opacity ?????�명???�상???�용?�여 배�? ?�명???��? */
             text-decoration: none;
             font-size: 0.8rem;
             gap: 2px;
@@ -366,7 +431,7 @@
         }
 
         .nav-item.has-unread i {
-            /* ?뚮┝ 諛곗?留??몄텧?섍퀬 ?꾩씠肄??띿뒪???ㅽ??쇱? ?ㅻⅨ 鍮꾪솢????낵 ?숈씪?섍쾶 ?좎? */
+            /* ?�림 배�?�??�출?�고 ?�이�??�스???��??��? ?�른 비활????�� ?�일?�게 ?��? */
             position: relative;
         }
 
@@ -380,7 +445,7 @@
             top: -2px;
             right: calc(50% - 22px);
             background-color: #FF3B30;
-            /* ?붿슧 ?좊챸???덈뱶 (iOS ?ㅽ??? */
+            /* ?�욱 ?�명???�드 (iOS ?��??? */
             color: white;
             font-size: 0.65rem;
             font-weight: 700;
@@ -395,7 +460,7 @@
             border: 1.5px solid white;
             z-index: 10;
             opacity: 1 !important;
-            /* ??鍮꾪솢???쒖뿉???レ옄???좊챸?섍쾶 ?좎? */
+            /* ??비활???�에???�자???�명?�게 ?��? */
         }
 
         .nav-item:hover {
@@ -588,7 +653,7 @@
         #custom-toast {
             position: fixed;
             top: 80px;
-            /* PWA ?곷떒諛??ㅻ뜑??媛?ㅼ?吏 ?딅룄濡??섑뼢 議곗젙 */
+            /* PWA ?�단�??�더??�??��?�? ?�도�??�향 조정 */
             left: 50%;
             transform: translate(-50%, -150%);
             background: #2D2D2D;
@@ -596,7 +661,7 @@
             padding: 14px 28px;
             border-radius: 16px;
             z-index: 999999 !important;
-            /* 洹??대뼡 ?덉씠?대낫???욎뿉 蹂댁씠?꾨줉 */
+            /* �??�떤 ?�이?�보???�에 보이?�록 */
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0;
             display: flex;
@@ -606,7 +671,7 @@
             pointer-events: none;
             width: auto;
             max-width: 400px;
-            /* ???덈퉬蹂대떎 ?묎쾶 ?ㅼ젙 */
+            /* ???�비보다 ?�게 ?�정 */
             min-width: 250px;
             white-space: normal;
             word-break: keep-all;
@@ -614,7 +679,7 @@
             text-align: center;
         }
 
-        /* [BLUEPRINT] ???곸뿭 ??紐⑤떖 媛뺤젣 寃⑸━ ?ㅽ???*/
+        /* [BLUEPRINT] ???�역 ??모달 강제 격리 ?��???*/
         .app-container:not(.admin-page) .global-modal-overlay,
         .app-container:not(.admin-page) #notice-modal,
         .app-container:not(.admin-page) #enlarge-modal,
@@ -627,7 +692,7 @@
             max-width: 480px !important;
             margin: 0 auto !important;
             border-radius: 24px !important;
-            /* ??而⑦뀒?대꼫??怨〓쪧怨??쇱튂 */
+            /* ??컨테?�너??곡률�??�치 */
             overflow: hidden !important;
         }
 
@@ -753,10 +818,10 @@
             transform: scale(0.96);
         }
 
-        /* 愿由ъ옄 ??쒕낫??PC ?꾩슜 踰꾪듉 (?먰삎) */
+        /* �?리자 ???�보??PC ?�용 버튼 (?�형) */
         .admin-pc-btn {
             display: none !important;
-            /* 湲곕낯?곸쑝濡??④? (紐⑤컮?? */
+            /* 기본?�으�??��? (모바?? */
             align-items: center;
             justify-content: center;
             width: 34px;
@@ -773,31 +838,45 @@
             margin-right: 4px;
         }
 
-        /* [NEW] ?ㅻ뜑 ?꾪꽣 踰꾪듉 ?꾩슜 ?ㅽ???*/
+        /* [NEW] ?�더 ?�터 버튼 ?�용 ?��???*/
         .header-filter-btn {
             display: flex !important;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50% !important;
-            background: var(--point-orange);
-            color: white !important;
+            width: auto;
+            min-width: 72px;
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 999px !important;
+            background: #fff7ed;
+            color: #c2410c !important;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 1.1rem;
+            font-size: 0.85rem;
+            gap: 7px;
+            font-weight: 800;
             cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25);
+            border: 1px solid #fed7aa;
+            box-shadow: 0 3px 10px rgba(249, 115, 22, 0.08);
+        }
+
+        .header-filter-btn i {
+            font-size: 0.95rem;
         }
 
         .header-filter-btn:hover {
-            background: #e67e00 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 140, 0, 0.35);
+            background: #ffedd5 !important;
+            border-color: #fb923c;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.16);
         }
 
         .header-filter-btn:active {
-            transform: scale(0.92);
+            transform: scale(0.96);
+        }
+
+        .header-filter-btn:focus-visible {
+            outline: 3px solid rgba(249, 115, 22, 0.22);
+            outline-offset: 2px;
         }
 
         @media (min-width: 601px) {
@@ -826,7 +905,7 @@
             transform: scale(0.8);
         }
 
-        /* 湲곗〈 admin-icon-btn ?ㅽ????좎? (?꾩슂 ?? */
+        /* 기존 admin-icon-btn ?��????��? (?�요 ?? */
         .admin-icon-btn {
             display: none;
             /* Hidden by default (mobile) */
@@ -860,7 +939,7 @@
             transform: translateY(0);
         }
 
-        /* Premium Loader Styles: ?곹븯??諛붾? ?쒖쇅??硫붿씤 ?곸뿭留???룄濡??섏젙 */
+        /* Premium Loader Styles: ?�하??바�? ?�외??메인 ?�역�???���??�정 */
         #premium-loader {
             position: absolute;
             top: var(--header-h);
@@ -892,7 +971,7 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            /* ?대┃ 諛⑺빐 湲덉? */
+            /* ?�릭 방해 금�? */
         }
 
         .loader-logo {
@@ -926,7 +1005,7 @@
             top: 0;
             left: 0;
             width: 80%;
-            /* ?쎄컙???ъ쑀瑜?以?*/
+            /* ?�간???�유�?�?*/
             height: 100%;
             background: linear-gradient(90deg, transparent, var(--point-orange), transparent);
             animation: loaderSlide 1.5s infinite linear;
@@ -1123,7 +1202,7 @@
             transition: all 0.5s ease !important;
         }
 
-        /* [FIX] 紐⑤떖 ?쒖꽦 ??諛곌꼍 ?ㅽ겕濡?李⑤떒 */
+        /* [FIX] 모달 ?�성 ??배경 ?�크�?차단 */
         .modal-active main {
             overflow: hidden !important;
             overscroll-behavior-y: contain !important;
@@ -1136,7 +1215,7 @@
             document.documentElement.classList.add('admin-bridge-mode');
         }
 
-        // [PPT Mode Persistence] URL??ppt=1???덇굅??愿由ъ옄 ??쒕낫??吏꾩엯 ?쒖뿉留??쒗븳?곸쑝濡??쒖꽦
+        // [PPT Mode Persistence] URL??ppt=1???�거??�?리자 ???�보??진입 ?�에�??�한?�으�??�성
         const urlParams = new URLSearchParams(window.location.search);
         const isPptParam = urlParams.get('ppt') === '1';
         const isAdminDash = window.location.pathname.includes('/admin/dashboard');
@@ -1145,7 +1224,7 @@
             sessionStorage.setItem('ppt_mode', 'active');
         }
 
-        // ppt_mode媛 ?쒖꽦 ?곹깭?대뜑?쇰룄, ppt=1 ?뚮씪誘명꽣媛 ?녾굅??愿由ъ옄 ??쒕낫?쒓? ?꾨땲硫??쇰컲 ?깆쑝濡?媛꾩＜?섏뿬 ?댁젣 (硫붿씤 ??蹂듦뎄??
+        // ppt_mode�? ?�성 ?�태?�더?�도, ppt=1 ?�라미터�? ?�거??�?리자 ???�보?��? ?�니�??�반 ?�으�?간주?�여 ?�제 (메인 ??복구??
         if (sessionStorage.getItem('ppt_mode') === 'active') {
             if (isPptParam || isAdminDash) {
                 document.documentElement.classList.add('ppt-mode-active');
@@ -1164,7 +1243,7 @@
             overflow: hidden !important;
         }
 
-        /* 愿由ъ옄 ??쒕낫?쒖뿉?쒕쭔 ?ㅽ겕濡?臾쇰━???꾩쟾 李⑤떒 - 紐⑤뱺 ?섑띁 ?ы븿 */
+        /* �?리자 ???�보?�에?�만 ?�크�?물리???�전 차단 - 모든 ?�퍼 ?�함 */
         html.ppt-mode-active body.admin-mode-active,
         body.ppt-mode.admin-mode-active {
             overflow: hidden !important;
@@ -1175,7 +1254,7 @@
             overscroll-behavior: none !important;
         }
 
-        /* [?듭떖] 以묎컙 ?섑띁(.app-container, main)???덈? 怨좎젙 */
+        /* [?�심] 중간 ?�퍼(.app-container, main)???��? 고정 */
         body.ppt-mode.admin-mode-active .app-container,
         body.ppt-mode.admin-mode-active main,
         html.ppt-mode-active body.admin-mode-active .app-container,
@@ -1185,24 +1264,24 @@
             max-height: 100vh !important;
         }
 
-        /* ?ㅽ겕濡??몃뵒耳?댄꽣(二쇳솴???꾨줈洹몃젅?쒕툕 諛? ?④? */
+        /* ?�크�??�디�??�터(주황???�로그레?�브 �? ?��? */
         body.ppt-mode.admin-mode-active #scroll-indicator,
         html.ppt-mode-active body.admin-mode-active #scroll-indicator {
             display: none !important;
         }
 
-        /* 怨듯넻: 諛쒗몴 ??愿由ъ옄 ?꾪솚 踰꾪듉 ?④? */
+        /* 공통: 발표 ??�?리자 ?�환 버튼 ?��? */
         body.ppt-mode .admin-pc-btn,
         html.ppt-mode-active body .admin-pc-btn {
             display: none !important;
         }
 
-        /* 愿由ъ옄 ??쒕낫???꾩슜: PPT 紐⑤뱶(ppt=1 ?뚮씪誘명꽣 議댁옱 ???먯꽌留??곷떒諛??꾩쟾 李⑤떒 */
+        /* �?리자 ???�보???�용: PPT 모드(ppt=1 ?�라미터 존재 ???�서�??�단�??�전 차단 */
         body.ppt-mode.admin-dashboard-page header {
             display: none !important;
         }
 
-        /* ?ㅼ쭅 愿由ъ옄 ??쒕낫?쒖뿉?쒕쭔 ?섎떒諛??④? (?ъ슜???붿껌: 17~20?섏씠吏 ?섎떒諛?蹂듦뎄) */
+        /* ?�직 �?리자 ???�보?�에?�만 ?�단�??��? (?�용???�청: 17~20?�이�? ?�단�?복구) */
         body.ppt-mode.admin-dashboard-page .bottom-nav,
         html.ppt-mode-active body.admin-dashboard-page .bottom-nav {
             display: none !important;
@@ -1235,43 +1314,44 @@
         </div>
 
         <header>
-            <a href="/" class="brand" onclick="shakeElement(this)"><i class="bi bi-lightning-charge-fill"></i> CRACK</a>
+            <a href="/" id="brandLink" class="brand"><i class="bi bi-lightning-charge-fill"></i> CRACK</a>
             <div class="auth-tools" style="display:flex; gap:12px; align-items:center;">
                 <!-- Global Filter Tool in Alert Page (Only on Feed List) -->
                 {% if request.path == '/alert' %}
-                <button id="headerFilterBtn" class="header-filter-btn" title="?꾪꽣 諛?寃?? onclick="openFilterModal()">
+                <button id="headerFilterBtn" class="header-filter-btn" type="button" title="필터 열기" aria-label="필터 열기">
                     <i class="bi bi-sliders"></i>
+                    <span>필터</span>
                 </button>
                 {% endif %}
 
                 {% if session.get('user_id') %}
-                <!-- 濡쒓렇?명븳 ?ъ슜??-->
+                <!-- 로그?�한 ?�용??-->
                 {% if session.get('is_admin') %}
                 {% if request.path == '/admin/dashboard' %}
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="/" class="admin-pc-btn" title="?깆쑝濡??뚯븘媛湲?>
+                    <a href="/" class="admin-pc-btn" title="Admin Dashboard">
                         <i class="bi bi-arrow-left-circle-fill"></i>
                     </a>
-                    <a href="/admin/ppt" class="admin-pc-btn" title="?꾨젅?좏뀒?댁뀡 (PPT)">
+                    <a href="/admin/ppt" class="admin-pc-btn" title="Open PPT mode">
                         <i class="bi bi-file-earmark-slides-fill"></i>
                     </a>
                 </div>
                 {% endif %}
                 <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-pc-btn ms-2 admin-dashboard-link"
-                    title="愿由ъ옄 ??쒕낫??>
+                    title="Admin Dashboard">
                     <i class="bi bi-person-fill-gear"></i>
                 </a>
                 {% endif %}
                 <form method="post" action="/logout" style="display:inline; margin:0;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <button type="submit" class="btn-auth-outline" style="color:#FF4D4D;">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                        <i class="bi bi-box-arrow-right"></i> 로그아웃
                     </button>
                 </form>
                 {% else %}
                 <!-- 鍮꾨줈洹몄씤 -->
-                <a href="/login" class="btn-auth-solid" style="padding: 6px 14px; font-size: 0.8rem;">濡쒓렇??/a>
-                <a href="/signup" class="btn-auth-outline" style="padding: 6px 14px; font-size: 0.8rem;">?뚯썝媛??/a>
+                <a href="/login" class="btn-auth-solid" style="padding: 6px 14px; font-size: 0.8rem;">로그인</a>
+                <a href="/signup" class="btn-auth-outline" style="padding: 6px 14px; font-size: 0.8rem;">회원가입</a>
                 {% endif %}
             </div>
             <!-- Scroll Progress Indicator -->
@@ -1282,7 +1362,8 @@
         <main>{% block content %}{% endblock %}</main>
         <nav class="bottom-nav {{ 'admin-nav-hidden' if request.path == '/admin/dashboard' else '' }}">
             <a href="/alert"
-                class="nav-item {{ 'active' if request.path.startswith('/alert') or request.path.startswith('/alert_view') else '' }} {{ 'has-unread' if admin_unread_count > 0 else '' }}">
+                class="nav-item {{ 'active' if request.path.startswith('/alert') or request.path.startswith('/alert_view') else '' }} {{ 'has-unread' if admin_unread_count > 0 else '' }}"
+                data-auth-required="1">
                 <i class="bi bi-bell-fill"></i>
                 {% if admin_unread_count > 0 %}
                 <span class="badge-count">{{ admin_unread_count if admin_unread_count < 100 else '99+' }}</span>
@@ -1290,30 +1371,30 @@
                         Alert
             </a>
             <a href="/report" class="nav-item {{ 'active' if request.path.startswith('/report') else '' }}"
-                onclick="return checkMyPage(event)"><i class="bi bi-plus-circle-fill"></i> Report</a>
+                data-auth-required="1"><i class="bi bi-plus-circle-fill"></i> Report</a>
             <a href="/status"
-                class="nav-item {{ 'active' if request.path.startswith('/status') or (request.path == '/' and not session.get('user_id')) else '' }}"
-                onclick="return checkMyPage(event)"><i class="bi bi-file-text-fill"></i> Status</a>
+                class="nav-item {{ 'active' if request.path.startswith('/status') else '' }}"
+                data-auth-required="1"><i class="bi bi-file-text-fill"></i> Status</a>
             <a href="/mypage" class="nav-item {{ 'active' if request.path.startswith('/mypage') else '' }}"
-                onclick="return checkMyPage(event)"><i class="bi bi-person-fill"></i> My</a>
+                data-auth-required="1"><i class="bi bi-person-fill"></i> My</a>
         </nav>
 
         <div id="custom-toast">
             <i class="bi bi-info-circle-fill"></i> <span id="toast-message"></span>
         </div>
 
-        <div id="global-upload-modal" class="global-modal-overlay" onclick="closeGlobalModal()">
-            <div class="global-modal-content" onclick="event.stopPropagation()">
-                <div class="gmodal-item" onclick="handleGlobalModalAction('FILE')"><i
-                        class="bi bi-collection-play-fill"></i> ???붾컮?댁뒪?먯꽌 異붽??섍린</div>
-                <div id="gmodal-camera-option" class="gmodal-item" onclick="handleGlobalModalAction('CAMERA')"><i
-                        class="bi bi-camera-reels-fill"></i> 吏곸젒 ?ъ쭊/?곸긽 珥ъ쁺?섍린</div>
+        <div id="global-upload-modal" class="global-modal-overlay">
+            <div id="global-modal-content" class="global-modal-content">
+                <div class="gmodal-item" data-modal-action="FILE"><i
+                        class="bi bi-collection-play-fill"></i> 이 디바이스에서 추가하기</div>
+                <div id="gmodal-camera-option" class="gmodal-item" data-modal-action="CAMERA"><i
+                        class="bi bi-camera-reels-fill"></i> 직접 사진/영상 촬영하기</div>
                 <div class="gmodal-divider"></div>
-                <div class="gmodal-item cancel" onclick="closeGlobalModal()">痍⑥냼</div>
+                <div class="gmodal-item cancel" data-modal-close="1">취소</div>
             </div>
         </div>
 
-        <!-- [?꾩뿭] 而ㅼ뒪? 怨듭? 紐⑤떖 -->
+        <!-- [?�역] 커스?? 공�? 모달 -->
         <div id="notice-modal"
             style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
             <div
@@ -1330,21 +1411,29 @@
                 </div>
                 <!-- Footer: Fixed -->
                 <div style="padding: 10px 24px 30px;">
-                    <button type="button" onclick="hideNoticeModal()"
-                        style="width: 100%; background: var(--point-orange); color: white; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(255,140,0,0.2);">?뺤씤</button>
+                    <button id="noticeCloseBtn" type="button"
+                        style="width: 100%; background: var(--point-orange); color: white; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(255,140,0,0.2);">확인</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script nonce="{{ csp_nonce }}">
-        // [以묒슂] 理쒖긽?⑥뿉???곹깭 蹂듦뎄 ?⑥닔 ?뺤쓽 (?몄씠?ㅽ똿 蹂댁옣)
+        // SPA fetch-swapped pages carry a *different* per-request nonce than this
+        // document's own CSP header, so scripts re-executed after a fetch must be
+        // re-signed with THIS page's nonce (captured now, before it becomes async).
+        const __pageNonce = document.currentScript ? document.currentScript.nonce : '';
+
+        // [중요] 최상?�에???�태 복구 ?�수 ?�의 (?�이?�팅 보장)
         function hidePremiumLoader() {
+            // 로더가 닫혔는데 html.is-loading만 남으면 본문 전체가 계속 숨겨진다.
+            // 로더 종료와 본문 표시를 한 동작으로 묶어 빈 회색 화면을 방지한다.
+            document.documentElement.classList.remove('is-loading');
             const loader = document.getElementById('premium-loader');
             const text = document.getElementById('loader-text');
             if (loader) {
                 loader.classList.add('fade-out');
-                // 媛뺤젣濡??ㅽ????곸슜 (釉뚮씪?곗? 理쒖쟻??諛⑹?)
+                // 강제�??��????�용 (브라?��? 최적??방�?)
                 loader.style.opacity = '0';
                 loader.style.visibility = 'hidden';
                 loader.style.pointerEvents = 'none';
@@ -1363,7 +1452,8 @@
             const appContainer = document.querySelector('.app-container');
             if (appContainer) {
                 appContainer.classList.remove('admin-expanding');
-                // 留뚯빟 admin-page ?먯꽌 ?뚯븘?ㅻ뒗 寃껋씠?쇰㈃ reload媛 ?대? ?몄텧?섏뿀?댁빞 ??            }
+                // 만약 admin-page 에서 돌아오는 것이라면 reload가 이미 호출되었어야 함
+            }
 
             const fallMain = document.querySelector('main');
             const fallNav = document.querySelector('.bottom-nav');
@@ -1381,7 +1471,8 @@
             hidePremiumLoader();
         }
 
-        // [bfcache ??? ?섏씠吏媛 ?쒖떆???뚮쭏???곹깭 珥덇린??        window.addEventListener('pageshow', function (event) {
+        /* bfcache cache restore handler */
+        window.addEventListener('pageshow', function (event) {
             cancelAdminTransition();
         });
 
@@ -1395,19 +1486,19 @@
                 toast.classList.remove('active');
                 void toast.offsetWidth; // reflow
                 toast.classList.add('active');
-                // 湲곗〈 ??대㉧媛 ?덉쑝硫??쒓굅 (?곗냽 諛쒖깮 ???
+                // 기존 ???�머�? ?�으�??�거 (?�속 발생 ????
                 if (window.toastTimer) clearTimeout(window.toastTimer);
                 window.toastTimer = setTimeout(() => toast.classList.remove('active'), duration);
             }
         }
 
-        // [USER REQUEST] ?ㅽ겕濡??몃뵒耳?댄꽣 泥섎━湲?(罹≪쿂 紐⑤뱶瑜??ъ슜?섏뿬 ?섏쐞 ?붿냼?ㅼ쓽 ?ㅽ겕濡ㅻ룄 ?꾩뿭?먯꽌 媛먯?)
+        // [USER REQUEST] ?�크�??�디�??�터 처리�?(캡처 모드�??�용?�여 ?�위 ?�소?�의 ?�크롤도 ?�역?�서 감�?)
         document.addEventListener('DOMContentLoaded', () => {
             const indicator = document.getElementById('scroll-indicator');
             if (indicator) {
                 document.addEventListener('scroll', (e) => {
                     const target = e.target;
-                    // document scroll ?먮뒗 overflow:auto ???붿냼???ㅽ겕濡?媛먯?
+                    // document scroll ?�는 overflow:auto ???�소???�크�?감�?
                     const scrollNode = (target === document) ? (document.scrollingElement || document.documentElement) : target;
 
                     if (scrollNode && scrollNode.scrollHeight > scrollNode.clientHeight) {
@@ -1449,11 +1540,13 @@
         function closeGlobalModal() {
             document.getElementById('global-upload-modal').classList.remove('active');
         }
+        window.closeGlobalModal = closeGlobalModal;
 
         function handleGlobalModalAction(action) {
             closeGlobalModal();
             window.postMessage({ type: 'MODAL_ACTION_SELECTED', action: action }, '*');
         }
+        window.handleGlobalModalAction = handleGlobalModalAction;
 
         const shakeElement = (el) => {
             if (!el) return;
@@ -1462,6 +1555,7 @@
             el.classList.add('shake');
             setTimeout(() => el.classList.remove('shake'), 600);
         };
+        window.shakeElement = shakeElement;
 
         window.addEventListener('message', function (e) {
             if (!e.data) return;
@@ -1476,14 +1570,49 @@
             if (!userId) {
                 e.preventDefault();
 
-                showToast('濡쒓렇?몄쓣 癒쇱? ?댁＜?몄슂');
+                showToast('로그인을 먼저 해주세요');
 
-                // ?뵦 諛붾줈 login?쇰줈 ?대룞
-                window.location.href = '/login';
+                const link = e.currentTarget || e.target.closest('a');
+                const destination = link && link.getAttribute('href') ? link.getAttribute('href') : '/mypage';
+                window.location.href = '/login?next=' + encodeURIComponent(destination);
 
                 return false;
             }
             return true;
+        }
+        window.checkMyPage = checkMyPage;
+
+        const globalUploadOverlay = document.getElementById('global-upload-modal');
+        if (globalUploadOverlay) {
+            globalUploadOverlay.addEventListener('click', function (e) {
+                if (e.target === globalUploadOverlay) {
+                    closeGlobalModal();
+                    return;
+                }
+            });
+        }
+
+        const globalUploadContent = document.getElementById('global-modal-content');
+        if (globalUploadContent) {
+            globalUploadContent.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+            globalUploadContent.addEventListener('click', function (e) {
+                const actionBtn = e.target.closest('[data-modal-action]');
+                if (actionBtn) {
+                    const actionValue = actionBtn.getAttribute('data-modal-action');
+                    handleGlobalModalAction(actionValue || '');
+                    return;
+                }
+                if (e.target.closest('[data-modal-close]')) {
+                    closeGlobalModal();
+                }
+            });
+        }
+
+        const noticeCloseBtn = document.getElementById('noticeCloseBtn');
+        if (noticeCloseBtn) {
+            noticeCloseBtn.addEventListener('click', hideNoticeModal);
         }
 
         function showPremiumLoader(msg = "") {
@@ -1498,21 +1627,83 @@
             }
         }
 
-        window.addEventListener('load', () => { setTimeout(hidePremiumLoader, 300); });
+        const pageMotionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function beginPageTransition() {
+            const mainElement = document.querySelector('main');
+            if (!mainElement || pageMotionReduced) return Promise.resolve();
+            mainElement.classList.remove('page-transition-in');
+            mainElement.classList.add('page-transition-out');
+            return new Promise(function (resolve) {
+                setTimeout(resolve, 150);
+            });
+        }
+
+        function finishPageTransition() {
+            const mainElement = document.querySelector('main');
+            if (!mainElement) return;
+            mainElement.classList.remove('page-transition-out', 'page-transition-in');
+            if (pageMotionReduced) return;
+            void mainElement.offsetWidth;
+            mainElement.classList.add('page-transition-in');
+            setTimeout(function () {
+                mainElement.classList.remove('page-transition-in');
+            }, 320);
+        }
+
+        window.addEventListener('load', () => {
+            finishPageTransition();
+            setTimeout(hidePremiumLoader, 300);
+        });
+
+        document.addEventListener('submit', function (event) {
+            const form = event.target.closest('form');
+            if (!form || event.defaultPrevented || !form.checkValidity()) return;
+            const target = form.getAttribute('target');
+            if (target && target !== '_self') return;
+            const mainElement = document.querySelector('main');
+            if (mainElement && !pageMotionReduced) {
+                mainElement.classList.add('page-transition-out');
+            }
+        });
+
+        // #headerFilterBtn is only rendered on /alert; delegate on document so it
+        // still works after the SPA router swaps #headerFilterBtn in/out of <main>'s
+        // sibling <header>, and so it finds window.openFilterModal defined by alert.html
+        // regardless of whether that page was reached via full load or SPA transition.
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('#headerFilterBtn');
+            if (!btn) return;
+            if (typeof window.openFilterModal === 'function') {
+                window.openFilterModal();
+            }
+        });
 
         (function () {
-            // SPA Routing: 硫붾돱 ?대┃ ??遺?쒕윭???꾪솚 (?섏씠吏 ?덈줈怨좎묠 諛⑹?)
+            // SPA Routing: 메뉴 ?�릭 ??�??�러???�환 (?�이�? ?�로고침 방�?)
             document.addEventListener('click', async function (e) {
-                // ?낅젰 ?꾨뱶 ?대┃ ??SPA 濡쒖쭅 臾댁떆
+                // ?�력 ?�드 ?�릭 ??SPA 로직 무시
                 if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
                 const link = e.target.closest('.nav-item, .brand, .btn-login, .btn-auth-solid, .alert-item, .notice-item, .back-btn');
                 if (!link) return;
+                if (link.matches('[download], [target="_blank"], [data-no-spa]')) return;
+                if (link.id === 'brandLink') {
+                    shakeElement(link);
+                }
+
+                if (link.dataset && link.dataset.authRequired === '1') {
+                    if (!checkMyPage(e)) {
+                        return;
+                    }
+                }
 
                 if (e.defaultPrevented) return;
 
                 let href = link.getAttribute('href');
-                // onclick="location.href='...'" ?먮뒗 window.location.href='...' ?뺥깭 ???(?덉쟾?섍쾶 李몄“)
+                // onclick="location.href='...'" ?�는 window.location.href='...' ?�태 ????(?�전?�게 참조)
                 if (!href) {
                     const onclickVal = link.getAttribute('onclick');
                     if (onclickVal) {
@@ -1521,16 +1712,32 @@
                     }
                 }
 
-                if (!href || href.startsWith('http') || href.startsWith('#')) return;
+                if (!href || href.startsWith('#') || /^(mailto:|tel:|javascript:)/i.test(href)) return;
 
-                // [以묒슂] ?꾩옱 ?섏씠吏? ?숈씪??寃쎈줈 ?대┃ ??臾댁떆 (?덈줈怨좎묠 諛⑹?)
-                const targetPath = href.split('?')[0];
+                let targetUrl;
+                try {
+                    targetUrl = new URL(href, window.location.href);
+                } catch (error) {
+                    return;
+                }
+                if (targetUrl.origin !== window.location.origin) return;
+                if (
+                    targetUrl.pathname.startsWith('/uploads/') ||
+                    targetUrl.pathname.startsWith('/static/') ||
+                    targetUrl.pathname.startsWith('/api/') ||
+                    targetUrl.pathname === '/manifest.json' ||
+                    targetUrl.pathname === '/sw.js'
+                ) return;
+                href = targetUrl.pathname + targetUrl.search + targetUrl.hash;
+
+                // [중요] ?�재 ?�이�??? ?�일??경로 ?�릭 ??무시 (?�로고침 방�?)
+                const targetPath = targetUrl.pathname;
                 const currentPath = window.location.pathname;
 
-                // [?섏젙] query string 臾댁떆?섍퀬 ?쒖닔 寃쎈줈濡?鍮꾧탳?섏뿬 ?뺥솗???곸듅
-                if (targetPath === currentPath) {
+                // [?�정] query string 무시?�고 ?�수 경로�?비교?�여 ?�확???�승
+                if (targetPath === currentPath && targetUrl.search === window.location.search && !targetUrl.hash) {
                     console.log("Already on this page, performing Scroll-to-Top.");
-                    // [UX 媛쒖꽑] ?숈씪 ???쒖꽦 ?곹깭?먯꽌 ???꾩씠肄??ㅼ떆 ?대┃ ??留??꾨줈 遺?쒕읇寃??ㅽ겕濡?                    // main 肉먮쭔 ?꾨땲???대????ㅼ젣 ?ㅽ겕濡?而⑦뀒?대꼫(.alert-page, .status-page ????紐⑤몢 李얠븘 ?ㅽ겕濡??곷떒?쇰줈 ?щ┝
+                    // [UX 개선] ?�일 ???�성 ?�태?�서 ???�이�??�시 ?�릭 ??�??�로 �??�럽�??�크�?                    // main 뿐만 ?�니???��????�제 ?�크�?컨테?�너(.alert-page, .status-page ????모두 찾아 ?�크�??�단?�로 ?�림
                     const scrollTargets = document.querySelectorAll('main, main > div, .alert-page, .status-page');
                     setTimeout(() => {
                         scrollTargets.forEach(el => {
@@ -1543,7 +1750,7 @@
                     return;
                 }
 
-                // [?꾨룆] 愿由ъ옄 ??쒕낫???꾪솚 ?좊땲硫붿씠??(Bridge)
+                // [?�독] �?리자 ???�보???�환 ?�니메이??(Bridge)
                 if (href.includes('admin/dashboard') && !window.location.pathname.includes('admin/dashboard')) {
                     e.preventDefault();
                     sessionStorage.setItem('admin_transition', 'active');
@@ -1556,23 +1763,32 @@
                     return;
                 }
 
-                // 洹?諛뽰쓽 ?섏씠吏 ?꾪솚 ?쒖쇅 ???                if (href.includes('logout') || window.location.pathname.includes('admin/dashboard')) return;
+                // Keep session transition for logout/admin path check
+                if (href.includes('logout') || window.location.pathname.includes('admin/dashboard')) return;
 
-                // [FIX] 留뚯빟 ??쒕낫??吏꾩엯 ?좊땲硫붿씠???湲?以묒씠?쇰㈃ 利됱떆 以묐떒 諛?珥덇린??                cancelAdminTransition();
+                // [FIX] Refresh header state before SPA content replacement
+                cancelAdminTransition();
 
                 e.preventDefault();
-                showPremiumLoader();
 
                 try {
+                    await beginPageTransition();
+                    const loaderTimer = setTimeout(function () {
+                        if (typeof showPremiumLoader === 'function') showPremiumLoader();
+                    }, 220);
                     const response = await fetch(href);
+                    if (!response.ok) throw new Error('페이지를 불러오지 못했습니다.');
                     const html = await response.text();
                     const doc = new DOMParser().parseFromString(html, 'text/html');
                     if (doc.title) document.title = doc.title;
 
-                    const finalUrl = new URL(response.url).pathname;
-                    const currentPath = window.location.pathname;
+                    const responseUrl = new URL(response.url);
+                    const finalUrl = responseUrl.pathname + responseUrl.search + (targetUrl.hash || responseUrl.hash);
+                    const finalPath = responseUrl.pathname;
+                    const currentUrl = window.location.pathname + window.location.search + window.location.hash;
 
-                    // URL ?곹깭 蹂寃쎌쓣 癒쇱? ?곸슜?섏뿬 ?꾩냽 珥덇린??PTR ??媛 ??寃쎈줈瑜??몄떇?섎룄濡???                    if (currentPath !== finalUrl) {
+                    // Update browser URL state only when path actually changed
+                    if (currentUrl !== finalUrl) {
                         window.history.pushState({}, '', finalUrl);
                     }
 
@@ -1582,7 +1798,8 @@
                         const mainElem = document.querySelector('main');
                         mainElem.innerHTML = newMain.innerHTML;
                         mainElem.scrollTop = 0;
-                        // ?섏씠吏 ?꾪솚 諛?URL ?낅뜲?댄듃 ?꾨즺 ??PTR 珥덇린??                        initPullToRefresh();
+                        // Keep pull-to-refresh state updated after content swap
+                        initPullToRefresh();
                     }
                     if (newAuth) {
                         const authElem = document.querySelector('.auth-tools');
@@ -1591,15 +1808,17 @@
 
                     document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
                         const navHref = nav.getAttribute('href');
-                        // ??/)? ?뺥솗???쇱튂???뚮쭔, 洹???/alert, /report ?????쒖옉 遺遺??쇱튂 ???쒖꽦??                        const isActive = (navHref === '/' && finalUrl === '/') || (navHref !== '/' && finalUrl.startsWith(navHref));
+                        // Sync nav active state for route changes
+                        const isActive = (navHref === '/' && finalPath === '/') || (navHref !== '/' && finalPath.startsWith(navHref));
                         nav.classList.toggle('active', isActive);
                     });
 
-                    // ?ㅽ겕由쏀듃 ?ъ떎??(?숈쟻 濡쒕뱶 ???媛뺥솕)
+                    // ?�크립트 ?�실??(?�적 로드 ????강화)
                     const scripts = Array.from(document.querySelector('main').querySelectorAll('script'));
                     for (const oldScript of scripts) {
                         const newScript = document.createElement('script');
                         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        if (__pageNonce) newScript.setAttribute('nonce', __pageNonce);
 
                         if (oldScript.src) {
                             oldScript.parentNode.replaceChild(newScript, oldScript);
@@ -1609,20 +1828,22 @@
                         }
                     }
 
-                    setTimeout(hidePremiumLoader, 400);
+                    clearTimeout(loaderTimer);
+                    finishPageTransition();
+                    setTimeout(hidePremiumLoader, 120);
                 } catch (err) {
                     window.location.href = href;
                 }
             });
 
-            // ?ㅻ줈媛湲??욎쑝濡쒓?湲?泥섎━
+            // ?�로�?�??�으로�?�?처리
             window.addEventListener('popstate', async function (e) {
-                const href = window.location.pathname;
+                const href = window.location.pathname + window.location.search;
 
-                // [FIX] ?ㅻ줈媛湲???吏꾪뻾 以묒씤 紐⑤뱺 ?좊땲硫붿씠??諛?濡쒕뜑 媛뺤젣 醫낅즺
+                // [FIX] ?�로�?�???진행 중인 모든 ?�니메이??�?로더 강제 종료
                 cancelAdminTransition();
 
-                // [FIX] 愿由ъ옄 ??쒕낫?쒖? 紐⑤컮???붾㈃ 媛꾩쓽 history ?대룞 ??媛뺤젣 ?덈줈怨좎묠?섏뿬 ?덉씠?꾩썐 由ъ뀑
+                // [FIX] �?리자 ???�보?��? 모바???�면 간의 history ?�동 ??강제 ?�로고침?�여 ?�이?�웃 리셋
                 const appContainer = document.querySelector('.app-container');
                 const isContainerAdmin = appContainer ? (appContainer.classList.contains('admin-page') || appContainer.classList.contains('admin-expanding')) : false;
                 if (href.includes('admin/dashboard') || isContainerAdmin) {
@@ -1630,20 +1851,23 @@
                     return;
                 }
 
-                // [SPA] ?ㅻ줈媛湲???濡쒕뜑 ?ㅼ떆 蹂댁뿬二쇨퀬 ?곗씠??媛?몄삤湲?(?ъ슜??寃쏀뿕 媛쒖꽑)
-                showPremiumLoader();
-
+                // [SPA] ?�로�?�???로더 ?�시 보여주고 ?�이??�??�오�?(?�용??경험 개선)
                 try {
+                    await beginPageTransition();
+                    const loaderTimer = setTimeout(showPremiumLoader, 220);
                     const response = await fetch(href);
+                    if (!response.ok) throw new Error('페이지를 불러오지 못했습니다.');
                     const html = await response.text();
                     const doc = new DOMParser().parseFromString(html, 'text/html');
+                    if (doc.title) document.title = doc.title;
 
                     const newMain = doc.querySelector('main');
                     if (newMain) {
                         const mainElem = document.querySelector('main');
                         mainElem.innerHTML = newMain.innerHTML;
                         mainElem.scrollTop = 0;
-                        initPullToRefresh(); // PTR ?ъ꽕??                        document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
+                        initPullToRefresh();
+                        document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => {
                             const navHref = nav.getAttribute('href');
                             const isActive = (navHref === '/' && href === '/') ||
                                 (navHref !== '/' && (href.startsWith(navHref) || (navHref === '/alert' && href.startsWith('/alert_view'))));
@@ -1653,11 +1877,14 @@
                         scripts.forEach(oldScript => {
                             const newScript = document.createElement('script');
                             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                            if (__pageNonce) newScript.setAttribute('nonce', __pageNonce);
                             newScript.appendChild(document.createTextNode(oldScript.innerHTML));
                             oldScript.parentNode.replaceChild(newScript, oldScript);
                         });
                     }
-                    setTimeout(hidePremiumLoader, 400);
+                    clearTimeout(loaderTimer);
+                    finishPageTransition();
+                    setTimeout(hidePremiumLoader, 120);
                 } catch (err) {
                     window.location.reload();
                 }
@@ -1667,15 +1894,15 @@
             let startY = 0;
             let currentY = 0;
             let pulling = false;
-            // [USER REQUEST] PTR ?ㅼ옉?숈쓣 留됯린 ?꾪빐 誘쇨컧???꾧퀎媛?瑜?????곹뼢
+            // [USER REQUEST] PTR ?�작?�을 막기 ?�해 민감???�계�?�??????�향
             const threshold = 160;
 
             function initPullToRefresh() {
                 const main = document.querySelector('main');
                 const path = window.location.pathname;
 
-                // [PTR HARD BLOCK] ?곸꽭 ?섏씠吏(view, members/id, incidents/id) 諛??뱀젙 ??report, status) ?먯쿇 李⑤떒
-                // ?곸꽭?섏씠吏?먯꽌 PTR ??移댁뭅??吏?꾧? 癒뱁넻???섎뒗 ?꾩긽??諛⑹??섍린 ?꾪븿
+                // [PTR HARD BLOCK] ?�세 ?�이�?(view, members/id, incidents/id) �??�정 ??report, status) ?�천 차단
+                // ?�세?�이�??�서 PTR ??카카??�??��? 먹통???�는 ?�상??방�??�기 ?�함
                 const isDetailPath = path.includes('/view') || path.includes('/alert_view') || /\/(members|incidents)\/\d+/.test(path);
                 const isBlockedTab = path.startsWith('/report') || path.startsWith('/status');
 
@@ -1684,7 +1911,7 @@
                     main.style.overscrollBehaviorY = 'none';
                     main.style.touchAction = 'pan-x pan-y';
 
-                    // ?곗튂 ?대깽???섏??먯꽌 ?쒕쾲 ??李⑤떒 (?밴린???숈옉留?
+                    // ?�치 ?�벤???��??�서 ?�번 ??차단 (?�기???�작�?
                     let startY = 0;
                     main.addEventListener('touchstart', e => {
                         startY = e.touches[0].pageY;
@@ -1692,40 +1919,40 @@
 
                     main.addEventListener('touchmove', e => {
                         const moveY = e.touches[0].pageY;
-                        // scrollTop??0???곹깭?먯꽌 ?꾨옒濡??밴린??PTR) ?숈옉留?李⑤떒
+                        // scrollTop??0???�태?�서 ?�래�??�기??PTR) ?�작�?차단
                         if (main.scrollTop <= 0 && moveY > startY) {
                             if (e.cancelable) e.preventDefault();
                         }
                     }, { passive: false });
-                    return; // PTR 珥덇린??以묐떒
+                    return; // PTR 초기??중단
                 }
 
-                // Alert ?댁쇅??紐⑤뱺 ?섏씠吏??湲곕낯?곸쑝濡?PTR 遺덊븘??(留?蹂댄샇瑜??꾪빐 none 泥섎━)
+                // Alert ?�외??모든 ?�이�???기본?�으�?PTR 불필??(�?보호�??�해 none 처리)
                 if (!path.startsWith('/alert')) {
                     main.style.overscrollBehaviorY = 'none';
                     return;
                 }
 
-                // Alert ?섏씠吏: 而ㅼ뒪? PTR ?쒖꽦??(釉뚮씪?곗? 湲곕낯 PTR? contain?쇰줈 李⑤떒)
+                // Alert ?�이�?: 커스?? PTR ?�성??(브라?��? 기본 PTR?? contain?�로 차단)
                 main.style.overscrollBehaviorY = 'contain';
 
-                // Alert/Status: 利됱떆 PTR ?쒖꽦??(overscroll 李⑤떒?쇰줈 釉뚮씪?곗? 湲곕낯 PTR 諛⑹?)
+                // Alert/Status: 즉시 PTR ?�성??(overscroll 차단?�로 브라?��? 기본 PTR 방�?)
                 main.style.overscrollBehaviorY = 'contain';
 
-                // SPA ?ㅻ퉬寃뚯씠???쒕쭏???덈줈 ?깅줉?섎룄濡?湲곗〈 ?뚮옒洹?泥댄겕 ?쒓굅
+                // SPA ?�비게이???�마???�로 ?�록?�도�?기존 ?�래�?체크 ?�거
                 if (main.dataset.ptrInitialized) return;
                 main.dataset.ptrInitialized = 'true';
 
                 main.addEventListener('touchstart', e => {
-                    // [FIX] ?좉퀬(report) ??뿉?쒕뒗 PTR ?묐룞 ?덊븿
+                    // [FIX] 신고(report) 탭에서는 PTR 작동 안함
                     if (window.location.pathname.startsWith('/report')) return;
 
-                    // [異붽? 蹂닿컯] ?대? ?ㅽ겕濡?媛?ν븳 ?곸뿭(.alert-page, .status-page ?? 紐⑤몢 李얘린
+                    // [추�? 보강] ?��? ?�크�?�??�한 ?�역(.alert-page, .status-page ?? 모두 찾기
                     const scrollEls = Array.from(main.querySelectorAll('.alert-page, .status-page'));
-                    // main ?먯껜? 洹??대? ?ㅽ겕濡?媛?ν븳 ?붿냼??以????섎굹?쇰룄 ?ㅽ겕濡ㅼ씠 ?대젮媛 ?덈떎硫?PTR ?묐룞 ?덊븿
+                    // main ?�체?? �??��? ?�크�?�??�한 ?�소??�????�나?�도 ?�크롤이 ?�려�? ?�다�?PTR ?�동 ?�함
                     const anyScrolled = (main.scrollTop > 0) || scrollEls.some(el => el.scrollTop > 0);
 
-                    // 紐⑤떖 ?쒖꽦 ?쒖뿉??PTR ?묐룞 ?덊븿. 紐⑤뱺 愿?⑤맂 ?ㅽ겕濡ㅼ씠 ?꾨꼍??0???뚮쭔 ?덉슜
+                    // 모달 ?�성 ?�에??PTR ?�동 ?�함. 모든 �??�된 ?�크롤이 ?�벽??0???�만 ?�용
                     if (!anyScrolled && !document.documentElement.classList.contains('modal-active')) {
                         startY = e.touches[0].pageY;
                         currentY = startY;
@@ -1738,14 +1965,14 @@
                     currentY = e.touches[0].pageY;
                     const diff = currentY - startY;
 
-                    // [蹂닿컯] ?밴린湲??쒖옉 ???꾨줈 ?ㅼ떆 諛嫄곕굹(diff <= 0) ?≪뒪?щ· 諛쒖깮 ?? ?먮뒗 ?섎떒?쇰줈 ?뺤긽 ?ㅽ겕濡?以묒씪 ??pulling ?댁젣
+                    // [보강] ?�기�??�작 ???�로 ?�시 �?거나(diff <= 0) ?�스?�롤 발생 ?? ?�는 ?�단?�로 ?�상 ?�크�?중일 ??pulling ?�제
                     if (diff <= 3) {
                         pulling = false;
                         main.style.transform = '';
                         return;
                     }
 
-                    // ?듭떖 ?섏젙: main ?먮뒗 ?랁빐?덈뒗 而⑦뀒?대꼫 以??섎굹?쇰룄 理쒖긽?⑥씠 ?꾨땺 ?뚮뒗 ?쇰컲 ?ㅽ겕濡ㅼ씠 ?묐룞?댁빞 ?섎?濡?PTR 臾댁떆
+                    // ?�심 ?�정: main ?�는 ?�해?�는 컨테?�너 �??�나?�도 최상?�이 ?�닐 ?�는 ?�반 ?�크롤이 ?�동?�야 ?��?�?PTR 무시
                     const scrollEls = Array.from(main.querySelectorAll('.alert-page, .status-page'));
                     const anyScrolled = (main.scrollTop > 0) || scrollEls.some(el => el.scrollTop > 0);
 
@@ -1769,7 +1996,7 @@
                             icon.style.transform = `rotate(${diff * 2}deg)`;
                         }
 
-                        // 湲곕낯 ?ㅽ겕濡??숈옉 諛⑹? (理쒖긽?⑥뿉???밴린??寃껊쭔 ?덉슜)
+                        // 기본 ?�크�??�작 방�? (최상?�에???�기??것만 ?�용)
                         if (e.cancelable) e.preventDefault();
                     }
                     else {
@@ -1853,36 +2080,48 @@
 
         // Premium Loader Logic (v15)
         console.log("CRACK App Version: v15");
-        window.addEventListener('DOMContentLoaded', () => {
-            const loader = document.getElementById('premium-loader');
-            const minTime = 1500; // 1.5s minimum wow factor
-            const startTime = Date.now();
-
-            window.addEventListener('load', () => {
-                const elapsedTime = Date.now() - startTime;
-                const delay = Math.max(0, minTime - elapsedTime);
-
-                setTimeout(() => {
-                    // ?대줈???댁젣? 濡쒕뜑 ?쒓굅瑜?嫄곗쓽 ?숈떆??吏꾪뻾?섎릺 ?대줈?뱀쓣 ?꾩＜ ?댁쭩 癒쇱? ?댁젣
+        (function () {
+            var _startTime = Date.now();
+            var _done = false;
+            function _removeLoading() {
+                if (_done) return;
+                _done = true;
+                var elapsed = Date.now() - _startTime;
+                var delay = Math.max(0, 1500 - elapsed);
+                setTimeout(function () {
                     document.documentElement.classList.remove('is-loading');
-
-                    setTimeout(() => {
-                        loader.classList.add('fade-out');
-                    }, 50);
+                    var loader = document.getElementById('premium-loader');
+                    if (loader) setTimeout(function () { loader.classList.add('fade-out'); }, 50);
                 }, delay);
-            });
-        });
+            }
+            window.addEventListener('load', _removeLoading, { once: true });
+            // Fallback: external resources may hang; force-remove after 3.5s max
+            setTimeout(_removeLoading, 3500);
+        })();
 
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registered', reg))
-                    .catch(err => console.log('Service Worker registration failed', err));
-            });
+            const isLocalHost = ['localhost', '127.0.0.1'].includes(location.hostname);
+            if (isLocalHost) {
+                navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach((registration) => registration.unregister());
+                });
+            } else {
+                window.addEventListener('load', () => {
+                    // 운영/개발 환경에서 서비스워커 스크립트가 오래된 캐시를 참조하지 않도록 새 버전으로 강제 갱신
+                    navigator.serviceWorker.getRegistrations()
+                        .then((registrations) => Promise.all(registrations.map((reg) => reg.update().catch(() => null))))
+                        .catch(() => null)
+                        .finally(() => {
+                            navigator.serviceWorker.register('/sw.js?v={{ build_version }}')
+                                .then(reg => console.log('Service Worker registered', reg))
+                                .catch(err => console.log('Service Worker registration failed', err));
+                        });
+                });
+            }
         }
         // Admin Dashboard Transition Logic
-        // 怨듯넻 ?덉씠?꾩썐?먮뒗 怨쇳븳 ?④낵瑜?二쇱? ?딄퀬, 吏꾩엯 ?뚮옒洹몃쭔 ??ν븳 ??吏㏐쾶 ?뚮┛ ?먮굦留?二쇨퀬 ?대룞
+        // 공통 ?�이?�웃?�는 과한 ?�과�?주�? ?�고, 진입 ?�래그만 ???�한 ??짧게 ?�린 ?�낌�?주고 ?�동
         window.adminTransitionTimer = null;
 
         document.addEventListener('click', function (e) {
@@ -1923,38 +2162,39 @@
             if (window.location.pathname === '/admin/dashboard' && document.documentElement.classList.contains('admin-bridge-mode')) {
                 var container = document.querySelector('.app-container');
 
-                // ?섏씠吏媛 濡쒕뱶?섏뿀?쇰?濡?濡쒕뜑 ?쒖떆
-                showPremiumLoader('愿由ъ옄 ?몄긽???뺤옣?섍퀬 ?덉뒿?덈떎...');
+                // ?�이�?�? 로드?�었?��?�?로더 ?�시
+                showPremiumLoader('관리자 세상을 확장하고 있습니다...');
 
-                // ?쎄컙??吏?????꾩껜 ?붾㈃ ?뺤옣 ?쒖옉
+                // ?�간??�??????�체 ?�면 ?�장 ?�작
                 setTimeout(function () {
                     document.documentElement.classList.remove('admin-bridge-mode');
                     if (container) container.classList.add('admin-expanding');
 
-                    // ?뺤옣 ?꾨즺 ??濡쒕뜑 ?쒓굅 諛??대깽??諛쒗뻾
+                    // ?�장 ?�료 ??로더 ?�거 �??�벤??발행
                     setTimeout(function () {
                         hidePremiumLoader();
                         sessionStorage.removeItem('admin_transition');
-                        // [EVENT] ??쒕낫??吏??濡쒕뵫???꾪븳 ?좏샇 諛쒗뻾
+                        // [EVENT] ???�보??�???로딩???�한 ?�호 발행
                         window.dispatchEvent(new CustomEvent('admin_transition_done'));
                     }, 1300);
                 }, 600);
             }
         })();
 
-        // [PPT RETURN] PPT ?쒖뿰?섍린?먯꽌 硫붿씤?쇰줈 蹂듦? ????갑???꾪솚 ?좊땲硫붿씠??        (function () {
+        // [PPT RETURN] PPT return sequence
+        (function () {
             if (sessionStorage.getItem('ppt_return') === 'active') {
                 sessionStorage.removeItem('ppt_return');
                 var container = document.querySelector('.app-container');
                 if (container) {
-                    // 泥섏쓬???꾩껜?붾㈃ ?ш린?먯꽌 ?쒖옉 (PPT媛 異뺤냼?섎ŉ ?щ씪吏?寃껋쿂??
+                    // 처음???�체?�면 ?�기?�서 ?�작 (PPT�? 축소?�며 ?�라�?것처??
                     container.style.transition = 'none';
                     container.style.transform = 'scale(3)';
                     container.style.opacity = '0';
 
-                    showPremiumLoader('?쒖뿰 ?붾㈃?쇰줈 ?뚯븘媛怨??덉뒿?덈떎...');
+                    showPremiumLoader('시연 화면으로 돌아가고 있습니다...');
 
-                    // ?쎄컙??吏?????먮옒 ?ш린濡?遺?쒕읇寃?異뺤냼
+                    // ?�간??�??????�래 ?�기�?�??�럽�?축소
                     setTimeout(function () {
                         container.style.transition = 'transform 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.6s ease';
                         container.style.transform = 'scale(1)';
@@ -1969,33 +2209,31 @@
                 }
             }
         })();
+        {% if session.get('is_admin') %}
         (function () {
-            const isAdmin = {{ 'true' if session.get('is_admin') else 'false'
-        }};
-        if (!isAdmin || !window.io) return;
+            if (!window.io) return;
 
-        window.socket = io();
-        window.socket.on('new_report', function (data) {
-            // SPA ?대? ?ㅽ겕由쏀듃?먯꽌??諛섏쓳?????덈룄濡?CustomEvent 諛쒖깮
-            window.dispatchEvent(new CustomEvent('on_new_report', { detail: data }));
+            window.socket = io();
+            window.socket.on('new_report', function (data) {
+                window.dispatchEvent(new CustomEvent('on_new_report', { detail: data }));
 
-            let badge = document.querySelector('.nav-item[href="/alert"] .badge-count');
-            if (badge) {
-                const current = parseInt(badge.textContent) || 0;
-                badge.textContent = current + 1;
-            } else {
-                const alertNav = document.querySelector('.nav-item[href="/alert"]');
-                if (alertNav) {
-                    const newBadge = document.createElement('span');
-                    newBadge.className = 'badge-count';
-                    newBadge.textContent = '1';
-                    alertNav.appendChild(newBadge);
+                let badge = document.querySelector('.nav-item[href="/alert"] .badge-count');
+                if (badge) {
+                    const current = parseInt(badge.textContent) || 0;
+                    badge.textContent = current + 1;
+                } else {
+                    const alertNav = document.querySelector('.nav-item[href="/alert"]');
+                    if (alertNav) {
+                        const newBadge = document.createElement('span');
+                        newBadge.className = "badge-count";
+                        newBadge.textContent = "1";
+                        alertNav.appendChild(newBadge);
+                    }
                 }
-            }
-        });
+            });
         }) ();
+        {% endif %}
     </script>
 </body>
 
 </html>
-

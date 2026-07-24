@@ -91,11 +91,11 @@
   }
 
   .alert-filter-row {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 2px 0 12px;
-    scrollbar-width: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    width: 100%;
+    padding: 2px 0 0;
   }
 
   .alert-filter-row::-webkit-scrollbar {
@@ -103,23 +103,29 @@
   }
 
   .alert-filter-chip {
-    flex-shrink: 0;
-    padding: 8px 16px;
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 0 4px;
     border-radius: 100px;
     border: 1px solid #e2e8f0;
     background: #fff;
     color: #64748b;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
   }
 
   .alert-filter-chip.active {
-    background: var(--point-orange);
+    background: #0f172a;
     color: #fff;
-    border-color: var(--point-orange);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+    border-color: #0f172a;
+    box-shadow: 0 5px 12px rgba(15, 23, 42, 0.18);
   }
 
   .alert-list {
@@ -139,20 +145,20 @@
     opacity: 1;
   }
 
-  /* [NEW] 통합 필터 모달 스타일 */
+  /* 통합 필터 모달 스타일 */
   .filter-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 1002;
     padding: 20px;
     opacity: 0;
-    transition: opacity 0.25s ease-out;
+    transition: opacity 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .filter-modal-backdrop.show {
@@ -161,61 +167,80 @@
   }
 
   .filter-modal-card {
-    width: min(92vw, 420px);
+    width: min(92vw, 400px);
     background: #fff;
-    border-radius: 28px;
+    border-radius: 24px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
-    transform: translateY(20px);
-    transition: transform 0.3s cubic-bezier(0.17, 0.67, 0.43, 1.15);
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transform: translateY(24px) scale(0.97);
+    transition: transform 0.28s cubic-bezier(0.17, 0.67, 0.43, 1.15), opacity 0.18s ease;
+    opacity: 0;
   }
 
   .filter-modal-backdrop.show .filter-modal-card {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    opacity: 1;
   }
 
   .filter-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #eef2f7;
+    gap: 10px;
+    position: relative;
   }
 
   .filter-modal-title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 900;
     color: #0f172a;
+    letter-spacing: -0.2px;
   }
 
   .filter-modal-close {
-    width: 32px;
-    height: 32px;
-    border: none;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: #f1f5f9;
+    background: #f8fafc;
     color: #475569;
+    border: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     font-size: 20px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .filter-modal-close:hover {
+    transform: scale(1.04);
+    background: #fff1e6;
+    color: #ea580c;
   }
 
   .filter-modal-body {
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 22px;
+  }
+
+  .filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .filter-section-label {
     font-size: 13px;
     font-weight: 800;
     color: #64748b;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     display: block;
   }
 
@@ -225,11 +250,12 @@
 
   .filter-search-input {
     width: 100%;
-    height: 48px;
+    height: 50px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    border-radius: 15px;
     padding: 0 16px 0 42px;
+    padding-right: 52px;
     font-size: 14px;
     outline: none;
     transition: all 0.2s;
@@ -249,22 +275,58 @@
     color: #94a3b8;
   }
 
+  .filter-search-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .filter-search-clear:hover {
+    background: #e2e8f0;
+  }
+
   .filter-chip-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .filter-chip {
-    padding: 10px 18px;
-    border-radius: 12px;
-    background: #f1f5f9;
+    min-width: 0;
+    width: 100%;
+    height: 40px;
+    padding: 0 3px;
+    border-radius: 11px;
+    background: #f5f7fa;
     color: #475569;
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 700;
     border: 1px solid transparent;
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
 
   .filter-chip:hover {
@@ -277,21 +339,69 @@
     box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
   }
 
+  .filter-chip[data-status="all"].active {
+    background: #0f172a;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 4px;
+  }
+
   .filter-apply-btn {
     width: 100%;
     height: 52px;
-    background: var(--point-orange);
-    color: #fff;
     border: none;
     border-radius: 16px;
     font-size: 15px;
     font-weight: 800;
     cursor: pointer;
-    margin-top: 10px;
     transition: all 0.2s;
+    box-shadow: 0 10px 24px rgba(255, 140, 0, 0.25);
   }
 
-  .filter-apply-btn:active {
+  .filter-reset-btn,
+  .filter-apply-btn {
+    height: 44px;
+    background: var(--point-orange);
+    color: #fff;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+  }
+
+  .filter-reset-btn {
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid #dbe4f0;
+    box-shadow: none;
+  }
+
+  .filter-reset-btn:hover {
+    background: #f1f5f9;
+  }
+
+  .filter-apply-btn:hover {
+    background: #e67e00;
+  }
+
+  .filter-apply-btn:active,
+  .filter-reset-btn:active,
+  .filter-apply-btn:focus-visible,
+  .filter-reset-btn:focus-visible,
+  .filter-modal-close:focus-visible,
+  .filter-search-clear:focus-visible {
+    outline: 2px solid rgba(255, 140, 0, 0.4);
+    outline-offset: 2px;
+  }
+
+  .filter-apply-btn:active,
+  .filter-reset-btn:active {
     transform: scale(0.97);
   }
 
@@ -549,48 +659,706 @@
   input:checked+.slider:before {
     transform: translateX(20px);
   }
-</style>
+
+  /* Alert feed redesign */
+  .alert-page {
+    gap: 16px;
+    padding: 0 0 78px;
+    background: transparent;
+  }
+
+  .alert-overview {
+    position: relative;
+    flex-shrink: 0;
+    padding: 20px 19px 16px;
+    overflow: hidden;
+    border: 1px solid rgba(249, 115, 22, 0.16);
+    border-radius: 24px;
+    background: linear-gradient(145deg, #fff7ed 0%, #fffaf6 58%, #fff 100%);
+    box-shadow: 0 12px 28px rgba(67, 43, 24, 0.07);
+  }
+
+  .alert-overview::after {
+    content: '';
+    position: absolute;
+    right: -42px;
+    top: -54px;
+    width: 132px;
+    height: 132px;
+    border: 24px solid rgba(249, 115, 22, 0.07);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .alert-overview-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .alert-overview-kicker {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #a34d09;
+    font-size: 0.76rem;
+    font-weight: 850;
+  }
+
+  .alert-overview-kicker i {
+    color: var(--point-orange);
+  }
+
+  .alert-overview h1 {
+    margin: 0;
+    color: #172033;
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1.25;
+    letter-spacing: -0.045em;
+  }
+
+  .alert-overview-copy {
+    margin: 7px 0 0;
+    color: #687386;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    word-break: keep-all;
+  }
+
+  .alert-count-badge {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid rgba(249, 115, 22, 0.14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.84);
+    color: #9a4d0a;
+    font-size: 0.75rem;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .alert-location-scope {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .alert-location-selector {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 1px solid #f1d7bf;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #172033;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 5px 14px rgba(67, 43, 24, 0.05);
+  }
+
+  .alert-location-selector:focus-visible,
+  .alert-location-reset:focus-visible {
+    outline: 3px solid rgba(249, 115, 22, 0.24);
+    outline-offset: 2px;
+  }
+
+  .alert-location-icon {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    place-items: center;
+    border-radius: 11px;
+    background: #ffedd5;
+    color: #ea580c;
+    font-size: 0.95rem;
+  }
+
+  .alert-location-copy {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .alert-location-copy small {
+    display: block;
+    margin-bottom: 2px;
+    color: #8a7464;
+    font-size: 0.65rem;
+    font-weight: 750;
+  }
+
+  .alert-location-copy strong {
+    display: block;
+    overflow: hidden;
+    color: #253047;
+    font-size: 0.76rem;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .alert-location-mode {
+    flex: 0 0 auto;
+    padding: 5px 7px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.62rem;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .alert-location-mode.is-custom {
+    background: #ffedd5;
+    color: #c2410c;
+  }
+
+  .alert-location-selector > .bi-chevron-right {
+    color: #fb923c;
+    font-size: 0.75rem;
+  }
+
+  .alert-location-reset {
+    width: 50px;
+    flex: 0 0 50px;
+    border: 1px solid #f1d7bf;
+    border-radius: 15px;
+    background: #fff;
+    color: #9a4d0a;
+    font-size: 0.67rem;
+    font-weight: 850;
+    line-height: 1.25;
+    cursor: pointer;
+  }
+
+  .alert-filter-row {
+    position: relative;
+    z-index: 1;
+    gap: 7px;
+    margin-top: 15px;
+    padding: 0 0 1px;
+  }
+
+  .alert-filter-chip {
+    min-height: 34px;
+    padding: 0 3px;
+    border-color: #eadfd5;
+    background: rgba(255, 255, 255, 0.82);
+    color: #697386;
+    font-size: 0.75rem;
+  }
+
+  .alert-filter-chip.active {
+    background: #172033;
+    border-color: #172033;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(23, 32, 51, 0.18);
+  }
+
+  .location-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.56);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  .location-modal-backdrop.show {
+    display: flex;
+    opacity: 1;
+  }
+
+  .location-modal-card {
+    width: min(420px, 100%);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 26px 68px rgba(15, 23, 42, 0.3);
+    transform: translateY(18px) scale(0.98);
+    transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .location-modal-backdrop.show .location-modal-card {
+    transform: translateY(0) scale(1);
+  }
+
+  .location-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fffaf5;
+  }
+
+  .location-modal-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: #ea580c;
+    font-size: 0.68rem;
+    font-weight: 850;
+  }
+
+  .location-modal-head h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 1.08rem;
+    letter-spacing: -0.03em;
+  }
+
+  .location-modal-head p {
+    margin: 5px 0 0;
+    color: #7a8494;
+    font-size: 0.72rem;
+  }
+
+  .location-modal-close {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 1px solid #e7e9ee;
+    border-radius: 11px;
+    background: #fff;
+    color: #64748b;
+    cursor: pointer;
+  }
+
+  .location-postcode-frame {
+    position: relative;
+    width: 100%;
+    height: min(470px, 58vh);
+    min-height: 360px;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  .location-postcode-frame > div,
+  .location-postcode-frame iframe {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .location-search-state {
+    display: flex;
+    min-height: 360px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    color: #7a8494;
+    font-size: 0.74rem;
+  }
+
+  .location-search-state i {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 3px;
+    place-items: center;
+    border-radius: 14px;
+    background: #ffedd5;
+    color: #ea580c;
+    font-size: 1.05rem;
+  }
+
+  .location-search-state strong {
+    color: #334155;
+    font-size: 0.84rem;
+  }
+
+  .location-modal-message {
+    display: none;
+    align-items: flex-start;
+    gap: 7px;
+    margin: 0;
+    padding: 11px 15px;
+    border-top: 1px solid #fee2e2;
+    background: #fff7f7;
+    color: #b91c1c;
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .location-modal-message.show {
+    display: flex;
+  }
+
+  .location-modal-foot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 15px;
+    border-top: 1px solid #eef2f7;
+    color: #7a8494;
+    font-size: 0.68rem;
+  }
+
+  .location-modal-foot i {
+    color: #f97316;
+  }
+
+  .alert-list {
+    gap: 11px;
+    padding: 0;
+  }
+
+  .alert-card {
+    padding: 14px !important;
+    border: 1px solid #e9edf2;
+    border-radius: 22px;
+    box-shadow: 0 9px 24px rgba(20, 30, 50, 0.055);
+  }
+
+  .alert-card::before {
+    width: 5px;
+    height: 62%;
+  }
+
+  .alert-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(249, 115, 22, 0.24);
+    box-shadow: 0 13px 28px rgba(71, 45, 25, 0.11);
+  }
+
+  .alert-card:focus-visible {
+    outline: 3px solid rgba(249, 115, 22, 0.28);
+    outline-offset: 2px;
+  }
+
+  .alert-card-inner {
+    gap: 13px;
+    align-items: center;
+  }
+
+  .alert-thumbnail-wrap {
+    width: 90px;
+    height: 90px;
+    border: none;
+    border-radius: 17px;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+  }
+
+  .alert-video-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.72);
+    color: #fff;
+    backdrop-filter: blur(5px);
+  }
+
+  .alert-main-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .alert-top {
+    align-items: center;
+    margin-bottom: 7px;
+  }
+
+  .alert-status {
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  .alert-status.status-received {
+    background: #fff1e7 !important;
+  }
+
+  .alert-status.status-processing {
+    background: #fff8df !important;
+  }
+
+  .alert-status.status-done {
+    background: #eaf8ef !important;
+  }
+
+  .alert-status.status-rejected {
+    background: #eef1f5 !important;
+  }
+
+  .alert-risk {
+    gap: 3px;
+    padding: 4px 7px;
+    border: 1px solid #e6eaf0;
+    border-radius: 999px;
+    background: #fafbfc;
+    font-size: 0.7rem;
+  }
+
+  .risk-label {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #8791a2;
+    font-size: 0.62rem;
+  }
+
+  .alert-main {
+    margin-top: 0;
+  }
+
+  .alert-title {
+    margin-bottom: 6px;
+    color: #172033;
+    font-size: 0.91rem;
+    letter-spacing: -0.025em;
+  }
+
+  .alert-location,
+  .alert-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .alert-location {
+    margin-bottom: 5px;
+    color: #697386;
+    font-size: 0.73rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .alert-location span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .alert-location i,
+  .alert-meta i {
+    flex-shrink: 0;
+    color: #a7afbd;
+    font-size: 0.68rem;
+  }
+
+  .alert-meta {
+    color: #98a1b1;
+    font-size: 0.67rem;
+  }
+
+  .alert-meta-divider {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #cbd1da;
+  }
+
+  .alert-empty {
+    padding: 62px 20px;
+    border: 1px dashed #dce2e9;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  .alert-empty i {
+    display: block;
+    margin-bottom: 10px;
+    color: #c0c7d2;
+    font-size: 2rem;
+  }
+
+  .alert-empty strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #566174;
+    font-size: 0.9rem;
+  }
+
+  .alert-empty-message {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: -0.045em;
+    line-height: 1.45;
+    white-space: nowrap;
+  }
+
+  .new-alert-pill {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--point-orange);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.35);
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    transform: translateX(-50%);
+  }
+
+  @media (max-width: 360px) {
+    .alert-overview {
+      padding: 17px 15px 14px;
+      border-radius: 21px;
+    }
+
+    .alert-overview h1 {
+      font-size: 1.25rem;
+    }
+
+    .alert-count-badge {
+      min-width: 48px;
+      padding-inline: 8px;
+    }
+
+    .alert-filter-row,
+    .filter-chip-group {
+      gap: 5px;
+    }
+
+    .alert-filter-chip,
+    .filter-chip {
+      font-size: 11px;
+      letter-spacing: -0.04em;
+    }
+
+    .alert-card {
+      padding: 12px !important;
+    }
+
+    .alert-thumbnail-wrap {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .alert-card,
+    .alert-filter-chip {
+      transition: none;
+    }
+  }
+  </style>
 
 
 <div class="alert-page">
-  <!-- [NEW] Real-time Alert Pill UI -->
-  <div id="new-alert-pill"
-    style="display:none; position:fixed; top:80px; left:50%; transform:translateX(-50%); background:var(--point-orange); color:white; padding:10px 22px; border-radius:30px; box-shadow:0 8px 20px rgba(249,115,22,0.35); font-weight:700; font-size:14px; cursor:pointer; z-index:1000;"
-    onclick="applyNewAlerts()">
+  <button id="new-alert-pill" class="new-alert-pill" type="button" data-action="apply-new-alerts">
     <i class="bi bi-arrow-up-circle-fill"></i> 새로운 제보 <span id="new-alert-count">0</span>건
-  </div>
+  </button>
 
-  <!-- 불필요한 관리자 알림 텍스트 헤더 완전 삭제 -->
-  <div class="alert-list" id="alertList" style="padding-top: 0; margin-top: -4px;">
+  <section class="alert-overview" aria-labelledby="alert-page-title">
+    <div class="alert-overview-top">
+      <div>
+        <div class="alert-overview-kicker">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          <span>실시간 도로 안전 정보</span>
+        </div>
+        <h1 id="alert-page-title">도로 위험 알림</h1>
+        <p class="alert-overview-copy">
+          {% if custom_location_on %}선택한 주소 반경 1km의 도로 파손과 처리 상태를 확인하세요.
+          {% elif address_filter_radius_m %}내 주소 반경 1km의 도로 파손과 처리 상태를 확인하세요.
+          {% else %}주변에 등록된 도로 파손과 처리 상태를 확인하세요.{% endif %}
+        </p>
+      </div>
+      <span class="alert-count-badge"><span id="alertResultCount">{{ alerts|length }}</span>건</span>
+    </div>
+
+    {% if session.get('user_id') and current_role == 'user' %}
+    <div class="alert-location-scope">
+      <button type="button" id="alertLocationSelector" class="alert-location-selector">
+        <span class="alert-location-icon"><i class="bi bi-geo-alt-fill"></i></span>
+        <span class="alert-location-copy">
+          <small>현재 조회 지역 · 반경 1km</small>
+          <strong title="{{ selected_address|e }}">
+            {{ selected_address or '등록된 내 주소가 없습니다' }}
+          </strong>
+        </span>
+        <span class="alert-location-mode {{ 'is-custom' if custom_location_on else '' }}">
+          {{ '선택 지역' if custom_location_on else '내 주소' }}
+        </span>
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+      </button>
+      {% if custom_location_on %}
+      <button type="button" id="alertLocationReset" class="alert-location-reset" title="{{ member_address|e }}">
+        내 주소로
+      </button>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="alert-filter-row" aria-label="처리 상태 빠른 필터">
+      <button type="button" class="alert-filter-chip active" data-status="all"
+        data-action="quick-filter-status">전체</button>
+      <button type="button" class="alert-filter-chip" data-status="접수완료"
+        data-action="quick-filter-status">접수완료</button>
+      <button type="button" class="alert-filter-chip" data-status="처리중"
+        data-action="quick-filter-status">처리중</button>
+      <button type="button" class="alert-filter-chip" data-status="처리완료"
+        data-action="quick-filter-status">처리완료</button>
+    </div>
+  </section>
+
+  <div class="alert-list" id="alertList">
     {% for item in alerts %}
     <div class="alert-card 
       {% if item.status == '접수완료' %}status-received
-      {% elif item.status == '신고 처리중' or item.status == '처리중' %}status-processing
-      {% elif item.status == '처리 완료' or item.status == '처리완료' %}status-done
-      {% elif item.status == '반려' %}status-rejected
+      {% elif item.status == '처리중' %}status-processing
+      {% elif item.status == '처리완료' %}status-done
       {% else %}status-default{% endif %}" data-id="{{ item.id }}"
       data-search-title="{{ item.title|default('', true)|e }}"
       data-search-location="{{ item.location }} {{ item.address }}"
       data-search-content="{{ item.content|default('', true)|e }}" data-status="{{ item.status|default('', true)|e }}"
-      onclick="window.location.href='/alert/view/{{ item.id }}'">
+      data-unread="{{ '1' if item.is_unread else '0' }}"
+      data-report-id="{{ item.id }}" role="link" tabindex="0" aria-label="{{ item.title|e }} 상세 보기">
       <div class="alert-card-inner">
-        <div class="alert-thumbnail-wrap" style="position: relative;">
+        <div class="alert-thumbnail-wrap">
           {% if item.file_type == 'video' %}
-          <div
-            style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;">
+          <div class="alert-video-badge" aria-label="동영상 제보">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="white">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
           {% endif %}
-          {% if item.image_path %}
-          <img src="{{ '/uploads/' + item.image_path if not item.image_path.startswith('/') else item.image_path }}"
-            class="alert-thumbnail" alt="썸네일">
-          {% else %}
-          <div class="alert-thumbnail-placeholder">No Image</div>
-          {% endif %}
+          <img src="{{ item.image_path }}" class="alert-thumbnail" alt="{{ item.title|e }} 썸네일">
         </div>
-        <div class="alert-main-content" style="flex: 1; min-width: 0;">
+        <div class="alert-main-content">
           <div class="alert-top">
             <div class="alert-status {{ item.status_class }}">{{ item.status }}</div>
             <div class="alert-risk {{ item.risk_class }}">
@@ -598,11 +1366,23 @@
               <span class="risk-value">{{ item.risk_score }}%</span>
             </div>
           </div>
-          <div class="alert-main" style="margin-top: 6px;">
+          <div class="alert-main">
             <div class="alert-title">{{ item.title }}</div>
-            <div class="alert-location">{{ item.address }}</div>
+            <div class="alert-location">
+              <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+              <span>{{ item.address }}</span>
+            </div>
             <div class="alert-meta">
-              {{ item.created_at }} · 반복 {{ item.group_reporter_count }}건
+              <i class="bi bi-clock" aria-hidden="true"></i>
+              <span>{{ item.created_at }}</span>
+              {% if address_filter_radius_m %}
+              <span class="alert-meta-divider" aria-hidden="true"></span>
+              <span>{{ item.distance_m }}m 이내</span>
+              {% endif %}
+              {% if item.group_reporter_count > 1 %}
+              <span class="alert-meta-divider" aria-hidden="true"></span>
+              <span>{{ item.group_reporter_count }}명 제보</span>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -613,45 +1393,82 @@
       <div class="alert-load-spinner"></div>
       <span>불러오는 중...</span>
     </div>
-    {% if alerts|length == 0 %}
-    <div class="alert-empty">표시할 신고가 없습니다.</div>
-    {% endif %}
+    <div id="alertEmptyState" class="alert-empty" {% if alerts|length> 0 %}hidden{% endif %}>
+      {% if location_required %}
+      <i class="bi bi-geo-alt" aria-hidden="true"></i>
+      <strong>내 주소 등록이 필요합니다</strong>
+      <span class="alert-empty-message">마이페이지에 주소를 등록하면 1km 내 알림을 볼 수 있어요.</span>
+      {% else %}
+      <i class="bi bi-inbox" aria-hidden="true"></i>
+      <strong>반경 1km 안에 등록된 제보가 없습니다</strong>
+      <span>새로운 도로 제보가 등록되면 이곳에 표시됩니다.</span>
+      {% endif %}
+    </div>
   </div>
 </div>
 
+{% if session.get('user_id') and current_role == 'user' %}
+<div id="alertLocationModal" class="location-modal-backdrop" aria-hidden="true">
+  <section class="location-modal-card" role="dialog" aria-modal="true" aria-labelledby="alert-location-modal-title">
+    <div class="location-modal-head">
+      <div>
+        <span class="location-modal-kicker">조회 지역 변경</span>
+        <h2 id="alert-location-modal-title">다른 지역 찾아보기</h2>
+        <p>도로명, 건물명 또는 지번으로 주소를 검색해주세요.</p>
+      </div>
+      <button type="button" id="alertLocationModalClose" class="location-modal-close" aria-label="지역 검색 닫기">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div id="alertPostcodeFrame" class="location-postcode-frame">
+      <div class="location-search-state">
+        <i class="bi bi-search"></i>
+        <strong>주소 검색을 준비하고 있어요</strong>
+        <span>잠시만 기다려주세요.</span>
+      </div>
+    </div>
+    <p id="alertLocationMessage" class="location-modal-message" aria-live="polite"></p>
+    <div class="location-modal-foot">
+      <i class="bi bi-info-circle"></i>
+      선택한 주소는 이번 조회에만 사용되며 회원 주소는 변경되지 않습니다.
+    </div>
+  </section>
+</div>
+{% endif %}
+
 <!-- [NEW] 통합 필터 모달 -->
-<div id="filterModal" class="filter-modal-backdrop" onclick="if(event.target==this) closeFilterModal()">
+<div id="filterModal" class="filter-modal-backdrop" data-action="filter-modal-backdrop">
   <div class="filter-modal-card">
     <div class="filter-modal-head">
       <div class="filter-modal-title">필터 및 검색</div>
-      <button class="filter-modal-close" type="button" onclick="closeFilterModal()">×</button>
+      <button id="filterModalCloseBtn" class="filter-modal-close" type="button" aria-label="필터 닫기">×</button>
     </div>
     <div class="filter-modal-body">
       <div class="filter-section">
         <label class="filter-section-label">사건 검색</label>
         <div class="filter-search-box">
           <i class="bi bi-search filter-search-icon"></i>
-          <input id="modalSearchInput" class="filter-search-input" type="text" placeholder="제목, 위치, 설명 검색..."
-            oninput="filterAlertCards()">
+          <input id="modalSearchInput" class="filter-search-input" type="search" placeholder="제목, 위치, 설명 검색"
+            data-action="filter-alert-input">
+          <button type="button" id="filterSearchClearBtn" class="filter-search-clear" aria-label="검색어 초기화">×</button>
         </div>
       </div>
       <div class="filter-section">
         <label class="filter-section-label">진행 상태</label>
         <div class="filter-chip-group" id="modalFilterRow">
-          <button type="button" class="filter-chip active" data-status="all"
-            onclick="filterByStatus('all', this)">전체</button>
-          <button type="button" class="filter-chip" data-status="접수완료"
-            onclick="filterByStatus('접수완료', this)">접수완료</button>
-          <button type="button" class="filter-chip" data-status="처리중" onclick="filterByStatus('처리중', this)">처리중</button>
-          <button type="button" class="filter-chip" data-status="처리완료"
-            onclick="filterByStatus('처리완료', this)">처리완료</button>
+          <button type="button" class="filter-chip active" data-status="all" data-action="filter-status-btn">전체</button>
+          <button type="button" class="filter-chip" data-status="접수완료" data-action="filter-status-btn">접수완료</button>
+          <button type="button" class="filter-chip" data-status="처리중" data-action="filter-status-btn">처리중</button>
+          <button type="button" class="filter-chip" data-status="처리완료" data-action="filter-status-btn">처리완료</button>
         </div>
       </div>
-      <button type="button" class="filter-apply-btn" onclick="closeFilterModal()">적용하기</button>
+      <div class="filter-actions">
+        <button id="filterResetBtn" type="button" class="filter-reset-btn">초기화</button>
+        <button id="filterApplyBtn" type="button" class="filter-apply-btn">적용하기</button>
+      </div>
     </div>
   </div>
 </div>
-
 
 <script nonce="{{ csp_nonce }}">
   let currentFilterStatus = 'all';
@@ -660,12 +1477,29 @@
   let alertIsLoading = false;
   let alertAllCards = [];
 
+  function normalizeAlertStatus(status) {
+    return status;
+  }
+
 
   window.openFilterModal = function () {
     const modal = document.getElementById('filterModal');
+    const input = document.getElementById('modalSearchInput');
+    const clearBtn = document.getElementById('filterSearchClearBtn');
+    const resultHint = document.getElementById('filterResultHint');
+    if (input && clearBtn) {
+      clearBtn.style.display = input.value ? 'flex' : 'none';
+    }
+    if (resultHint) {
+      const total = Number(document.getElementById('alertResultCount')?.textContent || 0);
+      resultHint.textContent = total;
+    }
     modal.style.display = 'flex';
     setTimeout(() => modal.classList.add('show'), 10);
     document.body.style.overflow = 'hidden';
+    if (input) {
+      setTimeout(() => input.focus(), 120);
+    }
   };
 
   window.closeFilterModal = function () {
@@ -682,8 +1516,9 @@
   window.closeSearchModal = window.closeFilterModal;
 
   window.filterByStatus = function (status, btn) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
+    document.querySelectorAll('.filter-chip, .alert-filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.status === status);
+    });
     currentFilterStatus = status;
     filterAlertCards();
   };
@@ -691,15 +1526,26 @@
   window.filterAlertCards = function () {
     const query = (document.getElementById('modalSearchInput')?.value || '').toLowerCase();
     const allCards = Array.from(document.querySelectorAll('.alert-card'));
+    const clearBtn = document.getElementById('filterSearchClearBtn');
+    const resultHint = document.getElementById('filterResultHint');
 
     alertAllCards = allCards.filter(card => {
-      const matchStatus = (currentFilterStatus === 'all' || card.dataset.status === currentFilterStatus);
+      const matchStatus = (currentFilterStatus === 'all' || normalizeAlertStatus(card.dataset.status) === currentFilterStatus);
       const title = (card.dataset.searchTitle || '').toLowerCase();
       const location = (card.dataset.searchLocation || '').toLowerCase();
       const content = (card.dataset.searchContent || '').toLowerCase();
       const matchQuery = !query || title.includes(query) || location.includes(query) || content.includes(query);
       return matchStatus && matchQuery;
     });
+
+    const resultCount = document.getElementById('alertResultCount');
+    if (resultCount) resultCount.textContent = alertAllCards.length;
+    if (resultHint) {
+      resultHint.textContent = alertAllCards.length;
+    }
+    if (clearBtn) {
+      clearBtn.style.display = query ? 'flex' : 'none';
+    }
 
     alertVisibleCount = 8;
     updateVisibleAlertCards();
@@ -715,16 +1561,213 @@
       loadMoreBtn.style.display = alertVisibleCount < alertAllCards.length ? 'flex' : 'none';
     }
 
-    const emptyMsg = document.querySelector('.alert-empty');
+    const emptyMsg = document.getElementById('alertEmptyState');
     if (emptyMsg) {
-      emptyMsg.style.display = alertAllCards.length === 0 ? 'block' : 'none';
+      emptyMsg.hidden = alertAllCards.length !== 0;
     }
   }
 
   function openAlertDetail(id) {
-    // 하위 호환성을 위해 유지하거나, 필요 시 모달 호출로 리다이렉트
-    // 현재는 각 카드의 onclick에서 직접 openAlertDetailModal을 호출하도록 변경함
     window.location.href = '/alert/view/' + id;
+  }
+
+  function setAlertLocationMessage(message) {
+    const element = document.getElementById('alertLocationMessage');
+    if (!element) return;
+    element.replaceChildren();
+    if (!message) {
+      element.classList.remove('show');
+      return;
+    }
+    const icon = document.createElement('i');
+    const text = document.createElement('span');
+    icon.className = 'bi bi-exclamation-circle-fill';
+    text.textContent = message;
+    element.append(icon, text);
+    element.classList.add('show');
+  }
+
+  function closeAlertLocationModal() {
+    const modal = document.getElementById('alertLocationModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    document.getElementById('alertLocationSelector')?.focus();
+  }
+
+  function openAlertLocationModal() {
+    const modal = document.getElementById('alertLocationModal');
+    const frame = document.getElementById('alertPostcodeFrame');
+    if (!modal || !frame) return;
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setAlertLocationMessage('');
+
+    if (!window.daum || !window.daum.Postcode) {
+      setAlertLocationMessage('주소 검색 서비스를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해주세요.');
+      return;
+    }
+
+    frame.replaceChildren();
+    new daum.Postcode({
+      hideMapBtn: false,
+      hideEngBtn: true,
+      oncomplete: function (data) {
+        const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+        if (!selectedAddress) {
+          setAlertLocationMessage('선택한 주소를 확인하지 못했습니다. 다른 주소를 선택해주세요.');
+          return;
+        }
+        if (!window.kakao || !window.kakao.maps) {
+          setAlertLocationMessage('위치 서비스를 준비하지 못했습니다. 잠시 뒤 다시 시도해주세요.');
+          return;
+        }
+
+        kakao.maps.load(function () {
+          if (!kakao.maps.services || !kakao.maps.services.Geocoder) {
+            setAlertLocationMessage('주소의 위치를 확인할 수 없습니다. 잠시 뒤 다시 시도해주세요.');
+            return;
+          }
+          const geocoder = new kakao.maps.services.Geocoder();
+          geocoder.addressSearch(selectedAddress, function (result, status) {
+            if (status !== kakao.maps.services.Status.OK || !result.length) {
+              setAlertLocationMessage('선택한 주소의 위치를 확인할 수 없습니다. 다른 주소를 검색해주세요.');
+              return;
+            }
+
+            const alertUrl = new URL('/alert', window.location.origin);
+            alertUrl.searchParams.set('lat', result[0].y);
+            alertUrl.searchParams.set('lng', result[0].x);
+            alertUrl.searchParams.set('address', selectedAddress);
+            window.location.assign(alertUrl.toString());
+          });
+        });
+      }
+    }).embed(frame, { autoClose: false });
+  }
+
+  function bindAlertLocationEvents() {
+    const selector = document.getElementById('alertLocationSelector');
+    const reset = document.getElementById('alertLocationReset');
+    const modal = document.getElementById('alertLocationModal');
+    const closeButton = document.getElementById('alertLocationModalClose');
+
+    selector?.addEventListener('click', openAlertLocationModal);
+    reset?.addEventListener('click', function () {
+      window.location.assign('/alert');
+    });
+    closeButton?.addEventListener('click', closeAlertLocationModal);
+    modal?.addEventListener('click', function (event) {
+      if (event.target === modal) closeAlertLocationModal();
+    });
+    modal?.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeAlertLocationModal();
+    });
+  }
+
+  function bindFilterEvents() {
+    const newAlertPill = document.getElementById('new-alert-pill');
+    if (newAlertPill) {
+      newAlertPill.addEventListener('click', applyNewAlerts);
+    }
+
+    const filterBackdrop = document.getElementById('filterModal');
+    if (filterBackdrop) {
+      filterBackdrop.addEventListener('click', function (e) {
+        if (!e.target.closest('.filter-modal-card')) {
+          closeFilterModal();
+        }
+      });
+    }
+
+    const filterCloseBtn = document.getElementById('filterModalCloseBtn');
+    if (filterCloseBtn) {
+      filterCloseBtn.addEventListener('click', closeFilterModal);
+    }
+
+    const filterApplyBtn = document.getElementById('filterApplyBtn');
+
+    if (filterApplyBtn) {
+      filterApplyBtn.addEventListener('click', closeFilterModal);
+    }
+
+    const filterInput = document.getElementById('modalSearchInput');
+    if (filterInput) {
+      filterInput.addEventListener('input', filterAlertCards);
+    }
+
+    const filterSearchClearBtn = document.getElementById('filterSearchClearBtn');
+    if (filterSearchClearBtn) {
+      filterSearchClearBtn.addEventListener('click', function () {
+        if (filterInput) {
+          filterInput.value = '';
+          filterSearchClearBtn.style.display = 'none';
+          filterAlertCards();
+          filterInput.focus();
+        }
+      });
+    }
+
+    const filterResetBtn = document.getElementById('filterResetBtn');
+    if (filterResetBtn) {
+      filterResetBtn.addEventListener('click', function () {
+        if (filterInput) {
+          filterInput.value = '';
+        }
+        filterByStatus('all');
+        document.querySelectorAll('[data-action="filter-status-btn"]').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.status === 'all');
+        });
+        const clearBtn = document.getElementById('filterSearchClearBtn');
+        if (clearBtn) {
+          clearBtn.style.display = 'none';
+        }
+        filterAlertCards();
+      });
+    }
+
+    document.querySelectorAll('[data-action="filter-status-btn"]').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        filterByStatus(btn.dataset.status || 'all', btn);
+      });
+    });
+
+    document.querySelectorAll('[data-action="quick-filter-status"]').forEach((btn) => {
+      btn.addEventListener('click', function () {
+        filterByStatus(btn.dataset.status || 'all', btn);
+      });
+    });
+
+    const modal = document.getElementById('filterModal');
+    if (modal) {
+      modal.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeFilterModal();
+        }
+      });
+    }
+  }
+
+  function bindAlertCardClicks(root = document) {
+    root.querySelectorAll('.alert-card[data-report-id]').forEach((card) => {
+      const cardId = card.dataset.reportId;
+      if (!cardId || card.dataset.bound === '1') {
+        return;
+      }
+      card.dataset.bound = '1';
+      card.addEventListener('click', function () {
+        openAlertDetail(cardId);
+      });
+      card.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openAlertDetail(cardId);
+        }
+      });
+    });
   }
 
   function scrollAlertsToTop() {
@@ -737,6 +1780,17 @@
 
   window.addEventListener('on_new_report', async function (e) {
     if (!e.detail || !e.detail.report_id) return;
+    if (document.querySelector(`.alert-card[data-report-id="${Number(e.detail.report_id)}"]`)) return;
+
+    // 위치 반경 조회 중에는 서버의 1km 필터를 다시 거치도록 전체 목록을 새로 받는다.
+    if (document.getElementById('alertLocationSelector')) {
+      const countElement = document.getElementById('new-alert-count');
+      const pill = document.getElementById('new-alert-pill');
+      countElement.textContent = String((Number(countElement.textContent) || 0) + 1);
+      pill.dataset.locationRefresh = '1';
+      pill.style.display = 'flex';
+      return;
+    }
 
     try {
       const res = await fetch(`/api/alert/${e.detail.report_id}/json`);
@@ -746,6 +1800,7 @@
         const statusClass = /^[a-z0-9_-]+$/i.test(item.status_class || '') ? item.status_class : 'status-default';
         const safe = {
           id: Number(item.id) || 0,
+          fileType: escapeHtml(item.file_type || 'image'),
           imagePath: escapeHtml(item.image_path || ''),
           title: escapeHtml(item.title),
           address: escapeHtml(item.address),
@@ -754,23 +1809,24 @@
           riskClass: /^[a-z0-9_-]+$/i.test(item.risk_class || '') ? item.risk_class : '',
           riskScore: Number(item.risk_score) || 0,
           createdAt: escapeHtml(item.created_at),
-          reporterCount: Number(item.group_reporter_count) || 0
+          reporterCount: Number(item.group_reporter_count) || 0,
+          isUnread: Boolean(item.is_unread)
         };
-        const imgHtml = item.file_type === 'video' ?
-          `<div style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;"><svg viewBox="0 0 24 24" width="12" height="12" fill="white"><path d="M8 5v14l11-7z" /></svg></div>` +
-          (safe.imagePath ? `<img src="${safe.imagePath}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`)
-          : (safe.imagePath ? `<img src="${safe.imagePath}" class="alert-thumbnail" alt="썸네일">` : `<div class="alert-thumbnail-placeholder">No Image</div>`);
+        const resolvedImage = `<img src="${safe.imagePath || '/static/images/yolo/v5/val_batch0_pred.jpg'}" class="alert-thumbnail" alt="${safe.title} 썸네일">`;
+        const imgHtml = safe.fileType === 'video'
+          ? `<div class="alert-video-badge" aria-label="동영상 제보"><svg viewBox="0 0 24 24" width="12" height="12" fill="white"><path d="M8 5v14l11-7z" /></svg></div>` + resolvedImage
+          : resolvedImage;
 
         const cardHtml = `
-                <div class="alert-card ${statusClass} new-injected-card" data-id="${safe.id}"
+                <div class="alert-card ${statusClass} new-injected-card" data-id="${safe.id}" data-report-id="${safe.id}"
                   data-search-title="${safe.title}" data-search-location="${safe.address}"
-                  data-search-content="${safe.content}" data-status="${safe.status}"
-                  onclick="window.location.href='/alert/view/${safe.id}'" style="display:none;">
+                  data-search-content="${safe.content}" data-status="${safe.status}" data-unread="${safe.isUnread ? '1' : '0'}" style="display:none;"
+                  role="link" tabindex="0" aria-label="${safe.title} 상세 보기">
                   <div class="alert-card-inner">
-                    <div class="alert-thumbnail-wrap" style="position: relative;">
+                    <div class="alert-thumbnail-wrap">
                       ${imgHtml}
                     </div>
-                    <div class="alert-main-content" style="flex: 1; min-width: 0;">
+                    <div class="alert-main-content">
                       <div class="alert-top">
                         <div class="alert-status ${statusClass}">${safe.status}</div>
                         <div class="alert-risk ${safe.riskClass}">
@@ -778,10 +1834,10 @@
                           <span class="risk-value">${safe.riskScore}%</span>
                         </div>
                       </div>
-                      <div class="alert-main" style="margin-top: 6px;">
+                      <div class="alert-main">
                         <div class="alert-title">${safe.title}</div>
-                        <div class="alert-location">${safe.address}</div>
-                        <div class="alert-meta">${safe.createdAt} · 반복 ${safe.reporterCount}건</div>
+                        <div class="alert-location"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i><span>${safe.address}</span></div>
+                        <div class="alert-meta"><i class="bi bi-clock" aria-hidden="true"></i><span>${safe.createdAt}</span>${safe.reporterCount > 1 ? `<span class="alert-meta-divider" aria-hidden="true"></span><span>${safe.reporterCount}명 제보</span>` : ''}</div>
                       </div>
                     </div>
                   </div>
@@ -790,7 +1846,7 @@
 
         pendingAlertHtmls.push(cardHtml);
         document.getElementById('new-alert-count').textContent = pendingAlertHtmls.length;
-        document.getElementById('new-alert-pill').style.display = 'block';
+        document.getElementById('new-alert-pill').style.display = 'flex';
       }
     } catch (err) {
       console.error("Failed to fetch new alert json", err);
@@ -798,6 +1854,11 @@
   });
 
   window.applyNewAlerts = function () {
+    const newAlertPill = document.getElementById('new-alert-pill');
+    if (newAlertPill?.dataset.locationRefresh === '1') {
+      window.location.reload();
+      return;
+    }
     const list = document.getElementById('alertList');
     pendingAlertHtmls.reverse().forEach(html => {
       list.insertAdjacentHTML('afterbegin', html);
@@ -806,7 +1867,7 @@
     document.querySelectorAll('.new-injected-card').forEach(el => {
       el.style.display = 'block';
       el.classList.remove('new-injected-card');
-      if (el.dataset.status === '관리자 확인중') {
+      if (el.dataset.status === '접수완료' && el.dataset.unread === '1') {
         readObserver.observe(el);
       }
     });
@@ -814,8 +1875,10 @@
     pendingAlertHtmls = [];
     document.getElementById('new-alert-pill').style.display = 'none';
     document.querySelector('.alert-page').scrollTo({ top: 0, behavior: 'smooth' });
+    repairAlertThumbnails();
 
     filterAlertCards();
+    bindAlertCardClicks(document);
   };
 
   // [NEW] Intersection Observer for marking cards as read when scrolled into view
@@ -823,7 +1886,7 @@
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const card = entry.target;
-        if (card.dataset.status === '관리자 확인중' && !card.dataset.readProcessing) {
+        if (card.dataset.status === '접수완료' && card.dataset.unread === '1' && !card.dataset.readProcessing) {
           card.dataset.readProcessing = "true";
 
           fetch('/api/admin/report/' + card.dataset.id + '/mark_read', {
@@ -833,7 +1896,7 @@
             .then(res => res.json())
             .then(data => {
               if (data.success) {
-                card.dataset.status = '접수완료';
+                card.dataset.unread = '0';
                 // IMPORTANT: Do NOT change CSS class per user request. Just decrease badge.
                 let badge = document.querySelector('.nav-item[href="/alert"] .badge-count');
                 if (badge) {
@@ -854,13 +1917,30 @@
     });
   }, { threshold: 0.5 });
 
+  function repairAlertThumbnails() {
+    document.querySelectorAll('.alert-thumbnail').forEach((img) => {
+      if (!img.getAttribute('src')) {
+        img.setAttribute('src', '/static/images/yolo/v5/val_batch0_pred.jpg');
+      }
+      img.addEventListener('error', function () {
+        if (!this.src || this.src.indexOf('/static/images/yolo/v5/val_batch0_pred.jpg') === -1) {
+          this.src = '/static/images/yolo/v5/val_batch0_pred.jpg';
+        }
+      }, { once: true });
+    });
+  }
+
   // [FIX] SPA 에서는 DOMContentLoaded가 발생하지 않으므로 즉시 실행 함수로 변경
   (function initAlertPage() {
+    repairAlertThumbnails();
     filterAlertCards();
+    bindFilterEvents();
+    bindAlertLocationEvents();
+    bindAlertCardClicks(document);
 
     // Start observing existing unread cards
     document.querySelectorAll('.alert-card').forEach(card => {
-      if (card.dataset.status === '관리자 확인중') {
+      if (card.dataset.status === '접수완료' && card.dataset.unread === '1') {
         readObserver.observe(card);
       }
     });

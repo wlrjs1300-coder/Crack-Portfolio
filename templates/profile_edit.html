@@ -1,0 +1,451 @@
+{% extends 'layout.html' %}
+
+{% block title %}내 정보 관리 - CRACK{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='profile_edit.css') }}">
+
+<div class="profile-edit-page">
+    <header class="profile-edit-nav">
+        <a href="/mypage" aria-label="마이페이지로 돌아가기">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </a>
+        <div>
+            <span>마이페이지</span>
+            <h1>내 정보 관리</h1>
+        </div>
+    </header>
+
+    <section class="profile-edit-intro">
+        <span class="profile-edit-kicker"><i class="bi bi-person-check"></i> 계정 정보</span>
+        <h2>내 정보를 확인하고<br>필요한 내용을 변경하세요</h2>
+        <p>변경할 항목만 입력해도 바로 저장할 수 있습니다.</p>
+    </section>
+
+    <nav class="profile-edit-tabs" role="tablist" aria-label="내 정보 수정 항목">
+        <button type="button" id="basic-tab" role="tab" aria-selected="true"
+            aria-controls="basic-section" data-profile-tab="basic">
+            <i class="bi bi-person"></i>
+            <span>기본 정보</span>
+        </button>
+        <button type="button" id="password-tab" role="tab" aria-selected="false"
+            aria-controls="password-section" data-profile-tab="password" tabindex="-1">
+            <i class="bi bi-shield-lock"></i>
+            <span>비밀번호 변경</span>
+        </button>
+        <button type="button" id="address-tab" role="tab" aria-selected="false"
+            aria-controls="address-section" data-profile-tab="address" tabindex="-1">
+            <i class="bi bi-geo-alt"></i>
+            <span>내 주변 알림</span>
+        </button>
+    </nav>
+
+    <div class="profile-edit-sections">
+        <section id="basic-section" class="profile-form-section is-active" role="tabpanel"
+            aria-labelledby="basic-tab" data-profile-panel="basic">
+            <div class="profile-section-heading">
+                <span>01</span>
+                <div>
+                    <h2 id="basic-section-title">기본 정보</h2>
+                    <p>서비스에서 표시되는 닉네임을 변경할 수 있어요.</p>
+                </div>
+            </div>
+
+            <div class="profile-account-summary">
+                <div>
+                    <small>아이디</small>
+                    <strong>{{ member.username }}</strong>
+                </div>
+                <div>
+                    <small>이메일</small>
+                    <strong>{{ member.email }}</strong>
+                </div>
+            </div>
+
+            <form id="nickname-form" class="profile-edit-form" novalidate>
+                <label for="profile-nickname">닉네임</label>
+                <div class="profile-input-shell">
+                    <i class="bi bi-person"></i>
+                    <input id="profile-nickname" type="text" maxlength="20"
+                        value="{{ member.nickname or member.username }}" autocomplete="nickname" required>
+                </div>
+                <div class="profile-field-foot">
+                    <span id="nickname-message" role="status"></span>
+                    <span><b id="nickname-count">{{ (member.nickname or member.username) | length }}</b>/20</span>
+                </div>
+                <button type="submit" class="profile-save-button">
+                    닉네임 저장 <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+        </section>
+
+        <section id="password-section" class="profile-form-section" role="tabpanel"
+            aria-labelledby="password-tab" data-profile-panel="password" hidden>
+            <div class="profile-section-heading">
+                <span>02</span>
+                <div>
+                    <h2 id="password-section-title">비밀번호 변경</h2>
+                    <p>현재 비밀번호를 확인한 후 새 비밀번호를 설정해주세요.</p>
+                </div>
+            </div>
+
+            <form id="password-form" class="profile-edit-form" novalidate>
+                <label for="current-password">현재 비밀번호</label>
+                <div class="profile-input-shell">
+                    <i class="bi bi-lock"></i>
+                    <input id="current-password" type="password" maxlength="128"
+                        placeholder="현재 비밀번호 입력" autocomplete="current-password" required>
+                    <button type="button" data-password-toggle="current-password" aria-label="현재 비밀번호 보기">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                <label for="new-password">새 비밀번호</label>
+                <div class="profile-input-shell">
+                    <i class="bi bi-shield-lock"></i>
+                    <input id="new-password" type="password" minlength="10" maxlength="128"
+                        placeholder="10자 이상 입력" autocomplete="new-password" required>
+                    <button type="button" data-password-toggle="new-password" aria-label="새 비밀번호 보기">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                <label for="confirm-password">새 비밀번호 확인</label>
+                <div class="profile-input-shell">
+                    <i class="bi bi-shield-check"></i>
+                    <input id="confirm-password" type="password" minlength="10" maxlength="128"
+                        placeholder="새 비밀번호 한 번 더 입력" autocomplete="new-password" required>
+                    <button type="button" data-password-toggle="confirm-password" aria-label="비밀번호 확인 보기">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <p id="password-message" class="profile-form-message" role="status"></p>
+                <button type="submit" class="profile-save-button">
+                    비밀번호 변경 <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+        </section>
+
+        <section id="address-section" class="profile-form-section address-section" role="tabpanel"
+            aria-labelledby="address-tab" data-profile-panel="address" hidden>
+            <div class="profile-section-heading">
+                <span>03</span>
+                <div>
+                    <h2 id="address-section-title">내 주변 알림</h2>
+                    <p>도로 알림의 기준이 되는 주소를 변경할 수 있어요.</p>
+                </div>
+            </div>
+
+            <label class="profile-address-label">현재 기준 주소</label>
+            <button type="button" id="profile-address-search" class="profile-address-search">
+                <span><i class="bi bi-geo-alt-fill"></i></span>
+                <strong id="profile-address-text">{{ member.address or '주소 검색하기' }}</strong>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+            <p id="address-message" class="profile-address-help" role="status">
+                <i class="bi bi-info-circle"></i>
+                이 주소에서 반경 1km 이내의 도로 알림을 보여드려요.
+            </p>
+        </section>
+    </div>
+</div>
+
+<div id="profile-postcode-modal" class="profile-postcode-backdrop" aria-hidden="true">
+    <section class="profile-postcode-modal" role="dialog" aria-modal="true"
+        aria-labelledby="profile-postcode-title">
+        <header>
+            <span class="profile-postcode-symbol"><i class="bi bi-geo-alt-fill"></i></span>
+            <div class="profile-postcode-heading">
+                <h2 id="profile-postcode-title">주소 찾기</h2>
+                <p>도로명, 건물명 또는 지번으로 검색하세요.</p>
+            </div>
+            <button type="button" id="profile-postcode-close" aria-label="주소 검색 닫기">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </header>
+        <div id="profile-postcode-frame" class="profile-postcode-frame">
+            <div class="profile-postcode-loading">
+                <i class="bi bi-search"></i>
+                <strong>주소 검색을 준비하고 있어요</strong>
+            </div>
+        </div>
+        <footer>
+            <i class="bi bi-shield-check"></i>
+            <span>선택한 주소는 주변 도로 알림을 제공하는 데만 사용됩니다.</span>
+        </footer>
+    </section>
+</div>
+
+<div id="profile-result-modal" class="profile-result-backdrop" aria-hidden="true">
+    <section class="profile-result-modal" role="dialog" aria-modal="true" aria-labelledby="profile-result-title">
+        <span id="profile-result-icon"><i class="bi bi-check-lg"></i></span>
+        <h2 id="profile-result-title">저장되었습니다</h2>
+        <p id="profile-result-description">변경한 정보를 반영했습니다.</p>
+        <button type="button" id="profile-result-close">확인</button>
+    </section>
+</div>
+
+<script nonce="{{ csp_nonce }}">
+    (function () {
+        const nicknameForm = document.getElementById('nickname-form');
+        const nicknameInput = document.getElementById('profile-nickname');
+        const nicknameCount = document.getElementById('nickname-count');
+        const nicknameMessage = document.getElementById('nickname-message');
+        const passwordForm = document.getElementById('password-form');
+        const passwordMessage = document.getElementById('password-message');
+        const postcodeModal = document.getElementById('profile-postcode-modal');
+        const postcodeFrame = document.getElementById('profile-postcode-frame');
+        const addressButton = document.getElementById('profile-address-search');
+        const addressText = document.getElementById('profile-address-text');
+        const addressMessage = document.getElementById('address-message');
+        const resultModal = document.getElementById('profile-result-modal');
+        const tabButtons = Array.from(document.querySelectorAll('[data-profile-tab]'));
+        const tabPanels = Array.from(document.querySelectorAll('[data-profile-panel]'));
+        let postcodeWidget = null;
+
+        function activateTab(tabName, focusTab) {
+            const previousButton = tabButtons.find(function (button) {
+                return button.getAttribute('aria-selected') === 'true';
+            });
+            const selectedButton = tabButtons.find(function (button) {
+                return button.dataset.profileTab === tabName;
+            }) || tabButtons[0];
+            const selectedName = selectedButton.dataset.profileTab;
+            const previousIndex = Math.max(0, tabButtons.indexOf(previousButton));
+            const selectedIndex = tabButtons.indexOf(selectedButton);
+            const directionClass = selectedIndex < previousIndex ? 'is-from-left' : 'is-from-right';
+
+            tabButtons.forEach(function (button) {
+                const selected = button === selectedButton;
+                button.setAttribute('aria-selected', selected ? 'true' : 'false');
+                button.tabIndex = selected ? 0 : -1;
+            });
+            tabPanels.forEach(function (panel) {
+                const selected = panel.dataset.profilePanel === selectedName;
+                panel.hidden = !selected;
+                panel.classList.toggle('is-active', selected);
+                panel.classList.remove('is-from-left', 'is-from-right');
+                if (selected && previousButton !== selectedButton) {
+                    void panel.offsetWidth;
+                    panel.classList.add(directionClass);
+                }
+            });
+            window.history.replaceState(null, '', '#' + selectedName + '-section');
+            if (focusTab) selectedButton.focus();
+        }
+
+        function setFieldMessage(element, message, success) {
+            element.textContent = message;
+            element.classList.toggle('is-success', Boolean(success));
+            element.classList.toggle('is-error', !success && Boolean(message));
+        }
+
+        function showResult(title, description, success) {
+            document.getElementById('profile-result-title').textContent = title;
+            document.getElementById('profile-result-description').textContent = description;
+            document.getElementById('profile-result-icon').classList.toggle('is-error', !success);
+            resultModal.classList.add('is-open');
+            resultModal.setAttribute('aria-hidden', 'false');
+            document.documentElement.classList.add('modal-active');
+        }
+
+        function closeResult() {
+            resultModal.classList.remove('is-open');
+            resultModal.setAttribute('aria-hidden', 'true');
+            document.documentElement.classList.remove('modal-active');
+        }
+
+        function openPostcode() {
+            if (!window.daum || !window.daum.Postcode) {
+                setFieldMessage(addressMessage, '주소 검색 서비스를 불러오지 못했습니다.', false);
+                return;
+            }
+            postcodeModal.classList.add('is-open');
+            postcodeModal.setAttribute('aria-hidden', 'false');
+            document.documentElement.classList.add('modal-active');
+            postcodeFrame.replaceChildren();
+            postcodeWidget = new window.daum.Postcode({
+                oncomplete: handleAddressComplete,
+                width: '100%',
+                height: '100%',
+                animation: false,
+                autoMapping: true,
+                theme: {
+                    bgColor: '#ffffff',
+                    searchBgColor: '#ffffff',
+                    contentBgColor: '#ffffff',
+                    pageBgColor: '#f7f7f5',
+                    textColor: '#202838',
+                    queryTextColor: '#202838',
+                    postcodeTextColor: '#f06717',
+                    emphTextColor: '#e85f0d',
+                    outlineColor: '#e8e5df'
+                }
+            });
+            postcodeWidget.embed(postcodeFrame);
+        }
+
+        function closePostcode() {
+            postcodeModal.classList.remove('is-open');
+            postcodeModal.setAttribute('aria-hidden', 'true');
+            document.documentElement.classList.remove('modal-active');
+        }
+
+        async function handleAddressComplete(data) {
+            const address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+            if (!window.kakao || !window.kakao.maps) {
+                setFieldMessage(addressMessage, '지도 서비스를 불러오지 못했습니다.', false);
+                closePostcode();
+                return;
+            }
+            setFieldMessage(addressMessage, '주소 위치를 확인하고 있습니다.', true);
+            window.kakao.maps.load(function () {
+                const geocoder = new window.kakao.maps.services.Geocoder();
+                geocoder.addressSearch(address, async function (results, status) {
+                    if (status !== window.kakao.maps.services.Status.OK || !results.length) {
+                        setFieldMessage(addressMessage, '주소 위치를 확인하지 못했습니다.', false);
+                        closePostcode();
+                        return;
+                    }
+                    try {
+                        const response = await fetch('/api/mypage/profile', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                address: address,
+                                latitude: results[0].y,
+                                longitude: results[0].x,
+                                region_city: data.sido || '',
+                                region_district: data.sigungu || ''
+                            })
+                        });
+                        const result = await response.json();
+                        if (!response.ok || !result.success) throw new Error(result.message);
+                        addressText.textContent = address;
+                        setFieldMessage(addressMessage, '새 주소를 알림 기준으로 저장했습니다.', true);
+                        closePostcode();
+                        showResult('주소 변경 완료', '새 주소를 기준으로 주변 도로 알림을 보여드립니다.', true);
+                    } catch (error) {
+                        closePostcode();
+                        setFieldMessage(addressMessage, error.message || '주소를 저장하지 못했습니다.', false);
+                    }
+                });
+            });
+        }
+
+        nicknameInput.addEventListener('input', function () {
+            nicknameCount.textContent = nicknameInput.value.length;
+            setFieldMessage(nicknameMessage, '', true);
+        });
+
+        nicknameForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const nickname = nicknameInput.value.trim();
+            if (!nickname) {
+                setFieldMessage(nicknameMessage, '닉네임을 입력해주세요.', false);
+                nicknameInput.focus();
+                return;
+            }
+            const button = nicknameForm.querySelector('button[type="submit"]');
+            button.disabled = true;
+            try {
+                const response = await fetch('/api/mypage/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname: nickname })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message);
+                setFieldMessage(nicknameMessage, '닉네임을 저장했습니다.', true);
+                showResult('닉네임 변경 완료', '새 닉네임이 서비스에 반영되었습니다.', true);
+            } catch (error) {
+                setFieldMessage(nicknameMessage, error.message || '닉네임을 저장하지 못했습니다.', false);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        passwordForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                setFieldMessage(passwordMessage, '비밀번호 입력란을 모두 작성해주세요.', false);
+                return;
+            }
+            if (newPassword.length < 10) {
+                setFieldMessage(passwordMessage, '새 비밀번호는 10자 이상 입력해주세요.', false);
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                setFieldMessage(passwordMessage, '새 비밀번호가 서로 일치하지 않습니다.', false);
+                return;
+            }
+            const button = passwordForm.querySelector('button[type="submit"]');
+            button.disabled = true;
+            try {
+                const response = await fetch('/api/mypage/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.message);
+                passwordForm.reset();
+                setFieldMessage(passwordMessage, '비밀번호를 변경했습니다.', true);
+                showResult('비밀번호 변경 완료', '다음 로그인부터 새 비밀번호를 사용해주세요.', true);
+            } catch (error) {
+                setFieldMessage(passwordMessage, error.message || '비밀번호를 변경하지 못했습니다.', false);
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const input = document.getElementById(button.dataset.passwordToggle);
+                const visible = input.type === 'text';
+                input.type = visible ? 'password' : 'text';
+                button.querySelector('i').className = visible ? 'bi bi-eye' : 'bi bi-eye-slash';
+            });
+        });
+
+        tabButtons.forEach(function (button, index) {
+            button.addEventListener('click', function () {
+                activateTab(button.dataset.profileTab, false);
+            });
+            button.addEventListener('keydown', function (event) {
+                if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                event.preventDefault();
+                const direction = event.key === 'ArrowRight' ? 1 : -1;
+                const nextIndex = (index + direction + tabButtons.length) % tabButtons.length;
+                activateTab(tabButtons[nextIndex].dataset.profileTab, true);
+            });
+        });
+
+        addressButton.addEventListener('click', openPostcode);
+        document.getElementById('profile-postcode-close').addEventListener('click', closePostcode);
+        postcodeModal.addEventListener('click', function (event) {
+            if (event.target === postcodeModal) closePostcode();
+        });
+        document.getElementById('profile-result-close').addEventListener('click', closeResult);
+        resultModal.addEventListener('click', function (event) {
+            if (event.target === resultModal) closeResult();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== 'Escape') return;
+            if (resultModal.classList.contains('is-open')) closeResult();
+            if (postcodeModal.classList.contains('is-open')) closePostcode();
+        });
+
+        const initialTab = window.location.hash === '#address-section'
+            ? 'address'
+            : (window.location.hash === '#password-section' ? 'password' : 'basic');
+        activateTab(initialTab, false);
+    })();
+</script>
+{% endblock %}

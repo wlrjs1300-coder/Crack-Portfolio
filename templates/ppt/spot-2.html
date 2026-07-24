@@ -1,10 +1,10 @@
-﻿<div class="spot" id="spot-2" style="width: 1900px; height: 950px; background: transparent; overflow: hidden;">
+<div class="spot" id="spot-2" style="width: 1900px; height: 950px; background: transparent; overflow: hidden;">
     <!-- [SVG ROAD] 4-Way Soft Fade Integration -->
     <svg viewBox="0 0 1900 1300" style="position: absolute; top: 0; left: 0; width: 100%; height: 1300px; z-index: 5;"
         preserveAspectRatio="none">
 
         <defs>
-            <!-- 4諛⑺뼢 遺?쒕윭???먰삎 洹몃씪?곗씠??留덉뒪??(?섎떒 ?섎┝ ?꾩쟾 ?닿껐) -->
+            <!-- 4방향 부드러운 원형 그라데이션 마스크 (하단 잘림 완전 해결) -->
             <radialGradient id="road-fade-radial" cx="50%" cy="40%" r="65%">
                 <stop offset="40%" stop-color="white" />
                 <stop offset="85%" stop-color="rgba(255,255,255,0.2)" />
@@ -15,18 +15,18 @@
                 <rect x="-100" y="-100" width="2100" height="1500" fill="url(#road-fade-radial)" />
             </mask>
 
-            <!-- ?뚮몢由?釉붾윭 ?꾪꽣 -->
+            <!-- 테두리 블러 필터 -->
             <filter id="soft-edge" x="-40%" y="-40%" width="180%" height="180%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
             </filter>
 
-            <!-- 源딆씠? ?낆껜媛먯쓣 ?꾪븳 洹몃┝???꾪꽣 -->
+            <!-- 깊이와 입체감을 위한 그림자 필터 -->
             <filter id="road-depth" x="-40%" y="-40%" width="180%" height="180%">
                 <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="rgba(255,140,0,0.15)" />
             </filter>
         </defs>
 
-        <!-- ?꾩껜?곸쑝濡??먯뿰?ㅻ읇寃??먮젮吏??諛⑹궗??留덉뒪???곸슜 -->
+        <!-- 전체적으로 자연스럽게 흐려지는 방사형 마스크 적용 -->
         <g mask="url(#road-mask-smooth)">
             <!-- Outer soft glow -->
             <path d="M -100,0 Q 950,1500 2000,0" fill="none" stroke="rgba(255, 140, 0, 0.05)" stroke-width="240"
@@ -48,10 +48,10 @@
         COMPOSITION</h2>
     <h2
         style="font-size: 6rem; font-weight: 800; color: #1e293b; position: absolute; top: 100px; left: 0; width: 100%; text-align: center; margin: 0; z-index: 10;">
-        ?꾨젅?좏뀒?댁뀡 <span style="color: #ff7a1a; text-shadow: 0 4px 15px rgba(255,122,26,0.3);">援ъ꽦</span>
+        프레젠테이션 <span style="color: #ff7a1a; text-shadow: 0 4px 15px rgba(255,122,26,0.3);">구성</span>
     </h2>
 
-    <!-- ?섏씠吏 ?몃뵒耳?댄꽣 (Hover ???쒖떆) -->
+    <!-- 페이지 인디케이터 (Hover 시 표시) -->
     <div id="ph-page-indicator"
         style="position: absolute; top: 260px; left: 0; width: 100%; text-align: center; z-index: 15; opacity: 0; transform: translateY(-10px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none;">
         <span
@@ -65,32 +65,32 @@
         <div class="ph-w1" style="position: absolute; left: 110px; top: 277px;" onmouseenter="showPhPage('4p ~ 5p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#ffca28;">01</span><i class="bi bi-lightbulb-fill"
-                    style="color: #ffca28;"></i><span class="txt">媛쒕컻 諛곌꼍</span></div>
+                    style="color: #ffca28;"></i><span class="txt">개발 배경</span></div>
         </div>
         <div class="ph-w2" style="position: absolute; left: 404px; top: 511px;" onmouseenter="showPhPage('6p ~ 8p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#42a5f5;">02</span><i class="bi bi-stack"
-                    style="color: #42a5f5;"></i><span class="txt">湲곗닠 ?ㅽ깮</span></div>
+                    style="color: #42a5f5;"></i><span class="txt">기술 스택</span></div>
         </div>
         <div class="ph-w3" style="position: absolute; left: 698px; top: 626px;" onmouseenter="showPhPage('9p ~ 11p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#7986cb;">03</span><i class="bi bi-diagram-3-fill"
-                    style="color: #7986cb;"></i><span class="txt">?꾪궎?띿퀜</span></div>
+                    style="color: #7986cb;"></i><span class="txt">아키텍쳐</span></div>
         </div>
         <div class="ph-w4" style="position: absolute; left: 992px; top: 624px;" onmouseenter="showPhPage('12p ~ 14p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#ab47bc;">04</span><i class="bi bi-robot"
-                    style="color: #ab47bc;"></i><span class="txt">AI 紐⑤뜽</span></div>
+                    style="color: #ab47bc;"></i><span class="txt">AI 모델</span></div>
         </div>
         <div class="ph-w5" style="position: absolute; left: 1286px; top: 505px;" onmouseenter="showPhPage('15p ~ 19p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#ff7043;">05</span><i class="bi bi-play-circle-fill"
-                    style="color: #ff7043;"></i><span class="txt">?듭떖 ?쒕퉬??/span></div>
+                    style="color: #ff7043;"></i><span class="txt">핵심 서비스</span></div>
         </div>
         <div class="ph-w6" style="position: absolute; left: 1580px; top: 267px;" onmouseenter="showPhPage('20p ~ 21p')"
             onmouseleave="hidePhPage()">
             <div class="ph-hole"><span class="num" style="color:#ef5350;">06</span><i class="bi bi-flag-fill"
-                    style="color: #ef5350;"></i><span class="txt">?ν썑 紐⑺몴</span></div>
+                    style="color: #ef5350;"></i><span class="txt">향후 목표</span></div>
         </div>
     </div>
 </div>

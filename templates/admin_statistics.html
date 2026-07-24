@@ -1,10 +1,10 @@
-﻿{% extends "admin_layout.html" %}
+{% extends "admin_layout.html" %}
 
-{% block title %}CRACK ?듦퀎{% endblock %}
+{% block title %}CRACK 통계{% endblock %}
 
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" aria-label="?뚮┝ ?섏씠吏">?뵒</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" aria-label="알림 페이지">🔔</a>
 </div>
 {% endblock %}
 
@@ -13,10 +13,10 @@
   href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
   class="account-chip"
 >
-  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
+  <strong>{{ session.get('user_name', '관리자') }}님</strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </a>
-<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
+<a href="/logout" class="logout-pill">로그아웃</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -633,7 +633,7 @@
     .region-detail-pagination {
       display: flex;
       align-items: center;
-      justify-content: center;   /* ?덉쟾?섍쾶 以묒븰 ?좎? */
+      justify-content: center;   /* 안전하게 중앙 유지 */
       gap: 10px;
     }
 
@@ -711,7 +711,7 @@
       align-items: center;
       gap: 12px;
 
-      height: 48px;        /* ?뵦 ?듭떖 */
+      height: 48px;        /* 🔥 핵심 */
       padding: 0 18px;
 
       border-radius: 14px;
@@ -1055,6 +1055,814 @@
         opacity 0.28s ease 0.18s,
         transform 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
     }
+
+    /* 통계 페이지 재구성 */
+    .page-title-box {
+      margin-bottom: 14px;
+      padding: 3px 2px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .page-title {
+      font-size: 24px;
+      letter-spacing: -.6px;
+      margin-bottom: 5px;
+    }
+
+    .page-subtitle {
+      font-size: 12px;
+      color: #8a97a8;
+    }
+
+    .content-grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+      gap: 14px;
+      min-height: 560px;
+    }
+
+    .panel {
+      padding: 18px;
+      border-color: #e7ebf0;
+      box-shadow: 0 3px 12px rgba(15, 23, 42, .025);
+    }
+
+    .section-title {
+      font-size: 17px;
+    }
+
+    .section-subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .region-header-actions {
+      min-width: 0;
+      gap: 9px;
+    }
+
+    .region-visual-box > .region-back-btn {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 8;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .1);
+    }
+
+    .region-visual-box > .region-breadcrumb {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 8;
+      max-width: calc(100% - 70px);
+      padding: 3px;
+      border: 1px solid rgba(226, 232, 240, .92);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .94);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+      backdrop-filter: blur(6px);
+    }
+
+    .region-visual-box > .region-breadcrumb .breadcrumb-item {
+      border: 0;
+      background: transparent;
+    }
+
+    .region-visual-box > .region-breadcrumb .breadcrumb-item.active {
+      background: #172033;
+      color: #fff;
+    }
+
+    .region-view-switch {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px;
+      border: 1px solid #e2e8f0;
+      border-radius: 11px;
+      background: #f8fafc;
+    }
+
+    .region-view-btn {
+      width: 32px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+    }
+
+    .region-view-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .region-view-btn.active {
+      background: #fff;
+      color: #f97316;
+      box-shadow: 0 2px 7px rgba(15, 23, 42, .08);
+    }
+
+    .region-chart-body {
+      grid-template-columns: minmax(0, 1.55fr) minmax(190px, .55fr);
+      gap: 12px;
+    }
+
+    .region-visual-box {
+      position: relative;
+      min-height: 470px;
+      overflow: hidden;
+      border: 1px solid #e4e9ef;
+      border-radius: 16px;
+      background: #f3f0ec;
+    }
+
+    .region-map-view,
+    .region-donut-view {
+      position: absolute;
+      inset: 0;
+    }
+
+    .region-map-view.is-hidden,
+    .region-donut-view.is-hidden {
+      display: none;
+    }
+
+    #regionAdminMap {
+      width: 100%;
+      height: 100%;
+      min-height: 470px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+
+    #regionAdminMap svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 560px;
+      overflow: visible;
+      transition: transform .22s ease;
+    }
+
+    #regionAdminMap svg.is-national-map {
+      transform: scale(1.1);
+    }
+
+    #regionAdminMap svg.is-province-map {
+      transform: none;
+    }
+
+    #regionAdminMap svg.is-spacious-map .region-shape-label {
+      font-size: 14px;
+    }
+
+    #regionAdminMap svg.is-spacious-map .region-shape-label.is-compact {
+      font-size: 11px;
+    }
+
+    #regionAdminMap path {
+      vector-effect: non-scaling-stroke;
+      stroke: #fffaf5;
+      stroke-width: 1.8;
+      cursor: pointer;
+      outline: none;
+      transition: fill .16s ease, filter .16s ease, opacity .16s ease;
+    }
+
+    #regionAdminMap path.region-level-0 { fill: #f4c9a7; }
+    #regionAdminMap path.region-level-1 { fill: #ffb97f; }
+    #regionAdminMap path.region-level-2 { fill: #ff9d52; }
+    #regionAdminMap path.region-level-3 { fill: #ff7d29; }
+    #regionAdminMap path.region-level-4 { fill: #eb5c08; }
+
+    #regionAdminMap path:hover,
+    #regionAdminMap path:focus-visible,
+    #regionAdminMap path.is-selected {
+      fill: #c94100;
+      filter: drop-shadow(0 4px 5px rgba(194, 65, 0, .3));
+    }
+
+    #regionAdminMap path.is-muted {
+      display: none;
+    }
+
+    #regionAdminMap .region-shape-label {
+      fill: #253044;
+      stroke: rgba(255,255,255,.94);
+      stroke-width: 3px;
+      paint-order: stroke fill;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: -.4px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #regionAdminMap .region-shape-label.is-national {
+      font-size: 13px;
+    }
+
+    #regionAdminMap .region-shape-label.is-compact {
+      font-size: 9px;
+      letter-spacing: -.6px;
+    }
+
+    .region-map-loading {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .region-map-caption {
+      position: absolute;
+      left: 50%;
+      bottom: 12px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 29px;
+      padding: 0 10px;
+      border: 1px solid rgba(226, 232, 240, .9);
+      border-radius: 999px;
+      background: rgba(255,255,255,.93);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(15,23,42,.08);
+      backdrop-filter: blur(6px);
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .region-map-caption::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff7a1a;
+    }
+
+    .region-map-source {
+      position: absolute;
+      right: 12px;
+      bottom: 14px;
+      z-index: 5;
+      color: #94a3b8;
+      font-size: 9px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .region-map-empty {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: #fafafa;
+      color: #94a3b8;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .region-map-empty.show {
+      display: grid;
+    }
+
+    .region-donut-view {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 50% 32%, rgba(255, 139, 61, .1), transparent 37%),
+        linear-gradient(180deg, #fff 0%, #fffaf6 100%);
+    }
+
+    .region-donut-stage {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 290px;
+      display: grid;
+      place-items: center;
+      padding: 4px 12px 0;
+      overflow: hidden;
+    }
+
+    .region-donut-stage::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(320px, 72%);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 122, 26, .08);
+      background: rgba(255, 255, 255, .5);
+      box-shadow: 0 18px 45px rgba(171, 83, 22, .07);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .region-donut-stage canvas {
+      position: relative;
+      z-index: 1;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 390px;
+      max-height: 340px;
+    }
+
+    .region-donut-summary {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .region-donut-stat {
+      min-width: 0;
+      min-height: 70px;
+      padding: 12px 13px;
+      border: 1px solid #e8ecf1;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .9);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .025);
+    }
+
+    .region-donut-stat.primary {
+      border-color: #ffd3b5;
+      background: #fff6ef;
+    }
+
+    .region-donut-stat-label {
+      display: block;
+      overflow: hidden;
+      margin-bottom: 6px;
+      color: #8793a5;
+      font-size: 9px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-donut-stat-value {
+      display: block;
+      overflow: hidden;
+      color: #253044;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-donut-stat.primary .region-donut-stat-value {
+      color: #ed5d00;
+    }
+
+    .region-donut-stat-meta {
+      display: block;
+      overflow: hidden;
+      margin-top: 3px;
+      color: #a0aaba;
+      font-size: 8px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-donut-guide {
+      flex: 0 0 auto;
+      margin: -2px 0 0;
+      color: #98a3b3;
+      font-size: 9px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .region-donut-view {
+        padding: 14px;
+      }
+
+      .region-donut-stage {
+        min-height: 250px;
+      }
+
+      .region-donut-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .region-donut-stat:last-child {
+        grid-column: 1 / -1;
+        min-height: 58px;
+      }
+    }
+
+    .region-detail-panel {
+      padding: 13px;
+      border-color: #e7ebf0;
+      background: #fbfbfa;
+    }
+
+    .region-detail-item {
+      background: #fff;
+    }
+
+    .region-detail-item.is-leaf-selected {
+      border-color: #ff9c5b;
+      background: linear-gradient(135deg, #fff8f2 0%, #fff 100%);
+      box-shadow: 0 8px 20px rgba(255, 107, 0, .1);
+    }
+
+    .region-detail-item.is-leaf-selected .region-detail-name {
+      color: #dc5200;
+    }
+
+    .region-detail-item.is-leaf-selected .region-detail-meta {
+      color: #ff6b00;
+    }
+
+    .region-detail-item.is-leaf-selected:hover {
+      transform: translateY(-1px);
+      border-color: #ff7a1a;
+    }
+
+    body.region-stats-modal-open {
+      overflow: hidden;
+    }
+
+    .region-stats-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(26, 34, 48, .42);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      backdrop-filter: blur(7px);
+      transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .region-stats-modal.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .region-stats-dialog {
+      width: min(760px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: hidden;
+      border: 1px solid rgba(255, 122, 26, .2);
+      border-radius: 26px;
+      background: #fff;
+      box-shadow: 0 26px 70px rgba(15, 23, 42, .24);
+      transform: translateY(12px) scale(.985);
+      transition: transform .22s ease;
+    }
+
+    .region-stats-modal.is-open .region-stats-dialog {
+      transform: translateY(0) scale(1);
+    }
+
+    .region-stats-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 26px 20px;
+      border-bottom: 1px solid #f0e9e3;
+      background:
+        radial-gradient(circle at 90% 0, rgba(255, 156, 91, .22), transparent 34%),
+        linear-gradient(135deg, #fffaf6 0%, #fff 72%);
+    }
+
+    .region-stats-kicker {
+      margin-bottom: 6px;
+      color: #f05a00;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .region-stats-title {
+      margin: 0;
+      color: #172033;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .region-stats-description {
+      margin: 7px 0 0;
+      color: #7c899d;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .region-stats-close {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #e7ebf0;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, .88);
+      color: #64748b;
+      font-size: 23px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .region-stats-close:hover,
+    .region-stats-close:focus-visible {
+      border-color: #ffb27c;
+      background: #fff7f0;
+      color: #e85700;
+      outline: none;
+    }
+
+    .region-stats-body {
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      padding: 22px 26px 26px;
+    }
+
+    .region-stats-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .region-stat-card {
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid #e8ecf1;
+      border-radius: 16px;
+      background: #fbfcfd;
+    }
+
+    .region-stat-card.primary {
+      border-color: #ffd2b3;
+      background: #fff7f0;
+    }
+
+    .region-stat-label {
+      color: #8491a5;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .region-stat-value {
+      margin-top: 7px;
+      color: #172033;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    .region-stat-card.primary .region-stat-value {
+      color: #e85a00;
+    }
+
+    .region-stats-insights {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .region-insight {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 15px;
+      border: 1px solid #edf0f4;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .region-insight-label {
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .region-insight-value {
+      color: #263247;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .region-report-section {
+      margin-top: 22px;
+    }
+
+    .region-report-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .region-report-section-title {
+      color: #172033;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .region-report-section-note {
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .region-report-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .region-report-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 13px 15px;
+      border: 1px solid #e8ecf1;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .region-report-title {
+      overflow: hidden;
+      color: #263247;
+      font-size: 12px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-report-sub {
+      margin-top: 4px;
+      overflow: hidden;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .region-report-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .region-report-status {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #fff2e8;
+      color: #ed6207;
+      font-size: 9px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .region-report-status.is-processing {
+      background: #fff8db;
+      color: #b77900;
+    }
+
+    .region-report-status.is-complete {
+      background: #eafaf1;
+      color: #16864a;
+    }
+
+    .region-report-ai {
+      min-width: 47px;
+      color: #536176;
+      font-size: 10px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .region-report-empty {
+      padding: 34px 20px;
+      border: 1px dashed #dfe5ec;
+      border-radius: 16px;
+      background: #fafbfc;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .mini-filter-chip.active {
+      background: #ff7a1a;
+      border-color: #ff7a1a;
+    }
+
+    .trend-chart-box {
+      border-style: solid;
+      border-color: #e7ebf0;
+      background: linear-gradient(180deg, #fff 0%, #fffaf6 100%);
+      min-height: 470px;
+    }
+
+    @media (max-width: 1200px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .region-visual-box {
+        min-height: 380px;
+      }
+
+      #regionAdminMap,
+      .trend-chart-box {
+        min-height: 380px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .region-chart-body {
+        grid-template-columns: 1fr;
+      }
+
+      .region-visual-box {
+        min-height: 340px;
+      }
+
+      #regionAdminMap,
+      .trend-chart-box {
+        min-height: 340px;
+      }
+
+      .region-header-actions {
+        align-items: flex-end;
+        flex-direction: column-reverse;
+      }
+
+      .region-stats-modal {
+        padding: 12px;
+      }
+
+      .region-stats-head {
+        padding: 20px 18px 17px;
+      }
+
+      .region-stats-title {
+        font-size: 20px;
+      }
+
+      .region-stats-body {
+        padding: 18px;
+      }
+
+      .region-stats-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .region-stats-insights {
+        grid-template-columns: 1fr;
+      }
+
+      .region-report-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .region-report-side {
+        justify-content: space-between;
+      }
+    }
 </style>
 {% endblock %}
 
@@ -1062,73 +1870,85 @@
 <div class="page-title-box">
           <div class="page-title-row">
             <div class="page-title-wrap">
-              <div class="page-title">?듦퀎</div>
+              <div class="page-title">통계</div>
               <div class="page-subtitle">
-                吏??퀎 ?좉퀬 遺꾪룷? 湲곌컙蹂?異붿씠瑜?湲곗?蹂꾨줈 ?뺤씤?⑸땲??
+                지역별 신고 분포와 기간별 추이를 기준별로 확인합니다.
               </div>
             </div>
           </div>
         </div>
-        <div class="compare-row">
-          <div class="compare-card js-trend-shortcut" data-range="7d">
-            <div class="compare-label">理쒓렐 7??蹂??/div>
-            <div class="compare-value" id="weeklyCompareValue">-</div>
-            <div class="compare-meta" id="weeklyCompareMeta">?댁쟾 7???鍮?/div>
-          </div>
-
-          <div class="compare-card js-trend-shortcut" data-range="30d">
-            <div class="compare-label">理쒓렐 30??蹂??/div>
-            <div class="compare-value" id="monthlyCompareValue">-</div>
-            <div class="compare-meta" id="monthlyCompareMeta">?댁쟾 30???鍮?/div>
-          </div>
-
-          <div class="compare-card js-trend-shortcut" data-range="all">
-            <div class="compare-label">理쒓렐 理쒓퀬 ?좉퀬??/div>
-            <div class="compare-value" id="trendCompareValue">-</div>
-            <div class="compare-meta" id="trendCompareMeta">理쒓렐 異붿씠 湲곗?</div>
-          </div>
-        </div>
-
         <div class="content-grid">
           <section class="panel panel-region-chart">
             <div class="section-header region-section-header">
               <div class="section-title-wrap">
-                <div class="section-title">吏??퀎 ?좉퀬 遺꾪룷</div>
-                <div class="section-subtitle">?꾧뎅遺???몃? 吏??퉴吏 ?④퀎蹂꾨줈 ?좉퀬 吏묒쨷?꾨? ?뺤씤?⑸땲??</div>
+                <div class="section-title">지역별 신고 분포</div>
+                <div class="section-subtitle">전국부터 세부 지역까지 단계별로 신고 집중도를 확인합니다.</div>
               </div>
 
               <div class="region-header-actions">
-                <div class="region-breadcrumb">
-                  <span class="breadcrumb-item active">?꾧뎅</span>
+                <div class="region-view-switch" aria-label="지역 분포 보기 방식">
+                  <button type="button" class="region-view-btn active" data-region-view="map" aria-label="지도 보기" title="지도 보기" aria-pressed="true">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 6.5 5-2 7 2 5-2v13l-5 2-7-2-5 2z"/><path d="M8.5 4.5v13M15.5 6.5v13"/></svg>
+                  </button>
+                  <button type="button" class="region-view-btn" data-region-view="donut" aria-label="원형 그래프 보기" title="원형 그래프 보기" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A8.5 8.5 0 0 1 20.5 9H15z"/></svg>
+                  </button>
                 </div>
               </div>
             </div>
 
             <div class="region-chart-shell">
               <div class="region-chart-body">
-                <div class="region-chart-box">
-                  <button type="button" class="region-back-btn hidden chart-back-btn" id="regionBackBtn" aria-label="?곸쐞 吏??쑝濡??대룞">
-                    ??                  </button>
-
-                  <canvas id="regionDonutChart"></canvas>
+                <div class="region-visual-box">
+                  <button type="button" class="region-back-btn hidden" id="regionBackBtn" aria-label="상위 지역으로 이동">←</button>
+                  <div class="region-breadcrumb" aria-label="현재 선택 지역">
+                    <span class="breadcrumb-item active">전국</span>
+                  </div>
+                  <div class="region-map-view" id="regionMapView">
+                    <div id="regionAdminMap"><span class="region-map-loading">행정구역 지도를 준비하고 있습니다.</span></div>
+                    <div class="region-map-caption" id="regionMapCaption">전국 · 시·도를 선택해주세요</div>
+                    <div class="region-map-source">행정경계 · 통계청 SGIS</div>
+                    <div class="region-map-empty" id="regionMapEmpty">지도에 표시할 수 있는 위치 정보가 없습니다.</div>
+                  </div>
+                  <div class="region-donut-view is-hidden" id="regionDonutView">
+                    <div class="region-donut-stage">
+                      <canvas id="regionDonutChart"></canvas>
+                    </div>
+                    <div class="region-donut-summary" aria-label="지역 분포 요약">
+                      <div class="region-donut-stat primary">
+                        <span class="region-donut-stat-label">전체 신고</span>
+                        <strong class="region-donut-stat-value" id="donutTotalValue">0건</strong>
+                      </div>
+                      <div class="region-donut-stat">
+                        <span class="region-donut-stat-label">신고가 많은 지역</span>
+                        <strong class="region-donut-stat-value" id="donutTopRegionValue">-</strong>
+                        <small class="region-donut-stat-meta" id="donutTopRegionMeta">0건 · 0%</small>
+                      </div>
+                      <div class="region-donut-stat">
+                        <span class="region-donut-stat-label">표시 지역</span>
+                        <strong class="region-donut-stat-value" id="donutRegionCount">0곳</strong>
+                      </div>
+                    </div>
+                    <p class="region-donut-guide" id="regionDonutGuide">그래프 조각을 선택하면 해당 지역을 자세히 볼 수 있습니다.</p>
+                  </div>
                 </div>
 
                 <div class="region-detail-panel">
                   <div class="region-detail-head">
-                    <span class="region-detail-head-title">?곸꽭 吏??紐⑸줉</span>
-                    <span class="region-detail-head-count" id="regionDetailCount">0媛?/span>
+                    <span class="region-detail-head-title">상세 지역 목록</span>
+                    <span class="region-detail-head-count" id="regionDetailCount">0개</span>
                   </div>
 
                   <div class="region-detail-list">
                     <div class="region-detail-item">
-                      <div class="region-detail-name">寃쎄린??/div>
-                      <div class="region-detail-meta">42嫄?쨌 32%</div>
+                      <div class="region-detail-name">경기도</div>
+                      <div class="region-detail-meta">42건 · 32%</div>
                     </div>
                   </div>
                   <div class="region-detail-footer">
                     <div class="region-detail-pagination">
-                      <button type="button" class="region-page-btn" id="regionPrevBtn">?댁쟾</button>
-                      <button type="button" class="region-page-btn" id="regionNextBtn">?ㅼ쓬</button>
+                      <button type="button" class="region-page-btn" id="regionPrevBtn">이전</button>
+                      <button type="button" class="region-page-btn" id="regionNextBtn">다음</button>
                     </div>
                   </div>
                   </div>
@@ -1139,14 +1959,14 @@
           <section class="panel panel-main-chart">
             <div class="section-header">
               <div class="section-title-wrap">
-                <div class="section-title">湲곌컙蹂??좉퀬 異붿씠</div>
-                <div class="section-subtitle">湲곌컙蹂??좉퀬 ?먮쫫怨?蹂??/div>
+                <div class="section-title">기간별 신고 추이</div>
+                <div class="section-subtitle">기간별 신고 흐름과 변화</div>
               </div>
 
               <div class="section-actions trend-filter-actions">
-                <button type="button" class="mini-filter-chip trend-filter-chip active" data-range="7d">7??/button>
-                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="30d">30??/button>
-                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="all">?꾩껜</button>
+                <button type="button" class="mini-filter-chip trend-filter-chip active" data-range="7d">7일</button>
+                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="30d">30일</button>
+                <button type="button" class="mini-filter-chip trend-filter-chip" data-range="all">전체</button>
               </div>
             </div>
 
@@ -1157,36 +1977,87 @@
 
               <div class="trend-summary-row">
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">珥??좉퀬</div>
-                  <div class="trend-summary-value" id="trendTotalValue">42嫄?/div>
+                  <div class="trend-summary-label">총 신고</div>
+                  <div class="trend-summary-value" id="trendTotalValue">42건</div>
                 </div>
 
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">?쇳룊洹?/div>
-                  <div class="trend-summary-value" id="trendAvgValue">6嫄?/div>
+                  <div class="trend-summary-label">일평균</div>
+                  <div class="trend-summary-value" id="trendAvgValue">6건</div>
                 </div>
 
                 <div class="trend-summary-item">
-                  <div class="trend-summary-label">理쒓퀬 援ш컙</div>
-                  <div class="trend-summary-value" id="trendPeakValue">??12嫄?/div>
+                  <div class="trend-summary-label">최고 구간</div>
+                  <div class="trend-summary-value" id="trendPeakValue">월 12건</div>
                 </div>
               </div>
             </div>
           </section>
         </div>
-      </div>
-    </main>
-  </div>
 
-  <div id="pageTransitionOverlay" class="page-transition-overlay"></div>
+        <div class="region-stats-modal" id="regionStatsModal" aria-hidden="true">
+          <section class="region-stats-dialog" role="dialog" aria-modal="true" aria-labelledby="regionStatsTitle">
+            <header class="region-stats-head">
+              <div>
+                <div class="region-stats-kicker">지역 신고 통계</div>
+                <h2 class="region-stats-title" id="regionStatsTitle">선택 지역</h2>
+                <p class="region-stats-description">선택한 지역의 접수 현황과 최근 신고를 확인합니다.</p>
+              </div>
+              <button type="button" class="region-stats-close" id="regionStatsCloseBtn" aria-label="지역 통계 닫기">×</button>
+            </header>
+
+            <div class="region-stats-body">
+              <div class="region-stats-summary">
+                <article class="region-stat-card primary">
+                  <div class="region-stat-label">전체 접수</div>
+                  <div class="region-stat-value" id="regionStatTotal">0건</div>
+                </article>
+                <article class="region-stat-card">
+                  <div class="region-stat-label">접수완료</div>
+                  <div class="region-stat-value" id="regionStatReceived">0건</div>
+                </article>
+                <article class="region-stat-card">
+                  <div class="region-stat-label">처리중</div>
+                  <div class="region-stat-value" id="regionStatProcessing">0건</div>
+                </article>
+                <article class="region-stat-card">
+                  <div class="region-stat-label">처리완료</div>
+                  <div class="region-stat-value" id="regionStatCompleted">0건</div>
+                </article>
+              </div>
+
+              <div class="region-stats-insights">
+                <div class="region-insight">
+                  <span class="region-insight-label">평균 AI 위험도</span>
+                  <strong class="region-insight-value" id="regionStatAiAverage">0%</strong>
+                </div>
+                <div class="region-insight">
+                  <span class="region-insight-label">고위험 신고</span>
+                  <strong class="region-insight-value" id="regionStatHighRisk">0건</strong>
+                </div>
+              </div>
+
+              <section class="region-report-section">
+                <div class="region-report-section-head">
+                  <div class="region-report-section-title">최근 접수 내역</div>
+                  <div class="region-report-section-note">최근 등록 순 최대 5건</div>
+                </div>
+                <div class="region-report-list" id="regionStatsReportList"></div>
+              </section>
+            </div>
+          </section>
+        </div>
 {% endblock %}
 
 {% block extra_script %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script nonce="{{ csp_nonce }}">
 let pageTransitionRunning = false;
     let regionDonutChart = null;
     let trendLineChart = null;
+    let currentRegionView = "map";
+    let currentLeafRegion = null;
+    let regionMapRequest = 0;
     let currentTrendRange = "7d";
     let currentOtherItems = null;
     let currentRegionPage = 1;
@@ -1264,19 +2135,150 @@ let pageTransitionRunning = false;
       runPageTransition(href);
     });
 
-    // ===== 1. ?붾? 吏???곗씠??(怨꾩링 援ъ“) =====
+    // ===== 1. 더미 지역 데이터 (계층 구조) =====
 const regionDataMap = {{ (region_data_map or {"all": {}}) | tojson | safe }};
+const regionReportDetails = {{ (region_report_details or {}) | tojson | safe }};
 const trendDataMap = {{ (trend_data_map or {"all": {}}) | tojson | safe }};
-const statisticsSummaryData = {{ (statistics_summary or {}) | tojson | safe }};
+const regionMapAssetBase = "{{ url_for('static', filename='vendor/korea-admin/') }}";
+const provinceMapAssets = {
+  "서울특별시": "seoul.svg",
+  "부산광역시": "busan.svg",
+  "대구광역시": "daegu.svg",
+  "인천광역시": "incheon.svg",
+  "광주광역시": "gwangju.svg",
+  "대전광역시": "daejeon.svg",
+  "울산광역시": "ulsan.svg",
+  "세종특별자치시": "sejong.svg",
+  "경기도": "gyeonggi.svg",
+  "강원특별자치도": "gangwon.svg",
+  "충청북도": "chungbuk.svg",
+  "충청남도": "chungnam.svg",
+  "전북특별자치도": "jeonbuk.svg",
+  "전라남도": "jeonnam.svg",
+  "경상북도": "gyeongbuk.svg",
+  "경상남도": "gyeongnam.svg",
+  "제주특별자치도": "jeju.svg"
+};
+const districtDrillRegions = new Set([
+  "서울특별시",
+  "부산광역시",
+  "대구광역시",
+  "인천광역시",
+  "광주광역시",
+  "대전광역시",
+  "울산광역시"
+]);
+const regionMapViewportProfiles = {
+  "충청남도": { padding: 0.015 },
+  "충청북도": { padding: 0.115 },
+  "인천광역시": { padding: 0.015 },
+  "경상북도": { padding: 0.02 },
+  "대구광역시": { padding: 0.13 },
+  "전북특별자치도": { padding: 0.045 },
+  "전라남도": { padding: 0.045 }
+};
 
 console.log("regionDataMap =", regionDataMap);
 console.log("trendDataMap =", trendDataMap);
-console.log("statisticsSummaryData =", statisticsSummaryData);
 
-// ===== 2. ?꾩옱 ?꾩튂 (breadcrumb ??븷) =====
+function getRegionReports(region) {
+  if (!region || !Array.isArray(region.parts)) {
+    return [];
+  }
+
+  return regionReportDetails[region.parts.join("||")] || [];
+}
+
+function closeRegionStatsModal() {
+  const modal = document.getElementById("regionStatsModal");
+  if (!modal) return;
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("region-stats-modal-open");
+}
+
+function appendRegionReportRow(container, report) {
+  const row = document.createElement("article");
+  row.className = "region-report-row";
+
+  const main = document.createElement("div");
+  const title = document.createElement("div");
+  title.className = "region-report-title";
+  title.textContent = report.title || `신고 #${report.id || "-"}`;
+
+  const sub = document.createElement("div");
+  sub.className = "region-report-sub";
+  sub.textContent = `${report.location || "위치 정보 없음"} · ${report.created_at || "-"}`;
+  main.append(title, sub);
+
+  const side = document.createElement("div");
+  side.className = "region-report-side";
+
+  const status = document.createElement("span");
+  status.className = "region-report-status";
+  status.textContent = report.status || "접수완료";
+  if (report.status === "처리중") {
+    status.classList.add("is-processing");
+  } else if (report.status === "처리완료") {
+    status.classList.add("is-complete");
+  }
+
+  const ai = document.createElement("span");
+  ai.className = "region-report-ai";
+  ai.textContent = `AI ${Math.round(Number(report.ai_score) || 0)}%`;
+  side.append(status, ai);
+
+  row.append(main, side);
+  container.appendChild(row);
+}
+
+function openRegionStatsModal(region = currentLeafRegion) {
+  if (!region) return;
+
+  const modal = document.getElementById("regionStatsModal");
+  const list = document.getElementById("regionStatsReportList");
+  if (!modal || !list) return;
+
+  const reports = getRegionReports(region);
+  const statusCount = reports.reduce((counts, report) => {
+    const status = report.status || "접수완료";
+    counts[status] = (counts[status] || 0) + 1;
+    return counts;
+  }, {});
+  const aiAverage = reports.length
+    ? Math.round(reports.reduce((sum, report) => sum + (Number(report.ai_score) || 0), 0) / reports.length)
+    : 0;
+  const highRiskCount = reports.filter(report => (Number(report.ai_score) || 0) >= 80).length;
+
+  document.getElementById("regionStatsTitle").textContent = region.label;
+  document.getElementById("regionStatTotal").textContent = `${reports.length}건`;
+  document.getElementById("regionStatReceived").textContent = `${statusCount["접수완료"] || 0}건`;
+  document.getElementById("regionStatProcessing").textContent = `${statusCount["처리중"] || 0}건`;
+  document.getElementById("regionStatCompleted").textContent = `${statusCount["처리완료"] || 0}건`;
+  document.getElementById("regionStatAiAverage").textContent = `${aiAverage}%`;
+  document.getElementById("regionStatHighRisk").textContent = `${highRiskCount}건`;
+
+  list.replaceChildren();
+  if (!reports.length) {
+    const empty = document.createElement("div");
+    empty.className = "region-report-empty";
+    empty.textContent = "이 지역에 등록된 신고가 없습니다.";
+    list.appendChild(empty);
+  } else {
+    reports.slice(0, 5).forEach(report => appendRegionReportRow(list, report));
+  }
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("region-stats-modal-open");
+  document.getElementById("regionStatsCloseBtn")?.focus();
+}
+
+// ===== 2. 현재 위치 (breadcrumb 역할) =====
 let currentPath = [];
 
-// ===== 3. ?꾩옱 ?몃뱶 媛?몄삤湲?=====
+// ===== 3. 현재 노드 가져오기 =====
 function getCurrentNode() {
   let node = regionDataMap?.all || {};
 
@@ -1294,9 +2296,21 @@ function getCurrentNode() {
   return node;
 }
 
-// ===== 4. ?꾩옱 ?덈꺼 ?곗씠??蹂??=====
+// ===== 4. 현재 레벨 데이터 변환 =====
 function getCurrentItems() {
-  // 湲고? ?대? 蹂닿린 ?곹깭硫?洹?紐⑸줉留?諛붾줈 諛섑솚
+  if (currentLeafRegion) {
+    return {
+      visibleItems: [{
+        name: currentLeafRegion.label,
+        count: getCountForPath(currentLeafRegion.parts),
+        hasChildren: false,
+        isLeaf: true
+      }],
+      hiddenItems: []
+    };
+  }
+
+  // 기타 내부 보기 상태면 그 목록만 바로 반환
   if (currentOtherItems) {
     return {
       visibleItems: currentOtherItems,
@@ -1308,6 +2322,7 @@ function getCurrentItems() {
   let items = [];
 
   for (let key in node) {
+    if (key === "__count__") continue;
     const value = node[key];
     const displayName = key;
 
@@ -1331,10 +2346,10 @@ function getCurrentItems() {
   items.sort((a, b) => b.count - a.count);
 
   const isNationalLevel = currentPath.length === 0;
-const isGyeonggiLevel = currentPath.length === 1 && currentPath[0] === "寃쎄린??;
+const isGyeonggiLevel = currentPath.length === 1 && currentPath[0] === "경기도";
 
 if (!isNationalLevel) {
-  // 寃쎄린?꾨뒗 湲고?濡?臾띠? ?딄퀬 ?꾨? 洹몃?濡??몄텧
+  // 경기도는 기타로 묶지 않고 전부 그대로 노출
   if (isGyeonggiLevel) {
     return {
       visibleItems: items,
@@ -1342,13 +2357,14 @@ if (!isNationalLevel) {
     };
   }
 
-  const MAX_ITEMS = 6; // 5媛????+ 湲고? 1媛?  if (items.length > MAX_ITEMS) {
+  const MAX_ITEMS = 6;
+  if (items.length > MAX_ITEMS) {
     const topItems = items.slice(0, MAX_ITEMS - 1);
     const restItems = items.slice(MAX_ITEMS - 1);
     const restSum = restItems.reduce((sum, item) => sum + item.count, 0);
 
     topItems.push({
-      name: "湲고?",
+      name: "기타",
       count: restSum,
       hasChildren: true,
       isOther: true
@@ -1367,7 +2383,7 @@ if (!isNationalLevel) {
   };
 }
 
-// ===== 5. ?섏쐞 ?⑷퀎 ?ш? 怨꾩궛 =====
+// ===== 5. 하위 합계 재귀 계산 =====
 function getSum(node) {
   if (typeof node === "number") return node;
 
@@ -1381,16 +2397,16 @@ function getSum(node) {
 
 function getChartColors(count) {
   const baseColors = [
-    "#3b82f6",
-    "#f97316",
-    "#ef4444",
-    "#8b5cf6",
-    "#14b8a6",
-    "#eab308",
-    "#6366f1",
-    "#ec4899",
-    "#22c55e",
-    "#64748b"
+    "#f56a0a",
+    "#ff8b3d",
+    "#ffad72",
+    "#ffc89f",
+    "#e85d4a",
+    "#cc6477",
+    "#8a7ea8",
+    "#4e9b98",
+    "#6f91a8",
+    "#d3a557"
   ];
 
   const colors = [];
@@ -1398,6 +2414,528 @@ function getChartColors(count) {
     colors.push(baseColors[i % baseColors.length]);
   }
   return colors;
+}
+
+function setRegionMapEmpty(message = "") {
+  const empty = document.getElementById("regionMapEmpty");
+  if (!empty) return;
+  empty.textContent = message || "행정구역 지도를 불러오지 못했습니다.";
+  empty.classList.toggle("show", Boolean(message));
+}
+
+function normalizeTopRegionName(name) {
+  return {
+    "강원도": "강원특별자치도",
+    "전라북도": "전북특별자치도"
+  }[name] || name;
+}
+
+function getCountForPath(parts) {
+  let node = regionDataMap?.all || {};
+  for (const part of parts) {
+    if (!node || typeof node !== "object" || !(part in node)) return 0;
+    node = node[part];
+  }
+  return typeof node === "number" ? node : getSum(node);
+}
+
+function getMapShapeParts(rawName) {
+  if (currentLeafRegion) {
+    return currentLeafRegion.parts;
+  }
+
+  if (!currentPath.length) {
+    return [normalizeTopRegionName(rawName)];
+  }
+
+  const province = currentPath[0];
+  if (province === "세종특별자치시") {
+    return [province];
+  }
+  const tokens = rawName.trim().split(/\s+/);
+  if (districtDrillRegions.has(province)) {
+    return [province, rawName];
+  }
+  return [province, tokens[0]];
+}
+
+function isVisibleMapShape() {
+  return true;
+}
+
+function isSelectedMapShape(rawName) {
+  if (!currentLeafRegion) return false;
+  if (currentLeafRegion.assetScope === "national") {
+    return normalizeTopRegionName(rawName) === currentLeafRegion.parts[0];
+  }
+  const prefix = currentLeafRegion.rawPrefix || currentLeafRegion.rawName;
+  return rawName === prefix || rawName.startsWith(`${prefix} `);
+}
+
+function pointSegmentDistanceSquared(pointX, pointY, start, end) {
+  let x = start[0];
+  let y = start[1];
+  let dx = end[0] - x;
+  let dy = end[1] - y;
+
+  if (dx !== 0 || dy !== 0) {
+    const ratio = ((pointX - x) * dx + (pointY - y) * dy) / (dx * dx + dy * dy);
+    if (ratio > 1) {
+      x = end[0];
+      y = end[1];
+    } else if (ratio > 0) {
+      x += dx * ratio;
+      y += dy * ratio;
+    }
+  }
+
+  dx = pointX - x;
+  dy = pointY - y;
+  return dx * dx + dy * dy;
+}
+
+function pointToPolygonDistance(pointX, pointY, points) {
+  let inside = false;
+  let minDistanceSquared = Infinity;
+
+  for (let currentIndex = 0, previousIndex = points.length - 1; currentIndex < points.length; previousIndex = currentIndex++) {
+    const current = points[currentIndex];
+    const previous = points[previousIndex];
+    if (
+      (current[1] > pointY) !== (previous[1] > pointY) &&
+      pointX < ((previous[0] - current[0]) * (pointY - current[1])) / (previous[1] - current[1]) + current[0]
+    ) {
+      inside = !inside;
+    }
+    minDistanceSquared = Math.min(
+      minDistanceSquared,
+      pointSegmentDistanceSquared(pointX, pointY, current, previous)
+    );
+  }
+
+  const distance = Math.sqrt(minDistanceSquared);
+  return inside ? distance : -distance;
+}
+
+function getPolygonCentroid(points) {
+  let crossSum = 0;
+  let centroidX = 0;
+  let centroidY = 0;
+
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index];
+    const next = points[(index + 1) % points.length];
+    const cross = current[0] * next[1] - next[0] * current[1];
+    crossSum += cross;
+    centroidX += (current[0] + next[0]) * cross;
+    centroidY += (current[1] + next[1]) * cross;
+  }
+
+  if (Math.abs(crossSum) < 0.0001) return null;
+  return {
+    x: centroidX / (3 * crossSum),
+    y: centroidY / (3 * crossSum)
+  };
+}
+
+function findPolygonVisualCenter(points) {
+  const xs = points.map(point => point[0]);
+  const ys = points.map(point => point[1]);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const maxX = Math.max(...xs);
+  const maxY = Math.max(...ys);
+  const width = maxX - minX;
+  const height = maxY - minY;
+  const cellSize = Math.min(width, height);
+
+  if (cellSize <= 0) {
+    return { x: minX, y: minY, distance: 0 };
+  }
+
+  const makeCell = (x, y, halfSize) => {
+    const distance = pointToPolygonDistance(x, y, points);
+    return {
+      x,
+      y,
+      halfSize,
+      distance,
+      potential: distance + halfSize * Math.SQRT2
+    };
+  };
+
+  const heap = [];
+  const heapPush = cell => {
+    heap.push(cell);
+    let index = heap.length - 1;
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (heap[parentIndex].potential >= cell.potential) break;
+      heap[index] = heap[parentIndex];
+      index = parentIndex;
+    }
+    heap[index] = cell;
+  };
+  const heapPop = () => {
+    const first = heap[0];
+    const last = heap.pop();
+    if (heap.length && last) {
+      let index = 0;
+      while (true) {
+        const left = index * 2 + 1;
+        const right = left + 1;
+        if (left >= heap.length) break;
+        let child = left;
+        if (right < heap.length && heap[right].potential > heap[left].potential) child = right;
+        if (heap[child].potential <= last.potential) break;
+        heap[index] = heap[child];
+        index = child;
+      }
+      heap[index] = last;
+    }
+    return first;
+  };
+
+  const halfSize = cellSize / 2;
+  for (let x = minX; x < maxX; x += cellSize) {
+    for (let y = minY; y < maxY; y += cellSize) {
+      heapPush(makeCell(x + halfSize, y + halfSize, halfSize));
+    }
+  }
+
+  const centroid = getPolygonCentroid(points);
+  let best = centroid
+    ? makeCell(centroid.x, centroid.y, 0)
+    : makeCell(minX + width / 2, minY + height / 2, 0);
+  const boxCenter = makeCell(minX + width / 2, minY + height / 2, 0);
+  if (boxCenter.distance > best.distance) best = boxCenter;
+
+  const precision = Math.max(width, height) / 80;
+  let iterations = 0;
+  while (heap.length && iterations < 10000) {
+    iterations += 1;
+    const cell = heapPop();
+    if (!cell) break;
+    if (cell.distance > best.distance) best = cell;
+    if (cell.potential - best.distance <= precision) continue;
+
+    const nextHalfSize = cell.halfSize / 2;
+    heapPush(makeCell(cell.x - nextHalfSize, cell.y - nextHalfSize, nextHalfSize));
+    heapPush(makeCell(cell.x + nextHalfSize, cell.y - nextHalfSize, nextHalfSize));
+    heapPush(makeCell(cell.x - nextHalfSize, cell.y + nextHalfSize, nextHalfSize));
+    heapPush(makeCell(cell.x + nextHalfSize, cell.y + nextHalfSize, nextHalfSize));
+  }
+
+  return { x: best.x, y: best.y, distance: Math.max(0, best.distance) };
+}
+
+function getPrimaryShapeCenter(path) {
+  const pathData = path.getAttribute("d") || "";
+  const subpaths = pathData.match(/M[^M]*/gi) || [];
+  let primary = null;
+
+  subpaths.forEach(segment => {
+    const values = (segment.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) || []).map(Number);
+    const points = [];
+    for (let index = 0; index + 1 < values.length; index += 2) {
+      points.push([values[index], values[index + 1]]);
+    }
+    if (points.length < 3) return;
+
+    let signedArea = 0;
+    for (let index = 0; index < points.length; index += 1) {
+      const current = points[index];
+      const next = points[(index + 1) % points.length];
+      const cross = current[0] * next[1] - next[0] * current[1];
+      signedArea += cross;
+    }
+
+    const candidate = {
+      score: Math.abs(signedArea / 2),
+      points
+    };
+
+    if (!primary || candidate.score > primary.score) {
+      primary = candidate;
+    }
+  });
+
+  if (primary) {
+    return {
+      ...findPolygonVisualCenter(primary.points),
+      score: primary.score
+    };
+  }
+  const box = path.getBBox();
+  return {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2,
+    distance: 0,
+    score: box.width * box.height
+  };
+}
+
+function addSvgMapLabels(svg, paths) {
+  const labelGroups = new Map();
+  paths.forEach(path => {
+    const rawName = path.id;
+    const tokens = rawName.trim().split(/\s+/);
+    let label = rawName;
+
+    if (!currentPath.length) {
+      label = normalizeTopRegionName(rawName);
+    } else if (currentPath.length === 1 && tokens.length > 1) {
+      label = tokens[0];
+    }
+
+    if (!labelGroups.has(label)) labelGroups.set(label, []);
+    labelGroups.get(label).push(path);
+  });
+
+  labelGroups.forEach((groupPaths, label) => {
+    const centers = groupPaths.map(getPrimaryShapeCenter);
+    const center = centers.reduce((best, candidate) =>
+      !best || candidate.score > best.score ? candidate : best
+    , null);
+    if (!center) return;
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.classList.add("region-shape-label");
+    if (!currentPath.length) text.classList.add("is-national");
+    if (center.distance < 9) text.classList.add("is-compact");
+    text.setAttribute("x", String(center.x));
+    text.setAttribute("y", String(center.y));
+    text.textContent = formatRegionName(label);
+    svg.appendChild(text);
+  });
+}
+
+function fitSvgToPaths(svg, paths, paddingRatio = 0.08) {
+  if (!svg || !paths.length) return;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  paths.forEach(path => {
+    const box = path.getBBox();
+    minX = Math.min(minX, box.x);
+    minY = Math.min(minY, box.y);
+    maxX = Math.max(maxX, box.x + box.width);
+    maxY = Math.max(maxY, box.y + box.height);
+  });
+
+  if (!Number.isFinite(minX)) return;
+  const width = Math.max(1, maxX - minX);
+  const height = Math.max(1, maxY - minY);
+  const padding = Math.max(width, height) * paddingRatio;
+  svg.setAttribute("viewBox", `${minX - padding} ${minY - padding} ${width + padding * 2} ${height + padding * 2}`);
+}
+
+function updateRegionMapCaption() {
+  const caption = document.getElementById("regionMapCaption");
+  if (!caption) return;
+
+  if (currentLeafRegion) {
+    caption.textContent = `${currentLeafRegion.label} · ${getCountForPath(currentLeafRegion.parts)}건`;
+  } else if (currentPath.length === 1) {
+    caption.textContent = districtDrillRegions.has(currentPath[0])
+      ? `${formatRegionName(currentPath[0])} · 구를 선택해주세요`
+      : `${formatRegionName(currentPath[0])} · 시·군을 선택해주세요`;
+  } else {
+    caption.textContent = "전국 · 시·도를 선택해주세요";
+  }
+}
+
+function selectTopRegion(rawName) {
+  const topRegion = normalizeTopRegionName(rawName);
+  if (topRegion.endsWith("도") || districtDrillRegions.has(topRegion)) {
+    currentPath = [topRegion];
+    currentLeafRegion = null;
+    return;
+  }
+
+  currentPath = [];
+  currentLeafRegion = {
+    rawName,
+    rawPrefix: rawName,
+    label: formatRegionName(topRegion),
+    parts: [topRegion],
+    assetScope: "national"
+  };
+}
+
+function createMunicipalityRegion(rawName) {
+  if (districtDrillRegions.has(currentPath[0])) {
+    return {
+      rawName,
+      rawPrefix: rawName,
+      label: rawName,
+      parts: [currentPath[0], rawName],
+      assetScope: "province"
+    };
+  }
+
+  const tokens = rawName.trim().split(/\s+/);
+  const municipality = tokens[0];
+  return {
+    rawName,
+    rawPrefix: municipality,
+    label: municipality,
+    parts: [currentPath[0], municipality],
+    assetScope: "province"
+  };
+}
+
+function selectMunicipality(rawName) {
+  currentLeafRegion = createMunicipalityRegion(rawName);
+}
+
+function handleRegionShapeClick(rawName) {
+  currentOtherItems = null;
+  currentRegionPage = 1;
+
+  if (!currentPath.length) {
+    selectTopRegion(rawName);
+  } else if (currentPath.length === 1) {
+    selectMunicipality(rawName);
+  }
+
+  animateRegionTransition(renderRegion);
+}
+
+function selectRegionDataItem(item, hiddenItems = []) {
+  if (!item) return false;
+
+  if (item.isOther) {
+    currentOtherItems = hiddenItems;
+    return true;
+  }
+
+  const regionName = item.sourceKey || item.name;
+  if (!regionName || regionName === "기타" || currentLeafRegion) return false;
+
+  currentOtherItems = null;
+  if (!currentPath.length) {
+    selectTopRegion(regionName);
+    return true;
+  }
+  if (currentPath.length === 1) {
+    selectMunicipality(regionName);
+    return true;
+  }
+  return false;
+}
+
+async function renderRegionMap() {
+  if (currentRegionView !== "map") return;
+  const container = document.getElementById("regionAdminMap");
+  if (!container) return;
+
+  const requestId = ++regionMapRequest;
+  const assetName = currentPath.length
+    ? provinceMapAssets[currentPath[0]]
+    : "korea-provinces.svg";
+
+  updateRegionMapCaption();
+  container.innerHTML = '<span class="region-map-loading">행정구역 지도를 준비하고 있습니다.</span>';
+  setRegionMapEmpty("");
+
+  if (!assetName) {
+    setRegionMapEmpty("선택한 지역의 행정구역 지도가 없습니다.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${regionMapAssetBase}${assetName}`, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`지도 응답 ${response.status}`);
+    const svgText = await response.text();
+    if (requestId !== regionMapRequest) return;
+
+    const documentNode = new DOMParser().parseFromString(svgText, "image/svg+xml");
+    const svg = documentNode.querySelector("svg");
+    if (!svg || documentNode.querySelector("parsererror")) {
+      throw new Error("올바르지 않은 지도 파일");
+    }
+
+    svg.querySelectorAll("script, foreignObject").forEach(node => node.remove());
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    if (!currentLeafRegion) {
+      svg.classList.add(currentPath.length ? "is-province-map" : "is-national-map");
+    }
+    if (
+      currentPath.length &&
+      currentPath[0].endsWith("도") &&
+      currentPath[0] !== "경기도"
+    ) {
+      svg.classList.add("is-spacious-map");
+    }
+    svg.setAttribute("aria-label", currentPath.length ? `${currentPath[0]} 행정구역 지도` : "대한민국 시도 지도");
+    svg.setAttribute("role", "img");
+
+    const allPaths = Array.from(svg.querySelectorAll("path[id]"));
+    const visiblePaths = allPaths.filter(path => isVisibleMapShape(path.id));
+
+    allPaths.forEach(path => {
+      const rawName = path.id;
+      const visible = isVisibleMapShape(rawName);
+      if (!visible) {
+        path.classList.add("is-muted");
+        return;
+      }
+
+      const parts = getMapShapeParts(rawName);
+      const count = getCountForPath(parts);
+
+      // 신고 건수와 관계없이 기본색을 유지하고, 사용자가 직접 선택한
+      // 행정구역에만 is-selected 강조색을 적용한다.
+      path.classList.add("region-level-0");
+      if (isSelectedMapShape(rawName)) path.classList.add("is-selected");
+      path.setAttribute("tabindex", "0");
+      path.setAttribute("role", "button");
+      path.setAttribute("aria-label", `${formatRegionName(parts[parts.length - 1])} ${count}건, 선택`);
+
+      const title = documentNode.createElementNS("http://www.w3.org/2000/svg", "title");
+      title.textContent = `${parts[parts.length - 1]} · ${count}건`;
+      path.prepend(title);
+      path.addEventListener("click", () => handleRegionShapeClick(rawName));
+      path.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        handleRegionShapeClick(rawName);
+      });
+    });
+
+    container.replaceChildren(svg);
+    requestAnimationFrame(() => {
+      addSvgMapLabels(svg, visiblePaths);
+      if (currentPath.length) {
+        const profile = regionMapViewportProfiles[currentPath[0]] || { padding: 0.065 };
+        fitSvgToPaths(svg, visiblePaths, profile.padding);
+      }
+    });
+  } catch (error) {
+    console.error("행정구역 지도 로드 오류:", error);
+    container.innerHTML = "";
+    setRegionMapEmpty("행정구역 지도를 불러오지 못했습니다.");
+  }
+}
+
+function setRegionView(view) {
+  currentRegionView = view === "donut" ? "donut" : "map";
+
+  document.getElementById("regionMapView")?.classList.toggle("is-hidden", currentRegionView !== "map");
+  document.getElementById("regionDonutView")?.classList.toggle("is-hidden", currentRegionView !== "donut");
+  document.querySelectorAll("[data-region-view]").forEach(button => {
+    const active = button.dataset.regionView === currentRegionView;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  requestAnimationFrame(() => {
+    renderRegion();
+  });
 }
 
 function destroyRegionChart() {
@@ -1418,7 +2956,7 @@ function formatDiff(current, previous) {
   if (previous === null || previous === undefined) {
     return {
       text: "-",
-      meta: "鍮꾧탳 ?곗씠???놁쓬",
+      meta: "비교 데이터 없음",
       className: "same"
     };
   }
@@ -1428,23 +2966,23 @@ function formatDiff(current, previous) {
 
   if (diff > 0) {
     return {
-      text: `+${diff}嫄?,
-      meta: previous > 0 ? `${previous}嫄??鍮?${percent}% 利앷?` : `?댁쟾 湲곌컙 0嫄?,
+      text: `+${diff}건`,
+      meta: previous > 0 ? `${previous}건 대비 ${percent}% 증가` : `이전 기간 0건`,
       className: "up"
     };
   }
 
   if (diff < 0) {
     return {
-      text: `${diff}嫄?,
-      meta: previous > 0 ? `${previous}嫄??鍮?${Math.abs(percent)}% 媛먯냼` : `?댁쟾 湲곌컙 0嫄?,
+      text: `${diff}건`,
+      meta: previous > 0 ? `${previous}건 대비 ${Math.abs(percent)}% 감소` : `이전 기간 0건`,
       className: "down"
     };
   }
 
   return {
-    text: "蹂???놁쓬",
-    meta: `${previous}嫄닿낵 ?숈씪`,
+    text: "변화 없음",
+    meta: `${previous}건과 동일`,
     className: "same"
   };
 }
@@ -1454,7 +2992,7 @@ function updateCompareCards() {
   const trend30 = trendDataMap?.all?.["30d"];
 
   if (!trend7 || !trend30 || !Array.isArray(trend7.values) || !Array.isArray(trend30.values)) {
-    console.warn("鍮꾧탳 移대뱶??trend ?곗씠??遺議?", trendDataMap);
+    console.warn("비교 카드용 trend 데이터 부족:", trendDataMap);
     return;
   }
 
@@ -1476,15 +3014,15 @@ function updateCompareCards() {
   const max7Label = trend7.labels[max7Index];
 
   document.getElementById("weeklyCompareValue").textContent = weekResult.text;
-  document.getElementById("weeklyCompareMeta").textContent = previous7 !== null ? `?댁쟾 7?쇰낫??${weekResult.text.replace('+', '')}` : "鍮꾧탳 ?곗씠???놁쓬";
+  document.getElementById("weeklyCompareMeta").textContent = previous7 !== null ? `이전 7일보다 ${weekResult.text.replace('+', '')}` : "비교 데이터 없음";
   document.getElementById("weeklyCompareValue").className = `compare-value ${weekResult.className}`;
 
   document.getElementById("monthlyCompareValue").textContent = monthResult.text;
-  document.getElementById("monthlyCompareMeta").textContent = previous30 !== null ? `?댁쟾 30?쇰낫??${monthResult.text.replace('+', '')}` : "鍮꾧탳 ?곗씠???놁쓬";
+  document.getElementById("monthlyCompareMeta").textContent = previous30 !== null ? `이전 30일보다 ${monthResult.text.replace('+', '')}` : "비교 데이터 없음";
   document.getElementById("monthlyCompareValue").className = `compare-value ${monthResult.className}`;
 
-  document.getElementById("trendCompareValue").textContent = `${max7}嫄?;
-  document.getElementById("trendCompareMeta").textContent = `${max7Label}??理쒓퀬移?湲곕줉`;
+  document.getElementById("trendCompareValue").textContent = `${max7}건`;
+  document.getElementById("trendCompareMeta").textContent = `${max7Label}에 최고치 기록`;
   document.getElementById("trendCompareValue").className = "compare-value same";
 }
 
@@ -1499,19 +3037,24 @@ const centerTextPlugin = {
 
     const title = chart.config.options.plugins.centerText.title || "";
     const value = chart.config.options.plugins.centerText.value || "";
+    const subtitle = chart.config.options.plugins.centerText.subtitle || "";
 
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    // ?쒕ぉ
-    ctx.fillStyle = "#64748b";
-    ctx.font = "700 13px Pretendard, Noto Sans KR, Arial, sans-serif";
-    ctx.fillText(title, centerX, centerY - 12);
+    // 제목
+    ctx.fillStyle = "#7c899d";
+    ctx.font = "800 12px Pretendard, Noto Sans KR, Arial, sans-serif";
+    ctx.fillText(title, centerX, centerY - 20);
 
-    // 媛?    ctx.fillStyle = "#0f172a";
-    ctx.font = "900 20px Pretendard, Noto Sans KR, Arial, sans-serif";
-    ctx.fillText(value, centerX, centerY + 14);
+    ctx.fillStyle = "#1d293b";
+    ctx.font = "900 26px Pretendard, Noto Sans KR, Arial, sans-serif";
+    ctx.fillText(value, centerX, centerY + 7);
+
+    ctx.fillStyle = "#a0aaba";
+    ctx.font = "700 9px Pretendard, Noto Sans KR, Arial, sans-serif";
+    ctx.fillText(subtitle, centerX, centerY + 29);
 
     ctx.restore();
   }
@@ -1560,7 +3103,7 @@ function getRegionItemsPerPage() {
 
   const itemHeight = 48;
 
-  // 寃쎄퀎 ?붾㈃?먯꽌 4媛쒕줈 怨쇳븯寃??≫엳??嫄?留됯린 ?꾪븳 ?덉쟾 ?щ갚
+  // 경계 화면에서 4개로 과하게 잡히는 걸 막기 위한 안전 여백
   const safetyBuffer = 0;
 
   const availableHeight =
@@ -1581,29 +3124,29 @@ function formatRegionName(name) {
   if (!name) return "";
 
   const aliasMap = {
-    "媛뺤썝?밸퀎?먯튂??: "媛뺤썝??,
-    "?꾨턿?밸퀎?먯튂??: "?꾨턿??,
-    "?쒖＜?밸퀎?먯튂??: "?쒖＜??,
-    "?몄쥌?밸퀎?먯튂??: "?몄쥌??,
+    "강원특별자치도": "강원도",
+    "전북특별자치도": "전북도",
+    "제주특별자치도": "제주도",
+    "세종특별자치시": "세종시",
 
-    "?쒖슱?밸퀎??: "?쒖슱",
-    "遺?곌킅??떆": "遺??,
-    "?援ш킅??떆": "?援?,
-    "?몄쿇愿묒뿭??: "?몄쿇",
-    "愿묒＜愿묒뿭??: "愿묒＜",
-    "??꾧킅??떆": "???,
-    "?몄궛愿묒뿭??: "?몄궛",
+    "서울특별시": "서울",
+    "부산광역시": "부산",
+    "대구광역시": "대구",
+    "인천광역시": "인천",
+    "광주광역시": "광주",
+    "대전광역시": "대전",
+    "울산광역시": "울산",
 
-    "異⑹껌遺곷룄": "異⑸턿",
-    "異⑹껌?⑤룄": "異⑸궓",
-    "?꾨씪?⑤룄": "?꾨궓",
-    "寃쎌긽遺곷룄": "寃쎈턿",
-    "寃쎌긽?⑤룄": "寃쎈궓"
+    "충청북도": "충북",
+    "충청남도": "충남",
+    "전라남도": "전남",
+    "경상북도": "경북",
+    "경상남도": "경남"
   };
 
   let shortName = aliasMap[name] || name;
 
-  // 5湲???쒗븳
+  // 5글자 제한
   if (shortName.length > 5) {
     return shortName.slice(0, 5);
   }
@@ -1611,15 +3154,15 @@ function formatRegionName(name) {
   return shortName;
 }
 
-// ===== 6. ?붾㈃ ?뚮뜑留?=====
+// ===== 6. 화면 렌더링 =====
 function renderRegion() {
   const { visibleItems: items, hiddenItems } = getCurrentItems();
-  console.log("?꾩옱 currentPath =", currentPath);
-  console.log("?꾩옱 node =", getCurrentNode());
-  console.log("?꾩옱 items =", items);
+  console.log("현재 currentPath =", currentPath);
+  console.log("현재 node =", getCurrentNode());
+  console.log("현재 items =", items);
 
 const backBtn = document.getElementById("regionBackBtn");
-const canGoBack = currentPath.length > 0 || currentOtherItems !== null;
+const canGoBack = currentPath.length > 0 || currentLeafRegion !== null || currentOtherItems !== null;
 
 if (backBtn) {
   backBtn.classList.toggle("hidden", !canGoBack);
@@ -1627,9 +3170,12 @@ if (backBtn) {
 
   // === breadcrumb ===
   const breadcrumbEl = document.querySelector(".region-breadcrumb");
-  const breadcrumbParts = ["?꾧뎅", ...currentPath];
+  const breadcrumbParts = ["전국", ...currentPath];
+  if (currentLeafRegion) {
+    breadcrumbParts.push(currentLeafRegion.label);
+  }
   if (currentOtherItems) {
-    breadcrumbParts.push("湲고?");
+    breadcrumbParts.push("기타");
   }
 
 breadcrumbEl.innerHTML = breadcrumbParts
@@ -1640,7 +3186,7 @@ breadcrumbEl.innerHTML = breadcrumbParts
         class="breadcrumb-item ${isLast ? "active" : ""} ${!isLast ? "clickable" : ""}"
         data-index="${i}"
       >
-        ${escapeHtml(name)}
+        ${name}
       </span>
     `;
   })
@@ -1656,6 +3202,7 @@ breadcrumbEl.innerHTML = breadcrumbParts
         currentPath = currentPath.slice(0, index);
       }
 
+      currentLeafRegion = null;
       currentOtherItems = null;
       currentRegionPage = 1;
       animateRegionTransition(renderRegion);
@@ -1666,6 +3213,8 @@ if (backBtn) {
   backBtn.onclick = () => {
     if (currentOtherItems) {
       currentOtherItems = null;
+    } else if (currentLeafRegion) {
+      currentLeafRegion = null;
     } else if (currentPath.length > 0) {
       currentPath.pop();
     }
@@ -1675,13 +3224,13 @@ if (backBtn) {
   };
 }
 
-  // === 由ъ뒪??===
+  // === 리스트 ===
   const listEl = document.querySelector(".region-detail-list");
 listEl.innerHTML = "";
 
 const detailCountEl = document.getElementById("regionDetailCount");
 if (detailCountEl) {
-  detailCountEl.textContent = `${items.length}媛?;
+  detailCountEl.textContent = `${items.length}개`;
 }
 
 const total = items.reduce((sum, item) => sum + item.count, 0);
@@ -1702,28 +3251,68 @@ const startIndex = (currentRegionPage - 1) * REGION_ITEMS_PER_PAGE;
 const endIndex = startIndex + REGION_ITEMS_PER_PAGE;
 const pagedItems = items.slice(startIndex, endIndex);
 
-// ===== ?꾩옱 ?섏씠吏 紐⑸줉留??뚮뜑留?=====
+// ===== 현재 페이지 목록만 렌더링 =====
 pagedItems.forEach(item => {
   const div = document.createElement("div");
   div.className = "region-detail-item";
 
   const percent = total ? Math.round((item.count / total) * 100) : 0;
+  const metaText = item.isLeaf
+    ? `${item.count}건`
+    : `${item.count}건 · ${percent}%`;
 
   div.innerHTML = `
-    <div class="region-detail-name">${escapeHtml(formatRegionName(item.name))}</div>
-    <div class="region-detail-meta">${item.count}嫄?쨌 ${percent}%</div>
+    <div class="region-detail-name">${formatRegionName(item.name)}</div>
+    <div class="region-detail-meta">${metaText}</div>
   `;
 
-  if (item.hasChildren) {
+  if (item.isLeaf && currentLeafRegion) {
+    div.classList.add("is-leaf-selected");
+    div.style.cursor = "pointer";
+    div.setAttribute("role", "button");
+    div.setAttribute("tabindex", "0");
+    div.setAttribute("aria-label", `${formatRegionName(item.name)} 지역 상세 열기`);
+    div.onclick = openRegionStatsModal;
+    div.onkeydown = event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openRegionStatsModal();
+    };
+  }
+
+  const itemRegionName = item.sourceKey || item.name;
+  const opensModalDirectly = (
+    !currentLeafRegion &&
+    !item.isOther &&
+    currentPath.length === 1 &&
+    itemRegionName &&
+    itemRegionName !== "기타"
+  );
+
+  if (opensModalDirectly) {
+    div.style.cursor = "pointer";
+    div.setAttribute("role", "button");
+    div.setAttribute("tabindex", "0");
+    div.setAttribute("aria-label", `${formatRegionName(item.name)} 지역 상세 열기`);
+    const openItemModal = () => openRegionStatsModal(createMunicipalityRegion(itemRegionName));
+    div.onclick = openItemModal;
+    div.onkeydown = event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openItemModal();
+    };
+  }
+
+  const canSelectItem = item.isOther || (
+    !currentLeafRegion &&
+    (currentPath.length === 0 || currentPath.length === 1) &&
+    item.name !== "기타"
+  );
+
+  if (canSelectItem && !item.isLeaf && !opensModalDirectly) {
     div.style.cursor = "pointer";
     div.onclick = () => {
-      if (item.isOther) {
-        currentOtherItems = hiddenItems;
-      } else {
-        currentOtherItems = null;
-        currentPath.push(item.sourceKey || item.name);
-      }
-
+      if (!selectRegionDataItem(item, hiddenItems)) return;
       currentRegionPage = 1;
       animateRegionTransition(renderRegion);
     };
@@ -1753,8 +3342,13 @@ if (nextBtn) {
   };
 }
 
-  // === 李⑦듃 ?ㅼ떆 洹몃━湲?===
+  // === 차트 다시 그리기 ===
   destroyRegionChart();
+  renderRegionMap();
+
+  if (currentRegionView !== "donut") {
+    return;
+  }
 
   const canvas = document.getElementById("regionDonutChart");
   const ctx = canvas.getContext("2d");
@@ -1762,6 +3356,32 @@ if (nextBtn) {
   const labels = items.map(item => formatRegionName(item.name));
   const data = items.map(item => item.count);
   const colors = getChartColors(items.length);
+  const topRegion = items[0] || null;
+  const topRegionPercent = topRegion && total
+    ? Math.round((topRegion.count / total) * 100)
+    : 0;
+
+  const donutTotalValue = document.getElementById("donutTotalValue");
+  const donutTopRegionValue = document.getElementById("donutTopRegionValue");
+  const donutTopRegionMeta = document.getElementById("donutTopRegionMeta");
+  const donutRegionCount = document.getElementById("donutRegionCount");
+  const donutGuide = document.getElementById("regionDonutGuide");
+
+  if (donutTotalValue) donutTotalValue.textContent = `${total}건`;
+  if (donutTopRegionValue) {
+    donutTopRegionValue.textContent = topRegion ? formatRegionName(topRegion.name) : "-";
+  }
+  if (donutTopRegionMeta) {
+    donutTopRegionMeta.textContent = topRegion
+      ? `${topRegion.count}건 · ${topRegionPercent}%`
+      : "0건 · 0%";
+  }
+  if (donutRegionCount) donutRegionCount.textContent = `${items.length}곳`;
+  if (donutGuide) {
+    donutGuide.textContent = currentPath.length === 0 && !currentLeafRegion
+      ? "그래프 조각을 선택하면 해당 시·도로 이동합니다."
+      : "시·군·구별 분포를 비교해 확인할 수 있습니다.";
+  }
 
   regionDonutChart = new Chart(ctx, {
     type: "doughnut",
@@ -1772,21 +3392,23 @@ if (nextBtn) {
           data: data,
           backgroundColor: colors,
           borderColor: "#ffffff",
-          borderWidth: 3,
-          hoverOffset: 10
+          borderWidth: 4,
+          hoverOffset: 7,
+          hoverBorderWidth: 4
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: "62%",
+      cutout: "68%",
+      radius: "88%",
       layout: {
         padding: {
-          left: 10,
-          right: 24,
-          top: 10,
-          bottom: 10
+          left: 12,
+          right: 12,
+          top: 8,
+          bottom: 8
         }
       },
       plugins: {
@@ -1794,14 +3416,15 @@ if (nextBtn) {
           display: false
         },
         tooltip: {
-          xAlign: "left",
-          yAlign: "center",
-          displayColors: false,
-          backgroundColor: "rgba(15, 23, 42, 0.92)",
+          displayColors: true,
+          boxWidth: 8,
+          boxHeight: 8,
+          boxPadding: 5,
+          backgroundColor: "rgba(45, 55, 72, .96)",
           titleColor: "#ffffff",
           bodyColor: "#ffffff",
-          padding: 10,
-          cornerRadius: 10,
+          padding: 12,
+          cornerRadius: 12,
           callbacks: {
             title: function(context) {
               return context[0].label;
@@ -1809,38 +3432,41 @@ if (nextBtn) {
             label: function(context) {
               const value = context.raw || 0;
               const percent = total ? Math.round((value / total) * 100) : 0;
-              return `${value}嫄?(${percent}%)`;
+              return `${value}건 (${percent}%)`;
             }
           }
         },
         centerText: {
-          title: currentPath.length ? formatRegionName(currentPath[currentPath.length - 1]) : "?꾧뎅",
-          value: `${total}嫄?
+          title: currentLeafRegion
+            ? currentLeafRegion.label
+            : (currentPath.length ? formatRegionName(currentPath[currentPath.length - 1]) : "전국"),
+          value: `${total}건`,
+          subtitle: "전체 신고"
+        }
+      },
+      onHover: (event, elements) => {
+        const target = event.native?.target;
+        const canDrillDown = currentPath.length === 0 && !currentLeafRegion;
+        if (target) {
+          target.style.cursor = canDrillDown && elements.length ? "pointer" : "default";
         }
       },
       onClick: (event, elements) => {
+  // 원형 그래프의 탐색은 전국 → 시·도까지만 허용한다.
+  // 시·군·구 단계에서는 분포 확인만 하고 더 이상 화면을 전환하지 않는다.
+  if (currentPath.length >= 1 || currentLeafRegion) return;
   if (!elements.length) return;
 
   const index = elements[0].index;
   const clickedItem = items[index];
 
-  console.log("[?꾨꽋 ?대┃]", clickedItem);
-  console.log("[?꾩옱 node]", getCurrentNode());
+  console.log("[도넛 클릭]", clickedItem);
+  console.log("[현재 node]", getCurrentNode());
 
   if (!clickedItem) return;
 
-  if (clickedItem.isOther) {
-    currentOtherItems = hiddenItems;
-    currentRegionPage = 1;
-    animateRegionTransition(renderRegion);
-    return;
-  }
-
-  if (!clickedItem.hasChildren) return;
-
-  currentOtherItems = null;
+  if (!selectRegionDataItem(clickedItem, hiddenItems)) return;
   currentRegionPage = 1;
-  currentPath.push(clickedItem.sourceKey || clickedItem.name);
   animateRegionTransition(renderRegion);
 }
     },
@@ -1853,7 +3479,7 @@ function renderTrendChart(range = currentTrendRange) {
 
   const trend = trendDataMap?.all?.[range];
   if (!trend || !Array.isArray(trend.labels) || !Array.isArray(trend.values) || !trend.values.length) {
-    console.warn("trend ?곗씠???놁쓬:", range, trendDataMap);
+    console.warn("trend 데이터 없음:", range, trendDataMap);
     return;
   }
 
@@ -1877,15 +3503,15 @@ function renderTrendChart(range = currentTrendRange) {
       labels: trend.labels,
       datasets: [
         {
-          label: "?좉퀬 ??,
+          label: "신고 수",
           data: trend.values,
-          borderColor: "#3b82f6",
-          backgroundColor: "rgba(59, 130, 246, 0.12)",
+          borderColor: "#f97316",
+          backgroundColor: "rgba(249, 115, 22, 0.12)",
           fill: true,
           tension: 0.35,
           pointRadius: 4,
           pointHoverRadius: 6,
-          pointBackgroundColor: "#3b82f6",
+          pointBackgroundColor: "#f97316",
           pointBorderColor: "#ffffff",
           pointBorderWidth: 2
         }
@@ -1907,7 +3533,7 @@ function renderTrendChart(range = currentTrendRange) {
           cornerRadius: 10,
           callbacks: {
             label: function(context) {
-              return `${context.raw}嫄?;
+              return `${context.raw}건`;
             }
           }
         }
@@ -1941,10 +3567,10 @@ function renderTrendChart(range = currentTrendRange) {
     }
   });
 
-  document.getElementById("trendTotalValue").textContent = `${total}嫄?;
-  document.getElementById("trendAvgValue").textContent = `${avg}嫄?;
-  document.getElementById("trendPeakValue").textContent = `${peak}嫄?;
-document.getElementById("trendPeakValue").title = `${peakLabel} ${peak}嫄?;
+  document.getElementById("trendTotalValue").textContent = `${total}건`;
+  document.getElementById("trendAvgValue").textContent = `${avg}건`;
+  document.getElementById("trendPeakValue").textContent = `${peak}건`;
+document.getElementById("trendPeakValue").title = `${peakLabel} ${peak}건`;
 
   document.querySelectorAll(".trend-filter-chip").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.range === range);
@@ -2011,41 +3637,42 @@ document.querySelectorAll(".trend-filter-chip").forEach(btn => {
   });
 });
 
-// ===== 8. 理쒖큹 ?ㅽ뻾 =====
+document.querySelectorAll("[data-region-view]").forEach(button => {
+  button.addEventListener("click", () => {
+    setRegionView(button.dataset.regionView);
+  });
+});
 
-const shouldRunDashboardEnter = document.referrer && document.referrer.includes("/admin/dashboard");
-
-if (shouldRunDashboardEnter) {
-  document.body.classList.add("dashboard-enter");
-  window.addEventListener("load", () => {
-    requestAnimationFrame(() => {
-      document.body.classList.add("dashboard-enter-active");
-      setTimeout(() => {
-        document.body.classList.remove("dashboard-enter");
-        document.body.classList.remove("dashboard-enter-active");
-      }, 760);
-    });
-  }, { once: true });
-}
+// ===== 8. 최초 실행 =====
 
 document.addEventListener("DOMContentLoaded", () => {
+  const regionStatsModal = document.getElementById("regionStatsModal");
+  const regionStatsCloseBtn = document.getElementById("regionStatsCloseBtn");
+
+  regionStatsCloseBtn?.addEventListener("click", closeRegionStatsModal);
+  regionStatsModal?.addEventListener("click", event => {
+    if (event.target === regionStatsModal) {
+      closeRegionStatsModal();
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && regionStatsModal?.classList.contains("is-open")) {
+      closeRegionStatsModal();
+    }
+  });
+
   try {
     renderRegion();
   } catch (e) {
-    console.error("renderRegion ?ㅻ쪟:", e);
+    console.error("renderRegion 오류:", e);
   }
 
   try {
     renderTrendChart();
   } catch (e) {
-    console.error("renderTrendChart ?ㅻ쪟:", e);
+    console.error("renderTrendChart 오류:", e);
   }
 
-  try {
-    updateCompareCards();
-  } catch (e) {
-    console.error("updateCompareCards ?ㅻ쪟:", e);
-  }
 });
 
 let regionResizeTimer = null;
@@ -2059,4 +3686,3 @@ window.addEventListener("resize", () => {
 });
 </script>
 {% endblock %}
-

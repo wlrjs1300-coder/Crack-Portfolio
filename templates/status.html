@@ -1,6 +1,6 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
-{% block title %}Status - Crack{% endblock %}
+{% block title %}처리 현황 - CRACK{% endblock %}
 
 {% block content %}
 <style>
@@ -37,7 +37,7 @@
         overflow: hidden;
     }
 
-    /* layout.html??濡쒕뜑 媛?쒖꽦/?깅뒫 ?곹샇?묒슜?????대┃??諛⑺빐?섏? ?딅룄濡?蹂댁셿 */
+    /* layout.html의 로더 가시성/성능 상호작용이 탭 클릭을 방해하지 않도록 보완 */
     #premium-loader.fade-out {
         opacity: 0;
         visibility: hidden;
@@ -49,7 +49,7 @@
         padding-top: 0 !important;
     }
 
-    /* 釉붾씪?몃뱶 硫붿떆吏 ?ㅽ???*/
+    /* 블라인드 메시지 스타일 */
     .blinded-msg {
         background: #f5f5f5 !important;
         color: #999 !important;
@@ -60,14 +60,14 @@
         gap: 6px;
     }
 
-    /* 愿由ъ옄??釉붾씪?몃뱶 ?곹깭 硫붿떆吏 (?먮━寃??쒖떆) */
+    /* 관리자용 블라인드 상태 메시지 (흐리게 표시) */
     .admin-blinded-msg {
         opacity: 0.55;
         background: #fff3f3 !important;
         border: 1.5px dashed #ffb3b3 !important;
     }
 
-    /* ?섎룎由ш린 踰꾪듉 */
+    /* 되돌리기 버튼 */
     .btn-unblind {
         position: absolute;
         top: -8px;
@@ -77,7 +77,7 @@
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
-    /* 釉붾씪?몃뱶 泥섎━ 踰꾪듉 (X) */
+    /* 블라인드 처리 버튼 (X) */
     .btn-blind {
         position: absolute;
         top: -8px;
@@ -86,83 +86,790 @@
         font-size: 1.1rem;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
+
+    main {
+        padding: 0 !important;
+        background: #f5f5f2 !important;
+    }
+
+    .status-page {
+        min-height: 100%;
+        padding: 18px 14px 30px;
+        color: #172033;
+    }
+
+    .status-overview {
+        padding: 5px 4px 17px;
+    }
+
+    .status-overview-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+        color: #e9630c;
+        font-size: .65rem;
+        font-weight: 850;
+    }
+
+    .status-overview h1 {
+        margin: 0;
+        color: #202838;
+        font-size: 1.28rem;
+        line-height: 1.25;
+        letter-spacing: -.04em;
+    }
+
+    .status-title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-overview p {
+        margin: 5px 0 0;
+        color: #8b929e;
+        font-size: .69rem;
+    }
+
+    .status-report-count {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 2px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #fff0e4;
+        color: #9a4d0a;
+        font-size: .58rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .status-report-count b {
+        color: #ea580c;
+        font-size: .7rem;
+    }
+
+    .status-tab-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        margin: 0 -2px 13px;
+        padding: 4px;
+        border: 1px solid #e5e5e2;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, .94);
+        box-shadow: 0 6px 18px rgba(39, 39, 42, .05);
+        backdrop-filter: blur(10px);
+    }
+
+    .status-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+    }
+
+    .status-tab {
+        display: flex;
+        min-height: 39px;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 0;
+        border-radius: 11px;
+        background: transparent;
+        color: #9299a5;
+        font-size: .74rem;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .status-tab.is-active {
+        background: #202838;
+        color: #fff;
+        box-shadow: 0 5px 12px rgba(32, 40, 56, .15);
+    }
+
+    .status-list {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 10px;
+        background: transparent;
+    }
+
+    .report-card {
+        display: block;
+        margin: 0;
+        padding: 14px;
+        border: 1px solid #e5e5e2;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: none;
+        cursor: pointer;
+        transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+
+    .report-card:hover {
+        border-color: #f5ba84;
+        box-shadow: 0 8px 20px rgba(39, 39, 42, .055);
+        transform: translateY(-1px);
+    }
+
+    .report-card:focus-visible {
+        outline: 3px solid rgba(249, 115, 22, .22);
+        outline-offset: 2px;
+    }
+
+    .status-card-삭제 {
+        opacity: .48;
+        filter: grayscale(.5);
+        cursor: default;
+    }
+
+    .report-card-top {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .thumb-square {
+        position: relative;
+        display: grid;
+        width: 58px;
+        height: 58px;
+        flex: 0 0 58px;
+        place-items: center;
+        overflow: hidden;
+        border-radius: 14px;
+        background: #f4f4f2;
+        color: #b4b8bf;
+    }
+
+    .thumb-square img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .thumb-square > i {
+        font-size: 1.15rem;
+    }
+
+    .status-video-mark {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(0, 0, 0, .18);
+        color: #fff;
+    }
+
+    .status-video-mark i {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, .58);
+        font-size: .78rem;
+    }
+
+    .report-card-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .report-card-title-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .report-card-title-row h2 {
+        min-width: 0;
+        margin: 1px 0 6px;
+        overflow: hidden;
+        color: #303746;
+        font-size: .82rem;
+        font-weight: 850;
+        line-height: 1.35;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .badge-status-text {
+        flex: 0 0 auto;
+        padding: 5px 7px;
+        border: 0;
+        border-radius: 8px;
+        font-size: .58rem;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
+    .badge-status-text.status-received {
+        background: #fff1e7;
+        color: #c8510a;
+    }
+
+    .badge-status-text.status-processing {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .badge-status-text.status-done {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .report-card-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #a0a5ae;
+        font-size: .61rem;
+    }
+
+    .status-progress {
+        display: grid;
+        grid-template-columns: auto 1fr auto 1fr auto;
+        align-items: start;
+        margin: 15px 4px 0;
+    }
+
+    .status-progress-step {
+        display: grid;
+        justify-items: center;
+        gap: 5px;
+        color: #b1b5bc;
+    }
+
+    .status-progress-step > span {
+        display: grid;
+        width: 21px;
+        height: 21px;
+        place-items: center;
+        border: 2px solid #dddeda;
+        border-radius: 50%;
+        background: #fff;
+        font-size: .62rem;
+    }
+
+    .status-progress-step small {
+        font-size: .55rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .status-progress-line {
+        height: 2px;
+        margin: 10px 5px 0;
+        background: #e6e7e4;
+    }
+
+    .status-progress-접수완료 .is-received,
+    .status-progress-처리중 .is-received,
+    .status-progress-처리중 .is-processing,
+    .status-progress-처리완료 .status-progress-step {
+        color: #ea580c;
+    }
+
+    .status-progress-접수완료 .is-received > span,
+    .status-progress-처리중 .is-received > span,
+    .status-progress-처리중 .is-processing > span,
+    .status-progress-처리완료 .status-progress-step > span {
+        border-color: #f97316;
+        background: #f97316;
+        color: #fff;
+    }
+
+    .status-progress-처리중 .status-progress-line:first-of-type,
+    .status-progress-처리완료 .status-progress-line {
+        background: #f97316;
+    }
+
+    .report-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-top: 11px;
+        padding-top: 10px;
+        border-top: 1px solid #f0f0ed;
+        color: #8a909b;
+        font-size: .59rem;
+        font-weight: 750;
+    }
+
+    .report-card-footer i {
+        color: #f97316;
+    }
+
+    .status-empty {
+        padding: 48px 20px;
+        border: 1px dashed #dadbd7;
+        border-radius: 18px;
+        background: #fff;
+        text-align: center;
+    }
+
+    .status-empty > span {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        place-items: center;
+        border-radius: 16px;
+        background: #f5f5f2;
+        color: #a6abb3;
+        font-size: 1.2rem;
+    }
+
+    .status-empty strong {
+        display: block;
+        color: #4b5361;
+        font-size: .82rem;
+    }
+
+    .status-empty p {
+        margin: 6px 0 14px;
+        color: #969ca6;
+        font-size: .66rem;
+    }
+
+    .status-empty a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #ea580c;
+        font-size: .68rem;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .talk-section {
+        display: none;
+        min-height: calc(100dvh - 245px);
+        flex-direction: column;
+        position: relative;
+    }
+
+    .talk-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 3px 12px;
+    }
+
+    .talk-heading > span {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 12px;
+        background: #fff0e4;
+        color: #f97316;
+    }
+
+    .talk-heading h2 {
+        margin: 0;
+        color: #303746;
+        font-size: .86rem;
+    }
+
+    .talk-heading p {
+        margin: 3px 0 0;
+        color: #969ca6;
+        font-size: .62rem;
+    }
+
+    .talk-heading-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .talk-heading > small {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 5px 7px;
+        border-radius: 8px;
+        background: #fff7ed;
+        color: #b45309;
+        font-size: .55rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .talk-heading > small i {
+        color: #f97316;
+    }
+
+    .talk-messages {
+        display: flex;
+        min-height: 320px;
+        flex: 1;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+        padding: 14px 12px 110px;
+        border: 1px solid #e5e5e2;
+        border-radius: 18px;
+        background: #efefec;
+        overscroll-behavior: contain;
+        transform: translateY(0);
+        transition: transform .18s ease;
+    }
+
+    .talk-message {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .talk-message.is-mine {
+        align-items: flex-end;
+    }
+
+    .talk-author {
+        margin: 0 0 4px 5px;
+        color: #646b77;
+        font-size: .61rem;
+        font-weight: 800;
+    }
+
+    .talk-message-row {
+        display: flex;
+        max-width: 84%;
+        align-items: flex-end;
+        gap: 5px;
+    }
+
+    .talk-message.is-mine .talk-message-row {
+        flex-direction: row-reverse;
+    }
+
+    .talk-bubble {
+        position: relative;
+        padding: 9px 11px;
+        border: 1px solid #e2e2df;
+        border-radius: 5px 15px 15px;
+        background: #fff;
+        color: #3f4652;
+        font-size: .73rem;
+        line-height: 1.48;
+        word-break: break-word;
+        box-shadow: 0 3px 8px rgba(39, 39, 42, .04);
+    }
+
+    .talk-message.is-mine .talk-bubble {
+        border-color: #f97316;
+        border-radius: 15px 5px 15px 15px;
+        background: #f97316;
+        color: #fff;
+    }
+
+    .talk-message-row time {
+        flex: 0 0 auto;
+        padding-bottom: 2px;
+        color: #a1a5ad;
+        font-size: .52rem;
+        white-space: nowrap;
+    }
+
+    .talk-bubble > small {
+        display: block;
+        margin-top: 5px;
+        color: #a1a1aa;
+        font-size: .54rem;
+    }
+
+    .talk-message.is-admin-blinded .talk-bubble {
+        border-style: dashed;
+        background: #f8f8f7;
+        color: #929292;
+    }
+
+    .talk-message.is-restricted .talk-bubble {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-style: dashed !important;
+        background: #f5f5f4 !important;
+        color: #8a8a8a !important;
+        font-size: .65rem;
+        font-style: normal;
+    }
+
+    .talk-moderation {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        display: grid;
+        width: 22px;
+        height: 22px;
+        place-items: center;
+        border: 1px solid #fecaca;
+        border-radius: 50%;
+        background: #fff;
+        color: #dc2626;
+        font-size: .63rem;
+        cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, .09);
+    }
+
+    .talk-message.is-mine .talk-moderation {
+        right: auto;
+        left: -8px;
+    }
+
+    .talk-moderation.is-restore {
+        border-color: #bbf7d0;
+        color: #16a34a;
+    }
+
+    .talk-bottom-spacer {
+        height: 100px;
+        flex: 0 0 100px;
+        pointer-events: none;
+    }
+
+    .talk-empty {
+        display: grid;
+        margin: auto;
+        justify-items: center;
+        padding: 40px 18px;
+        text-align: center;
+    }
+
+    .talk-empty > span {
+        display: grid;
+        width: 46px;
+        height: 46px;
+        margin-bottom: 11px;
+        place-items: center;
+        border-radius: 15px;
+        background: #fff;
+        color: #a5a9b0;
+        font-size: 1.05rem;
+    }
+
+    .talk-empty strong {
+        color: #646b76;
+        font-size: .73rem;
+    }
+
+    .talk-empty p {
+        margin: 5px 0 0;
+        color: #9a9fa8;
+        font-size: .61rem;
+    }
+
+    .talk-empty.is-error > span {
+        color: #dc2626;
+    }
+
+    .talk-loading {
+        display: flex;
+        margin: auto;
+        gap: 5px;
+    }
+
+    .talk-loading span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #f97316;
+        animation: talk-loading 1s ease-in-out infinite alternate;
+    }
+
+    .talk-loading span:nth-child(2) {
+        animation-delay: .15s;
+    }
+
+    .talk-loading span:nth-child(3) {
+        animation-delay: .3s;
+    }
+
+    @keyframes talk-loading {
+        to {
+            opacity: .28;
+            transform: translateY(-4px);
+        }
+    }
+
+    .talk-input-area {
+        position: fixed;
+        bottom: calc(var(--footer-h) + 32px);
+        left: 50%;
+        z-index: 50;
+        display: flex;
+        width: min(452px, calc(100% - 28px));
+        gap: 7px;
+        padding: 7px;
+        border: 1px solid #e1e1de;
+        border-radius: 17px;
+        background: rgba(255, 255, 255, .95);
+        box-shadow: 0 10px 28px rgba(39, 39, 42, .12);
+        backdrop-filter: blur(10px);
+        transform: translateX(-50%);
+    }
+
+    .talk-input-area input {
+        min-width: 0;
+        flex: 1;
+        padding: 0 10px;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #303746;
+        font-size: .78rem;
+    }
+
+    .talk-input-area button {
+        display: grid;
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        place-items: center;
+        border: 0;
+        border-radius: 12px;
+        background: #f97316;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    @media (max-width: 480px) {
+        .talk-input-area {
+            bottom: calc(var(--footer-h) + 12px);
+        }
+    }
+
+    @media (max-width: 360px) {
+        .status-page {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        .status-overview {
+            padding-right: 3px;
+            padding-left: 3px;
+        }
+    }
 </style>
 
-<!-- ?ㅽ떚???ㅻ뜑 (?덉씠?꾩썐 媛쒖꽑: 濡쒕뜑蹂대떎 ?믪? z-index濡??대┃???먯쿇 蹂댁옣) -->
-<div class="sticky-header"
-    style="position: sticky; top: 0; padding: 12px 20px; z-index: 500; background: var(--bg-main); border-bottom:1px solid rgba(0,0,0,0.05); margin-bottom: 16px; pointer-events: auto;">
-    <div
-        style="display:flex; justify-content:space-between; align-items:flex-end; padding-bottom:0; min-height: 42px; pointer-events: auto;">
-        <div id="status-tabs"
-            style="display:flex; gap:12px; width: 100%; pointer-events: auto; position: relative; z-index: 10;">
-            <div onclick="switchStatusTab('reports')" id="status-tab-reports"
-                style="flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-weight: 800; font-size: 1rem; color: var(--point-orange); border-bottom: 3px solid var(--point-orange); transition: all 0.2s ease; pointer-events: auto !important; -webkit-tap-highlight-color: transparent; position: relative; z-index: 11;">
-                ?섏쓽 ?좉퀬?댁뿭</div>
-            <div onclick="switchStatusTab('talk')" id="status-tab-talk"
-                style="flex: 1; text-align: center; padding: 12px 0; cursor: pointer; font-weight: 800; font-size: 1rem; color: rgba(0,0,0,0.3); border-bottom: 3px solid transparent; transition: all 0.2s ease; pointer-events: auto !important; -webkit-tap-highlight-color: transparent; position: relative; z-index: 11;">
-                ?щ옓??/div>
+<div class="status-page">
+    <section class="status-overview" aria-labelledby="status-page-title">
+        <div>
+            <span class="status-overview-kicker"><i class="bi bi-clipboard-check"></i> 나의 제보</span>
+            <div class="status-title-row">
+                <h1 id="status-page-title">처리 현황</h1>
+                <span class="status-report-count">총 <b>{{ reports|length }}</b>건</span>
+            </div>
+            <p>등록한 도로 위험의 진행 상태를 확인하세요.</p>
+        </div>
+    </section>
+
+    <div class="status-tab-wrap">
+        <div id="status-tabs" class="status-tabs" role="tablist" aria-label="처리 현황 메뉴">
+            <button type="button" id="status-tab-reports" class="status-tab is-active"
+                data-status-tab="reports" role="tab" aria-selected="true">
+                <i class="bi bi-list-check"></i> 내 제보
+            </button>
+            <button type="button" id="status-tab-talk" class="status-tab"
+                data-status-tab="talk" role="tab" aria-selected="false">
+                <i class="bi bi-chat-dots"></i> 크랙톡
+            </button>
         </div>
     </div>
-</div>
 
-<!-- ?섏쓽 ?좉퀬?댁뿭 ?뱀뀡 -->
-<div id="status-reports-section" class="status-list"
-    style="position: relative; z-index: 1; background: var(--bg-main);">
+<!-- 나의 신고내역 섹션 -->
+<section id="status-reports-section" class="status-list" role="tabpanel"
+    aria-labelledby="status-tab-reports">
     {% if reports %}
     {% for report in reports %}
-    <div class="report-card" id="report-card-{{ report.id }}" {% if report.status=='諛섎젮' %}
-        onclick="showRejectReason(event, this)" data-reason="{{ report.reject_reason }}" {% elif report.status=='??젣' %}
-        style="opacity: 0.4; filter: grayscale(0.5); cursor: default;" {% else %}
-        onclick="location.href='/alert/view/{{ report.id }}'" {% endif %}>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div class="thumb-square" style="position: relative;">
+    <article class="report-card status-card-{{ report.status }}" id="report-card-{{ report.id }}"
+        {% if report.status != '삭제' %}data-report-url="/alert/view/{{ report.id }}?from=status" role="link" tabindex="0"{% endif %}>
+        <div class="report-card-top">
+            <div class="thumb-square">
                 {% if report.thumbnail_path %}
-                <img src="{{ report.thumbnail_path }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="{{ report.thumbnail_path }}" alt="{{ report.title|e }} 첨부 이미지">
                 {% elif report.file_path and report.file_type != 'video' %}
-                <img src="{{ report.file_path }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="{{ report.file_path }}" alt="{{ report.title|e }} 첨부 이미지">
                 {% else %}
-                <i class="bi bi-image" style="opacity: 0.2; font-size: 1.2rem;"></i>
+                <i class="bi bi-image" aria-hidden="true"></i>
                 {% endif %}
 
                 {% if report.file_type == 'video' %}
-                <div
-                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.5); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2;">
-                    <i class="bi bi-play-fill" style="font-size: 0.8rem; margin-left: 1px;"></i>
-                </div>
+                <span class="status-video-mark"><i class="bi bi-play-fill"></i></span>
                 {% endif %}
             </div>
-            <div>
-                <h4 style="font-size: 1rem; margin-bottom: 4px; font-weight: 700;">{{ report.title }}</h4>
-                <span style="font-size: 0.8rem; opacity: 0.5;">{{ report.date }}</span>
+            <div class="report-card-copy">
+                <div class="report-card-title-row">
+                    <h2>{{ report.title }}</h2>
+                    <span class="badge badge-status-text
+                        {% if report.status == '처리완료' %}status-done
+                        {% elif report.status == '처리중' %}status-processing
+                        {% elif report.status == '접수완료' %}status-received
+                        {% elif report.status == '삭제' %}status-deleted
+                        {% endif %}">
+                        {{ report.status }}
+                    </span>
+                </div>
+                <span class="report-card-date"><i class="bi bi-calendar3"></i> {{ report.date }}</span>
             </div>
         </div>
-        <div style="text-align: right; flex-shrink: 0; margin-left: 12px;">
-            <span class="badge badge-status-text
-                {% if report.status == '泥섎━ ?꾨즺' %}status-done
-                {% elif report.status == '?좉퀬 泥섎━以? %}status-processing
-                {% elif report.status == '?묒닔?꾨즺' %}status-received
-                {% elif report.status == '諛섎젮' %}status-rejected
-                {% elif report.status == '??젣' %}status-deleted
-                {% endif %}" style="font-size: 0.78rem; font-weight: 700;">
-                {{ report.status }}
-            </span>
+
+        <div class="status-progress status-progress-{{ report.status }}" aria-label="현재 상태 {{ report.status }}">
+            <div class="status-progress-step is-received">
+                <span><i class="bi bi-check2"></i></span>
+                <small>접수완료</small>
+            </div>
+            <i class="status-progress-line"></i>
+            <div class="status-progress-step is-processing">
+                <span><i class="bi bi-check2"></i></span>
+                <small>처리중</small>
+            </div>
+            <i class="status-progress-line"></i>
+            <div class="status-progress-step is-done">
+                <span><i class="bi bi-check2"></i></span>
+                <small>처리완료</small>
+            </div>
         </div>
-    </div>
+        {% if report.status != '삭제' %}
+        <div class="report-card-footer">
+            <span>상세 내용 보기</span><i class="bi bi-chevron-right"></i>
+        </div>
+        {% endif %}
+    </article>
     {% endfor %}
     {% else %}
-    <div style="text-align: center; padding: 60px 20px; opacity: 0.4;">
-        <i class="bi bi-clipboard-x" style="font-size: 3rem; display: block; margin-bottom: 12px;"></i>
-        <p style="font-size: 0.95rem;">?좉퀬 ?댁뿭???놁뒿?덈떎.</p>
+    <div class="status-empty">
+        <span><i class="bi bi-clipboard2"></i></span>
+        <strong>아직 등록한 제보가 없습니다</strong>
+        <p>도로 위 위험을 발견하면 사진과 위치를 알려주세요.</p>
+        <a href="/report">첫 제보 등록하기 <i class="bi bi-arrow-right"></i></a>
     </div>
     {% endif %}
-</div>
+</section>
 
-<!-- ?щ옓???뱀뀡 (梨꾪똿???꾩껜 ?붾㈃ 理쒖쟻?? -->
-<div id="talk-section" style="display: none; height: calc(100vh - 160px); flex-direction: column; position: relative;">
-    <div id="talk-messages"
-        style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; background: #f2f2f1; border-radius: 20px 20px 0 0; margin-bottom: 0; position: relative; padding-bottom: 24px; overscroll-behavior: contain; transform: translateY(0px); transition: transform 0.18s ease;">
-        <!-- 硫붿떆吏 ?숈쟻 濡쒕뱶 -->
-        <div style="text-align:center; padding: 20px; opacity: 0.5; font-size: 0.8rem;">????댁슜??遺덈윭?ㅺ퀬 ?덉뒿?덈떎...</div>
+<!-- 크랙톡 섹션 (채팅형 전체 화면 최적화) -->
+<section id="talk-section" class="talk-section" role="tabpanel" aria-labelledby="status-tab-talk">
+    <div class="talk-heading">
+        <span><i class="bi bi-chat-heart"></i></span>
+        <div class="talk-heading-copy">
+            <h2>크랙톡</h2>
+            <p>이웃과 도로 안전 정보를 나눠보세요.</p>
+        </div>
+        <small><i class="bi bi-lightning-charge-fill"></i> 메시지 20 크래커</small>
+    </div>
+    <div id="talk-messages" class="talk-messages">
+        <div class="talk-loading" aria-label="대화 내용 불러오는 중">
+            <span></span><span></span><span></span>
+        </div>
     </div>
     <div id="talk-refresh-indicator" style="
         position:absolute;
@@ -190,24 +897,21 @@
 
         transition: opacity 0.22s ease, transform 0.22s ease;
         ">
-        ?덈줈怨좎묠 以?..
+        새로고침 중...
     </div>
-    <!-- ?섎떒 怨좎젙 ?낅젰李?(?뚮줈???ㅽ??? ?섎떒諛붿? 媛꾧꺽 ?뺣낫) -->
-    <div id="talk-input-area"
-        style="position: fixed; bottom: calc(var(--footer-h) + 16px); left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; display: flex; gap: 8px; background: transparent; padding: 12px 16px; border: none; box-shadow: none; z-index: 10;">
-        <input type="text" id="talk-input" placeholder="硫붿떆吏瑜??낅젰?섏꽭??.."
-            style="flex: 1; border: none; padding: 12px 18px; font-size: 0.95rem; outline: none; background: #f8f9fa; border-radius: 25px;"
-            onkeypress="if(event.keyCode==13) sendTalk()">
-        <button onclick="sendTalk()"
-            style="width: 45px; height: 45px; border-radius: 50%; background: var(--point-orange); color: white; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(255,140,0,0.2);">
-            <i class="bi bi-send-fill" style="font-size: 1.1rem;"></i>
+    <!-- 하단 고정 입력창 (플로팅 스타일: 하단바와 간격 확보) -->
+    <div id="talk-input-area" class="talk-input-area">
+        <input type="text" id="talk-input" placeholder="메시지를 입력하세요..." maxlength="1000">
+        <button type="button" id="talk-send-button" aria-label="메시지 보내기">
+            <i class="bi bi-send-fill"></i>
         </button>
     </div>
+</section>
 </div>
 
 <script nonce="{{ csp_nonce }}">
     (function () {
-        // [理쒓퀬?쒖쐞] ?대뼡 寃쎌슦?먮룄 ???대┃??媛?ν븯?꾨줉 ?⑥닔瑜?癒쇱? ?덈룄??媛앹껜???깅줉
+        // [최고순위] 어떤 경우에도 탭 클릭이 가능하도록 함수를 먼저 윈도우 객체에 등록
         window.switchStatusTab = function (tab) {
             console.log("[Status] Switching to tab:", tab);
             const reportsTab = document.getElementById('status-tab-reports');
@@ -220,29 +924,23 @@
                 return;
             }
 
-            if (tab === 'reports') {
-                reportsTab.style.borderBottom = '3px solid var(--point-orange)';
-                reportsTab.style.color = 'var(--point-orange)';
-                reportsTab.style.opacity = '1';
-                talkTab.style.borderBottom = '3px solid transparent';
-                talkTab.style.color = 'rgba(0,0,0,0.3)';
-                talkTab.style.opacity = '0.5';
-                reportsSection.style.display = 'block';
+            const reportsActive = tab === 'reports';
+            reportsTab.classList.toggle('is-active', reportsActive);
+            talkTab.classList.toggle('is-active', !reportsActive);
+            reportsTab.setAttribute('aria-selected', String(reportsActive));
+            talkTab.setAttribute('aria-selected', String(!reportsActive));
+
+            if (reportsActive) {
+                reportsSection.style.display = 'grid';
                 talkSection.style.display = 'none';
             } else if (tab === 'talk') {
-                talkTab.style.borderBottom = '3px solid var(--point-orange)';
-                talkTab.style.color = 'var(--point-orange)';
-                talkTab.style.opacity = '1';
-                reportsTab.style.borderBottom = '3px solid transparent';
-                reportsTab.style.color = 'rgba(0,0,0,0.3)';
-                reportsTab.style.opacity = '0.5';
                 reportsSection.style.display = 'none';
                 talkSection.style.display = 'flex';
                 bindTalkPullToRefresh();
                 if (typeof loadTalks === 'function') loadTalks();
             }
 
-            // [PPT ?듭떊] iframe ?덉뿉???묐룞 以묒씠硫?遺紐?PPT)?????꾪솚 ?뚮┝
+            // [PPT 통신] iframe 안에서 작동 중이면 부모(PPT)에 탭 전환 알림
             if (window.parent !== window) {
                 window.parent.postMessage({ type: 'PPT_STATE_CHANGE', page: 'status', state: tab }, '*');
             }
@@ -264,8 +962,66 @@
     const initialTab = new URLSearchParams(window.location.search).get('tab');
 
     if (initialTab === 'talk') {
-        window.switchStatusTab('talk');
+        window.setTimeout(function () {
+            window.switchStatusTab('talk');
+        }, 0);
     }
+
+    document.querySelectorAll('[data-status-tab]').forEach(function (tabButton) {
+        tabButton.addEventListener('click', function () {
+            window.switchStatusTab(tabButton.dataset.statusTab);
+        });
+    });
+
+    document.querySelectorAll('[data-report-url]').forEach(function (card) {
+        const openReport = function () {
+            window.location.assign(card.dataset.reportUrl);
+        };
+        card.addEventListener('click', openReport);
+        card.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openReport();
+        });
+    });
+
+    const talkInput = document.getElementById('talk-input');
+    const talkSendButton = document.getElementById('talk-send-button');
+    if (talkInput) {
+        talkInput.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' || event.isComposing) return;
+            event.preventDefault();
+            window.sendTalk();
+        });
+    }
+    if (talkSendButton) {
+        talkSendButton.addEventListener('click', function () {
+            window.sendTalk();
+        });
+    }
+
+    document.addEventListener('click', function (event) {
+        const moderationButton = event.target.closest('[data-talk-id]');
+        if (moderationButton) {
+            event.stopPropagation();
+            window.openBlindModal(
+                Number(moderationButton.dataset.talkId),
+                moderationButton.dataset.talkBlinded === 'true'
+            );
+            return;
+        }
+
+        const modalAction = event.target.closest('[data-status-modal-action]');
+        if (!modalAction) return;
+        const actions = {
+            'close-talk-confirm': window.closeTalkConfirmModal,
+            'confirm-talk': window.confirmPostTalk,
+            'close-blind': window.closeBlindModal,
+            'confirm-blind': window.confirmBlindTalk
+        };
+        const handler = actions[modalAction.dataset.statusModalAction];
+        if (typeof handler === 'function') handler();
+    });
 
     function initStatusLazyLoading() {
         try {
@@ -275,7 +1031,7 @@
                 if (index >= statusItemsToShow) {
                     item.style.display = 'none';
                 } else {
-                    item.style.display = 'flex';
+                    item.style.display = 'block';
                 }
             });
             updateStatusSentinel(items);
@@ -284,41 +1040,17 @@
         }
     }
 
-    // 珥덇린 ?ㅽ뻾 ???먮윭 諛⑹?
+    // 초기 실행 시 에러 방지
     try {
         initStatusLazyLoading();
     } catch (e) { console.error(e); }
-
-    // ?댁쟾???뺤쓽???⑥닔?ㅼ씠 ?덉쑝硫??뺣━ (以묐났 ?ㅽ뻾 諛⑹?)
-    // 諛섎젮 ?ъ쑀 紐⑤떖 ?듯빀 泥섎━ (踰꾧렇 ?섏젙: 以묐났 ?뺤쓽 ?쒓굅 諛??몄옄 ?뺤긽??
-    window.showRejectReason = function (event, element) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        const reason = element.getAttribute('data-reason') || '愿由ъ옄媛 ?ъ쑀瑜?湲곗옱?섏? ?딆븯?듬땲??';
-        console.log("[Status] Showing reject reason:", reason);
-
-        const reasonText = document.getElementById('reject-reason-text');
-        const modal = document.getElementById('reject-modal-overlay');
-
-        if (reasonText && modal) {
-            reasonText.innerText = reason;
-            modal.style.display = 'flex';
-        } else if (typeof showNoticeModal === 'function') {
-            showNoticeModal(reason);
-        } else {
-            alert(reason);
-        }
-    }
 
     function updateStatusSentinel(items) {
         if (window.statusObserver) {
             window.statusObserver.disconnect();
         }
 
-        // 留덉?留됱뿉????踰덉㎏ ?꾩씠?쒖쓣 愿李???곸쑝濡??ㅼ젙 (遺?쒕윭??濡쒕뵫)
+        // 마지막에서 두 번째 아이템을 관찰 대상으로 설정 (부드러운 로딩)
         const targetIndex = Math.min(statusItemsToShow - 2, items.length - 1);
         if (targetIndex >= 0 && statusItemsToShow < items.length) {
             window.statusObserver = new IntersectionObserver((entries) => {
@@ -349,7 +1081,7 @@
 
         const indicator = document.getElementById('talk-refresh-indicator');
         if (indicator) {
-            indicator.textContent = '?덈줈怨좎묠 以?..';
+            indicator.textContent = '새로고침 중...';
         }
 
         resetTalkPullVisual();
@@ -385,7 +1117,7 @@
     function showTalkPullReady() {
         const indicator = document.getElementById('talk-refresh-indicator');
         if (!indicator) return;
-        indicator.textContent = '?덈줈怨좎묠 以?..';
+        indicator.textContent = '새로고침 중...';
         indicator.style.opacity = '1';
         indicator.style.visibility = 'visible';
     }
@@ -485,81 +1217,86 @@
         }, { passive: true });
     }
 
+    function buildTalkMessage(talk) {
+        const isMe = talk.author_id === statusCurrentUserId;
+        const safeId = Number(talk.id) || 0;
+        const safeNickname = escapeHtml(talk.nickname || '익명');
+        const safeContent = escapeHtml(talk.content || '');
+        const safeDate = escapeHtml(talk.date || '');
+
+        if (talk.is_blinded && !statusIsAdmin) {
+            return `
+                <article class="talk-message is-restricted">
+                    <div class="talk-message-row">
+                        <div class="talk-bubble blinded-msg">
+                            <i class="bi bi-eye-slash"></i>
+                            관리자에 의해 노출이 제한된 메시지입니다.
+                        </div>
+                        <time>${safeDate}</time>
+                    </div>
+                </article>`;
+        }
+
+        const moderationControl = statusIsAdmin
+            ? (talk.is_blinded
+                ? `<button type="button" class="talk-moderation is-restore" data-talk-id="${safeId}" data-talk-blinded="true" title="블라인드 해제"><i class="bi bi-arrow-counterclockwise"></i></button>`
+                : `<button type="button" class="talk-moderation" data-talk-id="${safeId}" data-talk-blinded="false" title="블라인드 처리"><i class="bi bi-eye-slash"></i></button>`)
+            : '';
+
+        return `
+            <article class="talk-message ${isMe ? 'is-mine' : 'is-other'} ${talk.is_blinded ? 'is-admin-blinded' : ''}">
+                ${!isMe ? `<span class="talk-author">${safeNickname}</span>` : ''}
+                <div class="talk-message-row">
+                    <div class="talk-bubble">
+                        <span>${safeContent}</span>
+                        ${talk.is_blinded ? '<small>블라인드 처리됨</small>' : ''}
+                        ${moderationControl}
+                    </div>
+                    <time>${safeDate}</time>
+                </div>
+            </article>`;
+    }
+
     window.loadTalks = async function () {
+        const container = document.getElementById('talk-messages');
+        if (!container) return;
+        container.innerHTML = '<div class="talk-loading"><span></span><span></span><span></span></div>';
+
         try {
             const response = await fetch('/api/cracktalk');
+            if (!response.ok) throw new Error('대화 목록 요청 실패');
             const talks = await response.json();
-            const container = document.getElementById('talk-messages');
             container.innerHTML = '';
 
-            if (talks.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding: 40px 20px; opacity:0.4;">?꾩쭅 ??붽? ?놁뒿?덈떎.<br>泥?硫붿떆吏瑜??④꺼蹂댁꽭??</div>';
+            if (!Array.isArray(talks) || talks.length === 0) {
+                container.innerHTML = `
+                    <div class="talk-empty">
+                        <span><i class="bi bi-chat-square-text"></i></span>
+                        <strong>아직 등록된 대화가 없습니다</strong>
+                        <p>도로 안전에 관한 첫 이야기를 남겨보세요.</p>
+                    </div>`;
                 return;
             }
 
-            talks.forEach(t => {
-                const isMe = t.author_id === statusCurrentUserId;
-                const safeId = Number(t.id) || 0;
-                const safeNickname = escapeHtml(t.nickname);
-                const safeContent = escapeHtml(t.content);
-                const safeDate = escapeHtml(t.date);
-                let bubbleContent = '';
-
-                if (t.is_blinded && !statusIsAdmin) {
-                    bubbleContent = `
-                        <div style="display:flex;flex-direction:column;align-items:flex-start;width:100%;">
-                            <div style="display:flex;align-items:flex-end;gap:6px;max-width:80%;">
-                                <div class="blinded-msg" style="padding:10px 14px;border-radius:2px 18px 18px 18px;font-size:0.85rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                    <i class="bi bi-eye-slash-fill" style="font-size:0.85rem;"></i>
-                                    愿由ъ옄???섑빐 ?몄텧???쒗븳??寃뚯떆臾?                                </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
-                            </div>
-                        </div>`;
-                } else if (statusIsAdmin) {
-                    const isBlindedClass = t.is_blinded ? 'admin-blinded-msg' : '';
-                    const btnIcon = t.is_blinded
-                        ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${safeId}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 ?댁젣"></i>`
-                        : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${safeId}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 泥섎━"></i>`;
-                    bubbleContent = `
-                        <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
-                            <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
-                                <div class="${isBlindedClass}" style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${t.is_blinded ? '#999' : (isMe ? 'white' : 'black')};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);position:relative;">
-                                    ${safeContent}
-                                    ${t.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[釉붾씪?몃뱶 泥섎━??</span>` : ''}
-                                    ${btnIcon}
-                                </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
-                            </div>
-                        </div>`;
-                } else {
-                    bubbleContent = `
-                        <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                            ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
-                            <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
-                                <div style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${isMe ? 'white' : 'black'};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                    ${safeContent}
-                                </div>
-                                <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
-                            </div>
-                        </div>`;
-                }
-
-                container.insertAdjacentHTML('beforeend', bubbleContent);
+            talks.forEach(function (talk) {
+                container.insertAdjacentHTML('beforeend', buildTalkMessage(talk));
             });
+            container.insertAdjacentHTML('beforeend', '<div class="talk-bottom-spacer"></div>');
 
-            container.insertAdjacentHTML(
-                'beforeend',
-                '<div class="talk-bottom-spacer" style="height: 130px; flex-shrink: 0; pointer-events: none;"></div>'
-            );
-
-            // [UX] ?곗씠???뚮뜑留???利됱떆 理쒗븯?⑥쑝濡??ㅽ겕濡?(?덉씠?꾩썐 怨꾩궛 ?湲??ы븿)
-            requestAnimationFrame(() => {
+            requestAnimationFrame(function () {
                 container.scrollTop = container.scrollHeight;
-                setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+                setTimeout(function () {
+                    container.scrollTop = container.scrollHeight;
+                }, 50);
             });
-        } catch (e) {
-            console.error('Talk Load Error:', e);
+        } catch (error) {
+            console.error('Talk Load Error:', error);
+            container.innerHTML = `
+                <div class="talk-empty is-error">
+                    <span><i class="bi bi-exclamation-circle"></i></span>
+                    <strong>대화를 불러오지 못했습니다</strong>
+                    <p>잠시 후 다시 시도해주세요.</p>
+                </div>`;
         }
     }
 
@@ -570,13 +1307,13 @@
 
         window.pendingTalkContent = content;
 
-        // 愿由ъ옄??寃쎌슦 ?뚮え ?놁씠 利됱떆 ?꾩넚
+        // 관리자인 경우 소모 없이 즉시 전송
         if (statusIsAdmin) {
             confirmPostTalk();
             return;
         }
 
-        // ?쇰컲 ?ъ슜?먮뒗 ?뺤씤 紐⑤떖 異쒕젰
+        // 일반 사용자는 확인 모달 출력
         showTalkConfirmModal(content);
     }
 
@@ -612,20 +1349,20 @@
             icon.className = 'bi bi-eye-fill';
             icon.style.color = '#4CAF50';
             icon.parentElement.style.background = 'rgba(76,175,80,0.1)';
-            title.innerText = '釉붾씪?몃뱶 ?댁젣';
-            desc.innerHTML = '??硫붿떆吏??釉붾씪?몃뱶瑜?<br><strong style="color:#4CAF50;font-weight:800;">?댁젣</strong>?섏떆寃좎뒿?덇퉴?<br>?쇰컲 ?뚯썝?먭쾶 ?ㅼ떆 ?몄텧?⑸땲??';
+            title.innerText = '블라인드 해제';
+            desc.innerHTML = '이 메시지의 블라인드를 <br><strong style="color:#4CAF50;font-weight:800;">해제</strong>하시겠습니까?<br>일반 회원에게 다시 노출됩니다.';
             confirmBtn.style.background = '#4CAF50';
             confirmBtn.style.boxShadow = '0 8px 20px rgba(76,175,80,0.3)';
-            confirmBtn.innerText = '?댁젣';
+            confirmBtn.innerText = '해제';
         } else {
             icon.className = 'bi bi-eye-slash-fill';
             icon.style.color = '#FF4D4D';
             icon.parentElement.style.background = 'rgba(255,77,77,0.1)';
-            title.innerText = '釉붾씪?몃뱶 泥섎━';
-            desc.innerHTML = '??硫붿떆吏瑜?<br><strong style="color:#FF4D4D;font-weight:800;">釉붾씪?몃뱶 泥섎━</strong>?섏떆寃좎뒿?덇퉴?<br>?쇰컲 ?뚯썝?먭쾶 ?몄텧???쒗븳?⑸땲??';
+            title.innerText = '블라인드 처리';
+            desc.innerHTML = '이 메시지를 <br><strong style="color:#FF4D4D;font-weight:800;">블라인드 처리</strong>하시겠습니까?<br>일반 회원에게 노출이 제한됩니다.';
             confirmBtn.style.background = '#FF4D4D';
             confirmBtn.style.boxShadow = '0 8px 20px rgba(255,77,77,0.3)';
-            confirmBtn.innerText = '泥섎━';
+            confirmBtn.innerText = '처리';
         }
 
         document.body.classList.add('modal-active');
@@ -648,7 +1385,7 @@
             if (result.success) {
                 closeBlindModal();
                 loadTalks();
-                const msg = result.is_blinded ? '釉붾씪?몃뱶 泥섎━?섏뿀?듬땲??' : '釉붾씪?몃뱶媛 ?댁젣?섏뿀?듬땲??';
+                const msg = result.is_blinded ? '블라인드 처리되었습니다.' : '블라인드가 해제되었습니다.';
                 if (typeof showToast === 'function') showToast(msg);
             } else {
                 if (typeof showNoticeModal === 'function') showNoticeModal(result.message);
@@ -682,7 +1419,7 @@
             if (result.success) {
                 loadTalks();
                 if (typeof showToast === 'function' && !statusIsAdmin) {
-                    showToast('20 ?щ옒而ㅺ? ?뚮え?섏뿀?듬땲??');
+                    showToast('20 크래커가 소모되었습니다.');
                 }
             } else {
                 if (typeof showToast === 'function') showToast(result.message);
@@ -693,72 +1430,29 @@
         }
     }
 
-    // 以묐났 ?쒓굅??(?곷떒 ?듯빀 ?⑥닔 ?ъ슜)
-
-    window.closeRejectModal = function () {
-        const modal = document.getElementById('reject-modal-overlay');
-        if (modal) modal.style.display = 'none';
-    }
-
-    // [WEB-SOCKET] Socket.IO ?ㅼ떆媛??곕룞
+    // [WEB-SOCKET] Socket.IO 실시간 연동
     if (typeof io !== 'undefined') {
         if (!window.appSocket) {
             window.appSocket = io();
         }
         const socket = window.appSocket;
 
-        // 以묐났 ?깅줉 諛⑹?瑜??꾪빐 湲곗〈 由ъ뒪???쒓굅
+        // 중복 등록 방지를 위해 기존 리스너 제거
         socket.off('new_message');
 
-        // 1. CrackTalk ?ㅼ떆媛??섏떊
+        // 1. CrackTalk 실시간 수신
         socket.on('new_message', function (data) {
             console.log("[Socket] New CrackTalk:", data);
             const container = document.getElementById('talk-messages');
             if (!container) return;
 
-            // 濡쒕뵫 以묒씠嫄곕굹 ?댁뿭 ?놁쓬 ?덈궡 ?쒓굅
-            if (container.innerHTML.includes('遺덈윭?ㅺ퀬') || container.innerHTML.includes('?꾩쭅 ??붽?')) {
+            // 로딩 중이거나 내역 없음 안내 제거
+            if (container.querySelector('.talk-loading, .talk-empty')) {
                 container.innerHTML = '';
             }
             resetTalkRefreshState();
             const spacer = container.querySelector('.talk-bottom-spacer');
-
-            const isMe = data.author_id === statusCurrentUserId;
-            const safeId = Number(data.id) || 0;
-            const safeNickname = escapeHtml(data.nickname);
-            const safeContent = escapeHtml(data.content);
-            const safeDate = escapeHtml(data.date);
-            let bubbleContent = '';
-
-            if (data.is_blinded && !statusIsAdmin) {
-                bubbleContent = `
-                    <div style="display:flex;flex-direction:column;align-items:flex-start;width:100%;">
-                        <div style="display:flex;align-items:flex-end;gap:6px;max-width:80%;">
-                            <div class="blinded-msg" style="padding:10px 14px;border-radius:2px 18px 18px 18px;font-size:0.85rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                                <i class="bi bi-eye-slash-fill" style="font-size:0.85rem;"></i>
-                                愿由ъ옄???섑빐 ?몄텧???쒗븳??寃뚯떆臾?                            </div>
-                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
-                        </div>
-                    </div>`;
-            } else {
-                const isAdminStyle = statusIsAdmin ? (data.is_blinded ? 'admin-blinded-msg' : '') : '';
-                const btnIcon = (statusIsAdmin) ? (data.is_blinded
-                    ? `<i class="bi bi-arrow-counterclockwise btn-unblind" onclick="openBlindModal(${safeId}, true)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 ?댁젣"></i>`
-                    : `<i class="bi bi-x-circle-fill btn-blind" onclick="openBlindModal(${safeId}, false)" style="${isMe ? 'left:-8px' : 'right:-8px'}" title="釉붾씪?몃뱶 泥섎━"></i>`) : '';
-
-                bubbleContent = `
-                    <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};width:100%;">
-                        ${!isMe ? `<span style="font-size:0.75rem;font-weight:700;margin-bottom:4px;margin-left:4px;opacity:0.7;">${safeNickname}</span>` : ''}
-                        <div style="display:flex;align-items:flex-end;gap:6px;flex-direction:${isMe ? 'row-reverse' : 'row'};max-width:80%;">
-                            <div class="${isAdminStyle}" style="background:${isMe ? 'var(--point-orange)' : 'white'};color:${data.is_blinded ? '#999' : (isMe ? 'white' : 'black')};padding:10px 14px;border-radius:${isMe ? '18px 2px 18px 18px' : '2px 18px 18px 18px'};font-size:0.9rem;line-height:1.4;box-shadow:0 2px 5px rgba(0,0,0,0.05);position:relative;">
-                                ${safeContent}
-                                ${data.is_blinded ? `<span style="display:block;font-size:0.72rem;margin-top:4px;color:#aaa;">[釉붾씪?몃뱶 泥섎━??</span>` : ''}
-                                ${btnIcon}
-                            </div>
-                            <span style="font-size:0.65rem;opacity:0.4;white-space:nowrap;">${safeDate}</span>
-                        </div>
-                    </div>`;
-            }
+            const bubbleContent = buildTalkMessage(data);
 
             if (spacer) {
                 spacer.insertAdjacentHTML('beforebegin', bubbleContent);
@@ -766,13 +1460,13 @@
                 container.insertAdjacentHTML('beforeend', bubbleContent);
             }
 
-            // ?ъ슜?먭? Talk ?뱀뀡??蹂닿퀬 ?덉쑝硫?遺?쒕읇寃??섎떒 ?ㅽ겕濡?            const talkSection = document.getElementById('talk-section');
+            // ?�용?��? Talk ?�션??보고 ?�으�?�??�럽�??�단 ?�크�?            const talkSection = document.getElementById('talk-section');
             if (talkSection && talkSection.style.display !== 'none') {
                 container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
             }
         });
 
-        // 2. ?좉퀬 泥섎━ ?곹깭 ?ㅼ떆媛??섏떊
+        // 2. 신고 처리 상태 실시간 수신
         socket.off('status_update');
         socket.on('status_update', function (data) {
             console.log("[Socket] Report Status Update:", data);
@@ -781,97 +1475,146 @@
 
             const badge = card.querySelector('.badge-status-text');
             if (badge) {
-                // 湲곗〈 ?대옒???쒓굅
-                badge.classList.remove('status-done', 'status-processing', 'status-received', 'status-rejected', 'status-deleted');
+                // 기존 클래스 제거
+                badge.classList.remove('status-done', 'status-processing', 'status-received', 'status-deleted');
 
-                // ???대옒??諛??띿뒪???곸슜
+                // 새 클래스 및 텍스트 적용
                 badge.innerText = data.new_status;
-                if (data.new_status === '泥섎━ ?꾨즺') badge.classList.add('status-done');
-                else if (data.new_status === '?좉퀬 泥섎━以?) badge.classList.add('status-processing');
-                else if (data.new_status === '?묒닔?꾨즺') badge.classList.add('status-received');
-                else if (data.new_status === '諛섎젮') badge.classList.add('status-rejected');
-                else if (data.new_status === '??젣') badge.classList.add('status-deleted');
+                if (data.new_status === '처리완료') badge.classList.add('status-done');
+                else if (data.new_status === '처리중') badge.classList.add('status-processing');
+                else if (data.new_status === '접수완료') badge.classList.add('status-received');
+                else if (data.new_status === '삭제') badge.classList.add('status-deleted');
 
-                // 媛뺤“ 紐⑥뀡
+                // 강조 모션
                 badge.style.transform = 'scale(1.2)';
                 badge.style.transition = 'transform 0.3s ease';
                 setTimeout(() => badge.style.transform = '', 500);
+            }
+
+            const progress = card.querySelector('.status-progress');
+            if (progress) {
+                Array.from(progress.classList)
+                    .filter(className => className.startsWith('status-progress-'))
+                    .forEach(className => progress.classList.remove(className));
+                progress.classList.add('status-progress-' + data.new_status);
+                progress.setAttribute('aria-label', '현재 상태 ' + data.new_status);
             }
         });
     }
     }) ();
 </script>
 
-<!-- 諛섎젮 ?ъ쑀 紐⑤떖 -->
-<div id="reject-modal-overlay"
-    style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-    <div
-        style="background:white; padding:32px 24px; border-radius:32px; width:90%; max-width:340px; box-shadow:0 30px 80px rgba(0,0,0,0.3); text-align: center;">
-        <div style="margin-bottom: 20px;">
-            <i class="bi bi-exclamation-triangle-fill"
-                style="font-size: 2.5rem; color: #D32F2F; filter: drop-shadow(0 4px 10px rgba(211, 47, 47, 0.3));"></i>
-            <h3 style="margin-top: 12px; font-size: 1.4rem; color: #333; font-weight: 800;">?ъ쑀 ?덈궡</h3>
+<!-- 크래커 소모 확인 모달 -->
+<div id="talk-confirm-modal-overlay" class="status-modal-backdrop">
+    <section class="status-modal-card" role="dialog" aria-modal="true" aria-labelledby="talk-confirm-title">
+        <span class="status-modal-symbol"><i class="bi bi-lightning-charge-fill"></i></span>
+        <h3 id="talk-confirm-title">크래커 사용 안내</h3>
+        <p>
+            메시지를 등록하면 <strong>20 크래커</strong>가 사용됩니다.<br>
+            계속하시겠어요?
+        </p>
+        <div class="status-modal-actions">
+            <button type="button" class="status-modal-cancel"
+                data-status-modal-action="close-talk-confirm">취소</button>
+            <button type="button" class="status-modal-confirm" id="talk-confirm-btn"
+                data-status-modal-action="confirm-talk">등록하기</button>
         </div>
-        <p id="reject-reason-text"
-            style="font-size:1.05rem; line-height:1.6; color: #444; margin-bottom:16px; word-break:break-all; font-weight: 500;">
-        </p>
-        <p
-            style="font-size:0.85rem; color:#D32F2F; opacity:0.8; margin-bottom:28px; font-weight:600; background: #FFEBEE; padding: 10px; border-radius: 12px;">
-            * 蹂??덈궡???쒕낫 24?쒓컙 ??<br>?먮룞?쇰줈 紐⑸줉?먯꽌 ?щ씪吏묐땲??
-        </p>
-        <button onclick="closeRejectModal()" class="btn-auth-solid"
-            style="width:100%; padding:16px; border-radius:20px; font-weight:800; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">?뺤씤</button>
-    </div>
+    </section>
 </div>
 
-<!-- ?щ옒而??뚮え ?뺤씤 紐⑤떖 -->
-<div id="talk-confirm-modal-overlay"
-    style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-    <div
-        style="background:white; padding:32px 24px; border-radius:32px; width:90%; max-width:340px; box-shadow:0 30px 80px rgba(0,0,0,0.3); text-align: center;">
-        <div style="margin-bottom: 20px;">
-            <div
-                style="width: 60px; height: 60px; background: rgba(255, 140, 0, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                <i class="bi bi-lightning-charge-fill" style="font-size: 1.8rem; color: var(--point-orange);"></i>
-            </div>
-            <h3 style="font-size: 1.3rem; color: #333; font-weight: 800;">?щ옒而??뚮え ?덈궡</h3>
+<!-- 블라인드 처리/해제 확인 모달 (관리자용) -->
+<div id="talk-blind-modal-overlay" class="status-modal-backdrop">
+    <section class="status-modal-card" role="dialog" aria-modal="true" aria-labelledby="blind-modal-title">
+        <span class="status-modal-symbol">
+            <i id="blind-modal-icon" class="bi bi-eye-slash-fill"></i>
+        </span>
+        <h3 id="blind-modal-title">블라인드 처리</h3>
+        <p id="blind-modal-desc"></p>
+        <div class="status-modal-actions">
+            <button type="button" class="status-modal-cancel"
+                data-status-modal-action="close-blind">취소</button>
+            <button type="button" class="status-modal-confirm" id="blind-confirm-btn"
+                data-status-modal-action="confirm-blind">처리</button>
         </div>
-        <p
-            style="font-size:1.05rem; line-height:1.6; color: #444; margin-bottom:24px; word-break:keep-all; font-weight: 500;">
-            梨꾪똿???묒꽦?섎㈃ <br><strong style="color:var(--point-orange); font-weight: 800;">20 ?щ옒而?/strong>媛 ?뚮え?⑸땲??
-            <br>?뺣쭚 ?묒꽦?섏떆寃좎뒿?덇퉴?
-        </p>
-        <div style="display: flex; gap: 12px;">
-            <button onclick="closeTalkConfirmModal()"
-                style="flex: 1; padding: 16px; border-radius: 20px; font-weight: 700; font-size: 1rem; border: 1.5px solid #eee; background: white; color: #666; cursor: pointer;">痍⑥냼</button>
-            <button onclick="confirmPostTalk()" id="talk-confirm-btn"
-                style="flex: 1.5; padding: 16px; border-radius: 20px; font-weight: 800; font-size: 1.1rem; border: none; background: var(--point-orange); color: white; cursor: pointer; box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);">?뺤씤</button>
-        </div>
-    </div>
+    </section>
 </div>
 
-<!-- 釉붾씪?몃뱶 泥섎━/?댁젣 ?뺤씤 紐⑤떖 (愿由ъ옄?? -->
-<div id="talk-blind-modal-overlay"
-    style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:100000; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-    <div
-        style="background:white; padding:32px 24px; border-radius:32px; width:90%; max-width:340px; box-shadow:0 30px 80px rgba(0,0,0,0.3); text-align:center;">
-        <div style="margin-bottom:20px;">
-            <div
-                style="width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                <i id="blind-modal-icon" class="bi bi-eye-slash-fill" style="font-size:1.8rem;"></i>
-            </div>
-            <h3 id="blind-modal-title" style="font-size:1.3rem; color:#333; font-weight:800;">釉붾씪?몃뱶 泥섎━</h3>
-        </div>
-        <p id="blind-modal-desc"
-            style="font-size:1.05rem; line-height:1.6; color:#444; margin-bottom:24px; word-break:keep-all; font-weight:500;">
-        </p>
-        <div style="display:flex; gap:12px;">
-            <button onclick="closeBlindModal()"
-                style="flex:1; padding:16px; border-radius:20px; font-weight:700; font-size:1rem; border:1.5px solid #eee; background:white; color:#666; cursor:pointer;">痍⑥냼</button>
-            <button onclick="confirmBlindTalk()" id="blind-confirm-btn"
-                style="flex:1.5; padding:16px; border-radius:20px; font-weight:800; font-size:1.1rem; border:none; color:white; cursor:pointer;">泥섎━</button>
-        </div>
-    </div>
-</div>
+<style>
+    .status-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(24, 24, 27, .58);
+        backdrop-filter: blur(7px);
+    }
+
+    .status-modal-card {
+        width: min(340px, 100%);
+        padding: 25px 21px 19px;
+        border-radius: 23px;
+        background: #fff;
+        box-shadow: 0 26px 65px rgba(0, 0, 0, .25);
+        text-align: center;
+    }
+
+    .status-modal-symbol {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
+        place-items: center;
+        border-radius: 15px;
+        background: #fff0e4;
+        color: #f97316;
+        font-size: 1.2rem;
+    }
+
+    .status-modal-card h3 {
+        margin: 0;
+        color: #303746;
+        font-size: 1rem;
+    }
+
+    .status-modal-card p {
+        margin: 8px 0 19px;
+        color: #7e8591;
+        font-size: .73rem;
+        line-height: 1.55;
+        word-break: keep-all;
+    }
+
+    .status-modal-card p strong {
+        color: #ea580c;
+    }
+
+    .status-modal-actions {
+        display: grid;
+        grid-template-columns: .8fr 1.2fr;
+        gap: 8px;
+    }
+
+    .status-modal-actions button {
+        min-height: 45px;
+        border-radius: 12px;
+        font-size: .75rem;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .status-modal-cancel {
+        border: 1px solid #e2e2df;
+        background: #fff;
+        color: #737983;
+    }
+
+    .status-modal-confirm {
+        border: 0;
+        background: #f97316;
+        color: #fff;
+    }
+</style>
 {% endblock %}
-

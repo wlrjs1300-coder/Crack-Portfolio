@@ -1,183 +1,1222 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
-{% block title %}Sign Up - Crack{% endblock %}
+{% block title %}회원가입 - Crack{% endblock %}
 
 {% block content %}
-<div class="auth-container">
+<div class="signup-page">
+    <section class="signup-intro">
+        <span class="signup-kicker"><i class="bi bi-shield-check"></i> CRACK 시작하기</span>
+        <h1>내 주변 도로 소식을<br>가장 먼저 확인하세요</h1>
+        <p>기본 정보와 주소만 입력하면 준비가 끝납니다.</p>
+        <div class="radius-notice">
+            <span class="radius-icon"><i class="bi bi-geo-alt-fill"></i></span>
+            <span><strong>내 주소 중심 1km</strong> 안의 도로 신고만 모아 보여드려요.</span>
+        </div>
+    </section>
 
-
-    <div class="auth-card">
-        <h2 style="margin-bottom: 8px; font-size: 1.5rem;">?뚯썝媛??/h2>
-        <p style="margin-bottom: 30px; opacity: 0.5; font-size: 0.9rem;">?꾩씠?붿? 鍮꾨?踰덊샇瑜??낅젰?섏뿬<br>??怨꾩젙???앹꽦?섏꽭??</p>
+    <form id="signup-form" class="signup-panel" method="POST" action="/signup" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
         {% if error %}
-        <p style="color: #FF4D4D; font-size: 0.85rem; margin-bottom: 15px; font-weight: 600;">{{ error }}</p>
+        <div class="signup-error" role="alert"><i class="bi bi-exclamation-circle-fill"></i>{{ error }}</div>
         {% endif %}
 
-        <form id="join-form" method="POST" action="/signup" style="display: flex; flex-direction: column; gap: 12px;">
-            <input type="text" name="nickname" placeholder="?됰꽕??(硫뗭쭊 ?대쫫??吏?대낫?몄슂)" required maxlength="20"
-                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; background: white;"
-                onmouseover="this.style.borderColor='var(--point-orange)'"
-                onmouseout="this.style.borderColor='rgba(0,0,0,0.1)'">
-
-            <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                <input type="text" name="username" id="uid" placeholder="?꾩씠???곷Ц, ?レ옄)" required pattern="[a-zA-Z0-9]+"
-                    title="?곷Ц ??뚮Ц?먯? ?レ옄留??낅젰 媛?ν빀?덈떎."
-                    oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')"
-                    style="width: 100%; padding: 14px 105px 14px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; background: white;"
-                    onmouseover="this.style.borderColor='var(--point-orange)'"
-                    onmouseout="this.style.borderColor='rgba(0,0,0,0.1)'">
-                <button type="button" id="check-id-btn"
-                    style="position: absolute; right: 6px; padding: 8px 14px; border-radius: 9px; border: none; background: #f0f0f0; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: var(--transition);"
-                    onmouseover="this.style.background='#e5e5e5'"
-                    onmouseout="this.style.background='#f0f0f0'">以묐났?뺤씤</button>
-            </div>
-            <div id="id-check-msg" style="font-size: 0.8rem; margin-left: 5px; min-height: 14px; margin-top: -4px;">
+        <section class="form-section" aria-labelledby="account-section-title">
+            <div class="section-heading">
+                <span class="section-number">01</span>
+                <div>
+                    <h2 id="account-section-title">계정 정보</h2>
+                    <p>서비스에서 사용할 이름과 아이디를 입력해주세요.</p>
+                </div>
             </div>
 
-
-           <input type="password" name="password" id="password" placeholder="鍮꾨?踰덊샇" required pattern="[a-zA-Z0-9!@#$%^&*]+"
-                title="?곷Ц, ?レ옄, ?뱀닔臾몄옄留??낅젰 媛?ν빀?덈떎."
-                oninput="this.value = this.value.replace(/[^a-zA-Z0-9!@#$%^&*]/g, '')"
-                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; background: white;"
-                onmouseover="this.style.borderColor='var(--point-orange)'"
-                onmouseout="this.style.borderColor='rgba(0,0,0,0.1)'">
-
-           <input type="password" name="password_confirm" id="password_check" placeholder="鍮꾨?踰덊샇 ?ы솗?? required oninput="this.value = this.value.replace(/[^a-zA-Z0-9!@#$%^&*]/g, '')"
-                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; margin-bottom: 2px; background: white;"
-                onmouseover="this.style.borderColor='var(--point-orange)'"
-                onmouseout="this.style.borderColor='rgba(0,0,0,0.1)'">
-            <div id="pw-match-msg" style="font-size: 0.8rem; margin-left: 5px; min-height: 18px; margin-bottom: 8px;">
+            <div class="field-group">
+                <label for="nickname">닉네임</label>
+                <div class="input-shell">
+                    <i class="bi bi-person input-icon"></i>
+                    <input type="text" id="nickname" name="nickname" maxlength="20"
+                        value="{{ form_data.get('nickname', '') if form_data else '' }}"
+                        placeholder="표시할 이름" autocomplete="nickname" required>
+                </div>
             </div>
 
-
-
-            <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                <input type="email" name="email" id="email" placeholder="?대찓??二쇱냼" required
-                    style="width: 100%; padding: 14px 105px 14px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; background: white;"
-                    onmouseover="this.style.borderColor='var(--point-orange)'"
-                    onmouseout="this.style.borderColor='rgba(0,0,0,0.1)'">
-                <button type="button" id="check-email-btn"
-                    style="position: absolute; right: 6px; padding: 8px 14px; border-radius: 9px; border: none; background: #f0f0f0; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: var(--transition);"
-                    onmouseover="this.style.background='#e5e5e5'"
-                    onmouseout="this.style.background='#f0f0f0'">以묐났?뺤씤</button>
+            <div class="field-group">
+                <label for="uid">아이디</label>
+                <div class="input-shell input-with-action">
+                    <i class="bi bi-at input-icon"></i>
+                    <input type="text" id="uid" name="username"
+                        value="{{ form_data.get('username', '') if form_data else '' }}"
+                        placeholder="영문·숫자 4자 이상" autocomplete="username" required pattern="[A-Za-z0-9_]{4,30}"
+                        minlength="4" maxlength="30"
+                        title="아이디는 영문, 숫자, 밑줄 조합 4~30자로 입력하세요.">
+                    <button type="button" id="check-id-btn" class="field-action">중복 확인</button>
+                </div>
+                <p id="id-check-msg" class="field-help" aria-live="polite"></p>
             </div>
-            <div id="email-check-msg" style="font-size: 0.8rem; margin-left: 5px; min-height: 14px; margin-top: -4px; margin-bottom: 10px;">
+        </section>
+
+        <section class="form-section" aria-labelledby="security-section-title">
+            <div class="section-heading">
+                <span class="section-number">02</span>
+                <div>
+                    <h2 id="security-section-title">비밀번호</h2>
+                    <p>안전하게 사용할 비밀번호를 설정해주세요.</p>
+                </div>
             </div>
 
-            <button type="submit" id="submit-btn" class="auth-btn" style="margin-bottom: 0;">
-                <i class="bi bi-person-plus-fill"></i> 媛?낇븯湲?            </button>
-        </form>
+            <div class="password-grid">
+                <div class="field-group">
+                    <label for="password">비밀번호</label>
+                    <div class="input-shell input-with-toggle">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input type="password" id="password" name="password" required
+                            placeholder="10자 이상 입력" autocomplete="new-password"
+                            minlength="10" maxlength="128">
+                        <button type="button" class="password-toggle" data-password-target="password"
+                            aria-label="비밀번호 보기"><i class="bi bi-eye"></i></button>
+                    </div>
+                </div>
 
-        <script nonce="{{ csp_nonce }}">
-            let isIdChecked = false;
-            let isEmailChecked = false; // ?대찓??泥댄겕 ?곹깭 異붽?
+                <div class="field-group">
+                    <label for="password_check">비밀번호 확인</label>
+                    <div class="input-shell input-with-toggle">
+                        <i class="bi bi-lock-fill input-icon"></i>
+                        <input type="password" id="password_check" name="password_confirm" required
+                            placeholder="한 번 더 입력" autocomplete="new-password">
+                        <button type="button" class="password-toggle" data-password-target="password_check"
+                            aria-label="비밀번호 확인 보기"><i class="bi bi-eye"></i></button>
+                    </div>
+                    <p id="pw-match-msg" class="field-help" aria-live="polite"></p>
+                </div>
+            </div>
 
-            // ?꾩씠??以묐났 ?뺤씤 (湲곗〈 濡쒖쭅 ?좎?)
-            document.getElementById('check-id-btn').addEventListener('click', function () {
-                const uid = document.getElementById('uid').value;
-                const msgElement = document.getElementById('id-check-msg');
-                if (!uid.trim()) {
-                    msgElement.innerText = "?꾩씠?붾? ?낅젰?댁＜?몄슂.";
-                    msgElement.style.color = "red";
-                    return;
-                }
-                fetch('/api/check_id', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'username': uid })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    msgElement.innerText = data.message;
-                    if (data.available) {
-                        msgElement.style.color = "green";
-                        isIdChecked = true;
-                    } else {
-                        msgElement.style.color = "red";
-                        isIdChecked = false;
-                    }
-                });
-            });
+            <div class="field-group">
+                <label for="email">이메일</label>
+                <div class="input-shell input-with-action">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email" id="email" name="email"
+                        value="{{ form_data.get('email', '') if form_data else '' }}"
+                        placeholder="name@example.com" autocomplete="email" required>
+                    <button type="button" id="check-email-btn" class="field-action">중복 확인</button>
+                </div>
+                <p id="email-check-msg" class="field-help" aria-live="polite"></p>
+            </div>
+        </section>
 
-            // ?대찓??以묐났 ?뺤씤 異붽?
-            document.getElementById('check-email-btn').addEventListener('click', function () {
-                const email = document.getElementById('email').value;
-                const msgElement = document.getElementById('email-check-msg');
+        <section class="form-section address-section" aria-labelledby="address-section-title">
+            <div class="section-heading">
+                <span class="section-number">03</span>
+                <div>
+                    <h2 id="address-section-title">내 주변 알림</h2>
+                    <p>알림 기준이 될 주소를 검색해주세요.</p>
+                </div>
+            </div>
 
-                if (!email.trim() || !email.includes('@')) {
-                    msgElement.innerText = "?щ컮瑜??대찓???뺤떇???낅젰?댁＜?몄슂.";
-                    msgElement.style.color = "red";
-                    return;
-                }
+            <div class="field-group">
+                <label for="address">기준 주소</label>
+                <button type="button" id="address-search-btn" class="address-search">
+                    <span class="address-search-icon"><i class="bi bi-geo-alt-fill"></i></span>
+                    <span id="address-search-text">{{ form_data.get('address', '') if form_data and form_data.get('address') else '주소 검색하기' }}</span>
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <input type="text" id="address" name="address"
+                    value="{{ form_data.get('address', '') if form_data else '' }}"
+                    class="visually-hidden-address" readonly required>
+                <p id="address-msg" class="field-help address-help" aria-live="polite">
+                    <i class="bi bi-info-circle"></i> 정확한 알림 제공을 위해 주소가 필요합니다.
+                </p>
+            </div>
+        </section>
 
-                fetch('/api/check_email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'email': email })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    msgElement.innerText = data.message;
-                    if (data.available) {
-                        msgElement.style.color = "green";
-                        isEmailChecked = true;
-                    } else {
-                        msgElement.style.color = "red";
-                        isEmailChecked = false;
-                    }
-                })
-                .catch(err => {
-                    msgElement.innerText = "?듭떊 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.";
-                    msgElement.style.color = "red";
-                });
-            });
+        <input type="hidden" id="address-lat" name="address_lat" value="{{ form_data.get('address_lat', '') if form_data else '' }}">
+        <input type="hidden" id="address-lng" name="address_lng" value="{{ form_data.get('address_lng', '') if form_data else '' }}">
+        <input type="hidden" id="region-city" name="region_city" value="{{ form_data.get('region_city', '') if form_data else '' }}">
+        <input type="hidden" id="region-district" name="region_district" value="{{ form_data.get('region_district', '') if form_data else '' }}">
 
-            // ?낅젰 蹂寃???以묐났?뺤씤 珥덇린??            document.getElementById('uid').addEventListener('input', () => { isIdChecked = false; });
-            document.getElementById('email').addEventListener('input', () => {
-                isEmailChecked = false;
-                document.getElementById('email-check-msg').innerText = "";
-            });
+        <button type="submit" id="submit-btn" class="signup-submit">
+            회원가입 완료하기 <i class="bi bi-arrow-right"></i>
+        </button>
 
-            // 鍮꾨?踰덊샇 ?뺤씤 濡쒖쭅 (湲곗〈 ?좎?)
-            const pwInput = document.getElementById('password');
-            const pwCheckInput = document.getElementById('password_check');
-            const pwMsg = document.getElementById('pw-match-msg');
-            function checkPasswordMatch() {
-                if (!pwCheckInput.value) { pwMsg.innerText = ""; return; }
-                if (pwInput.value === pwCheckInput.value) {
-                    pwMsg.innerText = "???쇱튂?⑸땲??";
-                    pwMsg.style.color = "green";
-                } else {
-                    pwMsg.innerText = "???쇱튂?섏? ?딆뒿?덈떎.";
-                    pwMsg.style.color = "red";
-                }
-            }
-            pwInput.addEventListener('input', checkPasswordMatch);
-            pwCheckInput.addEventListener('input', checkPasswordMatch);
+        <p class="signup-footnote">
+            이미 계정이 있으신가요? <a href="/login">로그인</a>
+        </p>
+    </form>
 
-            // ???쒖텧 諛⑹뼱 濡쒖쭅 ?섏젙
-            document.getElementById('join-form').addEventListener('submit', function (e) {
-                if (!isIdChecked) {
-                    e.preventDefault();
-                    alert("?꾩씠??以묐났 ?뺤씤???댁＜?몄슂.");
-                    document.getElementById('uid').focus();
-                    return;
-                }
-                if (pwInput.value !== pwCheckInput.value) {
-                    e.preventDefault();
-                    alert("鍮꾨?踰덊샇 ?ы솗?몄씠 ?쇱튂?섏? ?딆뒿?덈떎.");
-                    pwCheckInput.focus();
-                    return;
-                }
-                if (!isEmailChecked) { // ?대찓??泥댄겕 寃利?異붽?
-                    e.preventDefault();
-                    alert("?대찓??以묐났 ?뺤씤???댁＜?몄슂.");
-                    document.getElementById('email').focus();
-                    return;
-                }
-            });
-        </script>
+    <div id="signup-validation-modal" class="signup-modal-backdrop" aria-hidden="true">
+        <section class="signup-modal" role="dialog" aria-modal="true"
+            aria-labelledby="signup-modal-title" aria-describedby="signup-modal-description">
+            <button type="button" id="signup-modal-close" class="signup-modal-close" aria-label="안내 닫기">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="signup-modal-symbol" aria-hidden="true">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <span class="signup-modal-kicker">입력 확인</span>
+            <h2 id="signup-modal-title">조금만 더 입력해주세요</h2>
+            <p id="signup-modal-description">아래 내용을 확인하면 회원가입을 완료할 수 있어요.</p>
+            <ul id="signup-modal-issues" class="signup-modal-issues"></ul>
+            <button type="button" id="signup-modal-confirm" class="signup-modal-confirm">
+                확인하고 입력하기
+            </button>
+        </section>
+    </div>
+
+    <div id="postcode-modal" class="postcode-modal-backdrop" aria-hidden="true">
+        <section class="postcode-modal" role="dialog" aria-modal="true"
+            aria-labelledby="postcode-modal-title">
+            <div class="postcode-modal-head">
+                <div>
+                    <span class="postcode-modal-kicker">주소 검색 도우미</span>
+                    <h2 id="postcode-modal-title">주소 찾기</h2>
+                    <p>도로명, 건물명 또는 지번을 입력해주세요.</p>
+                </div>
+                <button type="button" id="postcode-modal-close" class="postcode-modal-close" aria-label="주소 검색 닫기">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div id="postcode-search-frame" class="postcode-search-frame">
+                <div class="postcode-loading">
+                    <span class="postcode-loading-icon"><i class="bi bi-search"></i></span>
+                    <strong>주소 검색을 준비하고 있어요</strong>
+                    <span>잠시만 기다려주세요.</span>
+                </div>
+            </div>
+            <div class="postcode-modal-foot">
+                <i class="bi bi-info-circle"></i>
+                검색 결과에서 주소를 선택하면 자동으로 입력됩니다.
+            </div>
+        </section>
     </div>
 </div>
+
+<style>
+.bottom-nav {
+    display: none !important;
+}
+
+.app-container {
+    grid-template-rows: auto 1fr !important;
+}
+
+main {
+    padding: 0 !important;
+    background: #f6f6f3;
+}
+
+.auth-tools a[href="/signup"] {
+    display: none !important;
+}
+
+.signup-page {
+    min-height: 100%;
+    padding: 26px 20px 44px;
+    background:
+        radial-gradient(circle at 90% 1%, rgba(255, 122, 0, 0.13), transparent 24%),
+        linear-gradient(180deg, #fffaf5 0, #f6f6f3 240px);
+}
+
+.signup-intro {
+    padding: 10px 4px 24px;
+    text-align: left;
+}
+
+.signup-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 12px;
+    color: #e85d04;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+}
+
+.signup-intro h1 {
+    margin: 0;
+    color: #171717;
+    font-size: clamp(1.7rem, 7vw, 2.15rem);
+    line-height: 1.24;
+    letter-spacing: -0.045em;
+    word-break: keep-all;
+}
+
+.signup-intro > p {
+    margin: 10px 0 0;
+    color: #71717a;
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+.radius-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 11px 13px;
+    border: 1px solid #fed7aa;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .72);
+    color: #52525b;
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+.radius-notice strong {
+    color: #c2410c;
+}
+
+.radius-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    place-items: center;
+    border-radius: 10px;
+    background: #ffedd5;
+    color: #ea580c;
+    font-size: .95rem;
+}
+
+.signup-panel {
+    padding: 22px 20px 20px;
+    border: 1px solid rgba(24, 24, 27, .07);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 16px 45px rgba(39, 32, 25, .08);
+    text-align: left;
+}
+
+.form-section + .form-section {
+    margin-top: 23px;
+    padding-top: 22px;
+    border-top: 1px solid #eeeae5;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-bottom: 16px;
+}
+
+.section-number {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    place-items: center;
+    border-radius: 10px;
+    background: #171717;
+    color: #fff;
+    font-family: 'Outfit', sans-serif;
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.section-heading h2 {
+    margin: 0 0 3px;
+    color: #18181b;
+    font-size: 1rem;
+    letter-spacing: -.02em;
+}
+
+.section-heading p {
+    margin: 0;
+    color: #8a8a93;
+    font-size: .75rem;
+    line-height: 1.4;
+}
+
+.field-group {
+    margin-bottom: 13px;
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+.field-group label {
+    display: block;
+    margin: 0 0 7px 2px;
+    color: #3f3f46;
+    font-size: .76rem;
+    font-weight: 750;
+}
+
+.input-shell {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    overflow: hidden;
+    border: 1px solid #dedede;
+    border-radius: 14px;
+    background: #fafafa;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.input-shell:focus-within {
+    border-color: #fb923c;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, .1);
+}
+
+.input-icon {
+    width: 42px;
+    flex: 0 0 42px;
+    color: #a1a1aa;
+    text-align: center;
+    font-size: .95rem;
+}
+
+.input-shell input {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    padding: 0 10px 0 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #18181b;
+    font-size: .88rem;
+}
+
+.input-shell input::placeholder {
+    color: #aaaab1;
+}
+
+.field-action {
+    align-self: stretch;
+    flex: 0 0 auto;
+    margin: 5px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: #ffedd5;
+    color: #c2410c;
+    font-size: .75rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.field-action:active {
+    transform: scale(.97);
+}
+
+.password-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.password-toggle {
+    display: grid;
+    width: 38px;
+    height: 46px;
+    flex: 0 0 38px;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: #8b8b94;
+    cursor: pointer;
+}
+
+.password-grid .input-icon {
+    width: 36px;
+    flex-basis: 36px;
+}
+
+.password-grid .input-shell input {
+    font-size: .8rem;
+}
+
+.field-help {
+    min-height: 0;
+    margin: 6px 2px 0;
+    color: #71717a;
+    font-size: .72rem;
+    line-height: 1.4;
+}
+
+.field-help:empty {
+    display: none;
+}
+
+.address-search {
+    display: flex;
+    width: 100%;
+    min-height: 54px;
+    align-items: center;
+    gap: 11px;
+    padding: 7px 12px 7px 8px;
+    border: 1px dashed #f0a05d;
+    border-radius: 15px;
+    background: #fffaf5;
+    color: #3f3f46;
+    font-size: .86rem;
+    font-weight: 750;
+    text-align: left;
+    cursor: pointer;
+}
+
+.address-search:hover {
+    border-style: solid;
+    background: #fff4e8;
+}
+
+.address-search-icon {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 11px;
+    background: #f97316;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04);
+}
+
+.address-search > span:nth-child(2) {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.address-search > .bi-chevron-right {
+    color: #f97316;
+}
+
+.visually-hidden-address {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.address-help {
+    color: #78716c;
+}
+
+.signup-error {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 11px 12px;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.signup-submit {
+    display: flex;
+    width: 100%;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 24px;
+    border: 0;
+    border-radius: 15px;
+    background: #171717;
+    color: #fff;
+    font-size: .92rem;
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(24, 24, 27, .16);
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease;
+}
+
+.signup-submit:hover {
+    background: #f97316;
+    transform: translateY(-1px);
+}
+
+.signup-submit:active {
+    transform: scale(.985);
+}
+
+.signup-footnote {
+    margin: 17px 0 0;
+    color: #8a8a93;
+    font-size: .78rem;
+    text-align: center;
+}
+
+.signup-footnote a {
+    margin-left: 4px;
+    color: #ea580c;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.signup-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(24, 24, 27, .52);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .22s ease, visibility .22s ease;
+}
+
+.signup-modal-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.signup-modal {
+    position: relative;
+    width: min(360px, 100%);
+    padding: 29px 22px 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 26px;
+    background: #fff;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, .24);
+    text-align: center;
+    transform: translateY(16px) scale(.97);
+    transition: transform .24s cubic-bezier(.2, .8, .2, 1);
+}
+
+.signup-modal::before {
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    width: 190px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(249, 115, 22, .1);
+    content: "";
+    transform: translateX(-50%);
+    filter: blur(4px);
+}
+
+.signup-modal-backdrop.is-open .signup-modal {
+    transform: translateY(0) scale(1);
+}
+
+.signup-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 0;
+    border-radius: 10px;
+    background: #f5f5f4;
+    color: #78716c;
+    cursor: pointer;
+}
+
+.signup-modal-symbol {
+    position: relative;
+    display: grid;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 13px;
+    place-items: center;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #ffedd5, #fff7ed);
+    color: #ea580c;
+    font-size: 1.35rem;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, .13);
+}
+
+.signup-modal-kicker {
+    display: block;
+    margin-bottom: 6px;
+    color: #ea580c;
+    font-size: .7rem;
+    font-weight: 850;
+    letter-spacing: .08em;
+}
+
+.signup-modal h2 {
+    margin: 0;
+    color: #18181b;
+    font-size: 1.18rem;
+    letter-spacing: -.03em;
+}
+
+.signup-modal > p {
+    margin: 8px auto 16px;
+    color: #85858d;
+    font-size: .77rem;
+    line-height: 1.55;
+    word-break: keep-all;
+}
+
+.signup-modal-issues {
+    display: grid;
+    gap: 7px;
+    max-height: 190px;
+    margin: 0 0 17px;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+    text-align: left;
+}
+
+.signup-modal-issues li {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 11px;
+    border: 1px solid #eeeae5;
+    border-radius: 12px;
+    background: #fafaf9;
+    color: #52525b;
+    font-size: .77rem;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.signup-modal-issues li i {
+    margin-top: 1px;
+    color: #f97316;
+}
+
+.signup-modal-confirm {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: #18181b;
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 800;
+    box-shadow: 0 9px 20px rgba(24, 24, 27, .16);
+    cursor: pointer;
+}
+
+.signup-modal-confirm:hover {
+    background: #f97316;
+}
+
+body.signup-modal-open {
+    overflow: hidden !important;
+}
+
+.postcode-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 29000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(24, 24, 27, .56);
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .22s ease, visibility .22s ease;
+}
+
+.postcode-modal-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.postcode-modal {
+    width: min(420px, 100%);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, .28);
+    transform: translateY(18px) scale(.98);
+    transition: transform .24s cubic-bezier(.2, .8, .2, 1);
+}
+
+.postcode-modal-backdrop.is-open .postcode-modal {
+    transform: translateY(0) scale(1);
+}
+
+.postcode-modal-head {
+    position: relative;
+    display: flex;
+    height: auto;
+    min-height: 92px;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 19px 18px 16px;
+    border-bottom: 1px solid #eeeae5;
+    background: #fffaf5;
+    text-align: left;
+}
+
+.postcode-modal-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: #ea580c;
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.postcode-modal-head h2 {
+    margin: 0;
+    color: #18181b;
+    font-size: 1.12rem;
+    letter-spacing: -.03em;
+}
+
+.postcode-modal-head p {
+    margin: 5px 0 0;
+    color: #85858d;
+    font-size: .73rem;
+}
+
+.postcode-modal-close {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 0;
+    border-radius: 11px;
+    background: #fff;
+    color: #71717a;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
+    cursor: pointer;
+}
+
+.postcode-search-frame {
+    position: relative;
+    width: 100%;
+    height: min(470px, 58vh);
+    min-height: 360px;
+    overflow: hidden;
+    background: #f7f7f7;
+}
+
+.postcode-search-frame > div:not(.postcode-loading),
+.postcode-search-frame iframe {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.postcode-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    color: #71717a;
+    font-size: .75rem;
+}
+
+.postcode-loading-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    margin-bottom: 4px;
+    place-items: center;
+    border-radius: 14px;
+    background: #ffedd5;
+    color: #ea580c;
+    font-size: 1.05rem;
+}
+
+.postcode-loading strong {
+    color: #3f3f46;
+    font-size: .85rem;
+}
+
+.postcode-modal-foot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 16px;
+    border-top: 1px solid #eeeae5;
+    color: #78716c;
+    font-size: .7rem;
+    line-height: 1.4;
+}
+
+.postcode-modal-foot i {
+    color: #f97316;
+}
+
+body.postcode-modal-open {
+    overflow: hidden !important;
+}
+
+@media (max-width: 380px) {
+    .signup-page {
+        padding-right: 14px;
+        padding-left: 14px;
+    }
+
+    .signup-panel {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    .password-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+</style>
+
+<script nonce="{{ csp_nonce }}">
+    (function () {
+        const form = document.getElementById('signup-form');
+        const idInput = document.getElementById('uid');
+        const emailInput = document.getElementById('email');
+        const pwInput = document.getElementById('password');
+        const pwCheckInput = document.getElementById('password_check');
+        const addressInput = document.getElementById('address');
+        const addressLatInput = document.getElementById('address-lat');
+        const addressLngInput = document.getElementById('address-lng');
+        const regionCityInput = document.getElementById('region-city');
+        const regionDistrictInput = document.getElementById('region-district');
+        const addressSearchText = document.getElementById('address-search-text');
+        const addressSearchButton = document.getElementById('address-search-btn');
+
+        const validationModal = document.getElementById('signup-validation-modal');
+        const validationModalTitle = document.getElementById('signup-modal-title');
+        const validationModalDescription = document.getElementById('signup-modal-description');
+        const validationModalIssues = document.getElementById('signup-modal-issues');
+        const validationModalClose = document.getElementById('signup-modal-close');
+        const validationModalConfirm = document.getElementById('signup-modal-confirm');
+        const postcodeModal = document.getElementById('postcode-modal');
+        const postcodeModalClose = document.getElementById('postcode-modal-close');
+        const postcodeSearchFrame = document.getElementById('postcode-search-frame');
+
+        const idCheckMsg = document.getElementById('id-check-msg');
+        const emailCheckMsg = document.getElementById('email-check-msg');
+        const pwMatchMsg = document.getElementById('pw-match-msg');
+        const addressMsg = document.getElementById('address-msg');
+
+        let isIdChecked = false;
+        let isEmailChecked = false;
+        let modalFocusTarget = null;
+
+        function setMessage(el, text, color) {
+            if (!el) return;
+            el.textContent = text;
+            el.style.color = color || '#64748b';
+        }
+
+        function setAddressError(message) {
+            setMessage(addressMsg, message, '#ff4d4f');
+        }
+
+        function setAddressSuccess(message) {
+            setMessage(addressMsg, message, '#16a34a');
+        }
+
+        function openSignupModal(issues, focusTarget, options) {
+            const settings = options || {};
+            validationModalTitle.textContent = settings.title || '조금만 더 입력해주세요';
+            validationModalDescription.textContent =
+                settings.description || '아래 내용을 확인하면 회원가입을 완료할 수 있어요.';
+            validationModalConfirm.textContent = settings.buttonText || '확인하고 입력하기';
+            validationModalIssues.replaceChildren();
+
+            issues.forEach(function (issue) {
+                const item = document.createElement('li');
+                const icon = document.createElement('i');
+                const text = document.createElement('span');
+                icon.className = 'bi bi-exclamation-circle-fill';
+                text.textContent = issue;
+                item.append(icon, text);
+                validationModalIssues.appendChild(item);
+            });
+
+            modalFocusTarget = focusTarget || null;
+            validationModal.classList.add('is-open');
+            validationModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('signup-modal-open');
+            validationModalConfirm.focus();
+        }
+
+        function closeSignupModal() {
+            validationModal.classList.remove('is-open');
+            validationModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('signup-modal-open');
+
+            const target = modalFocusTarget;
+            modalFocusTarget = null;
+            if (target) {
+                window.setTimeout(function () {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    target.focus({ preventScroll: true });
+                }, 180);
+            }
+        }
+
+        validationModalClose.addEventListener('click', closeSignupModal);
+        validationModalConfirm.addEventListener('click', closeSignupModal);
+        validationModal.addEventListener('click', function (event) {
+            if (event.target === validationModal) closeSignupModal();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && validationModal.classList.contains('is-open')) {
+                closeSignupModal();
+            }
+            if (event.key === 'Escape' && postcodeModal.classList.contains('is-open')) {
+                closePostcodeModal();
+            }
+        });
+
+        function openPostcodeModal() {
+            postcodeModal.classList.add('is-open');
+            postcodeModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('postcode-modal-open');
+        }
+
+        function closePostcodeModal() {
+            postcodeModal.classList.remove('is-open');
+            postcodeModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('postcode-modal-open');
+            addressSearchButton.focus();
+        }
+
+        postcodeModalClose.addEventListener('click', closePostcodeModal);
+        postcodeModal.addEventListener('click', function (event) {
+            if (event.target === postcodeModal) closePostcodeModal();
+        });
+
+        document.getElementById('check-id-btn').addEventListener('click', function () {
+            const username = idInput.value.trim();
+            if (!username) {
+                setMessage(idCheckMsg, '아이디를 입력해 주세요.', '#ff4d4f');
+                return;
+            }
+
+            fetch('/api/check_id', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const available = !!data.available;
+                    isIdChecked = available;
+                    setMessage(idCheckMsg, data.message || (available ? '사용 가능합니다.' : '사용할 수 없습니다.'), available ? '#16a34a' : '#ff4d4f');
+                })
+                .catch(() => {
+                    isIdChecked = false;
+                    setMessage(idCheckMsg, '요청 처리 중 오류가 발생했습니다.', '#ff4d4f');
+                });
+        });
+
+        document.getElementById('check-email-btn').addEventListener('click', function () {
+            const email = emailInput.value.trim();
+            if (!email || email.indexOf('@') === -1) {
+                setMessage(emailCheckMsg, '올바른 이메일을 입력해 주세요.', '#ff4d4f');
+                return;
+            }
+
+            fetch('/api/check_email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const available = !!data.available;
+                    isEmailChecked = available;
+                    setMessage(emailCheckMsg, data.message || (available ? '사용 가능합니다.' : '사용할 수 없습니다.'), available ? '#16a34a' : '#ff4d4f');
+                })
+                .catch(() => {
+                    isEmailChecked = false;
+                    setMessage(emailCheckMsg, '요청 처리 중 오류가 발생했습니다.', '#ff4d4f');
+                });
+        });
+
+        function validatePasswordMatch() {
+            if (!pwCheckInput.value) {
+                setMessage(pwMatchMsg, '', '#64748b');
+                return;
+            }
+            if (pwInput.value === pwCheckInput.value) {
+                setMessage(pwMatchMsg, '비밀번호가 일치합니다.', '#16a34a');
+            } else {
+                setMessage(pwMatchMsg, '비밀번호가 일치하지 않습니다.', '#ff4d4f');
+            }
+        }
+
+        pwInput.addEventListener('input', function () {
+            validatePasswordMatch();
+        });
+
+        pwCheckInput.addEventListener('input', validatePasswordMatch);
+
+        document.querySelectorAll('.password-toggle').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const target = document.getElementById(button.dataset.passwordTarget);
+                const icon = button.querySelector('i');
+                if (!target || !icon) return;
+
+                const willShow = target.type === 'password';
+                target.type = willShow ? 'text' : 'password';
+                icon.className = willShow ? 'bi bi-eye-slash' : 'bi bi-eye';
+                button.setAttribute('aria-label', willShow ? '비밀번호 숨기기' : '비밀번호 보기');
+            });
+        });
+
+        idInput.addEventListener('input', function () {
+            isIdChecked = false;
+            setMessage(idCheckMsg, '', '#64748b');
+        });
+
+        emailInput.addEventListener('input', function () {
+            isEmailChecked = false;
+            setMessage(emailCheckMsg, '', '#64748b');
+        });
+
+        addressSearchButton.addEventListener('click', function () {
+            if (!window.daum || !window.daum.Postcode) {
+                setAddressError('주소 검색 API를 불러올 수 없습니다. 잠시 뒤 다시 시도해 주세요.');
+                openSignupModal(
+                    ['주소 검색 도우미를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해주세요.'],
+                    addressSearchButton,
+                    {
+                        title: '주소 검색을 열지 못했어요',
+                        description: '주소 검색 서비스 연결 상태를 확인해주세요.',
+                        buttonText: '확인'
+                    }
+                );
+                return;
+            }
+
+            openPostcodeModal();
+            postcodeSearchFrame.replaceChildren();
+
+            new daum.Postcode({
+                hideMapBtn: false,
+                hideEngBtn: true,
+                oncomplete: function (data) {
+                    const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                    closePostcodeModal();
+                    addressInput.value = selectedAddress;
+                    addressLatInput.value = '';
+                    addressLngInput.value = '';
+                    regionCityInput.value = data.sido || '';
+                    regionDistrictInput.value = data.sigungu || '';
+                    addressSearchText.textContent = selectedAddress;
+                    setMessage(addressMsg, '주소를 찾았습니다. 좌표 변환 중입니다.');
+
+                    if (!window.kakao || !window.kakao.maps) {
+                        setAddressError('주소 좌표 변환 SDK가 아직 준비되지 않았습니다. 잠시 뒤 다시 눌러 주세요.');
+                        openSignupModal(
+                            ['주소는 선택됐지만 위치 좌표를 연결하지 못했습니다. 잠시 뒤 주소 검색을 다시 진행해주세요.'],
+                            addressSearchButton,
+                            {
+                                title: '주소 연결을 완료하지 못했어요',
+                                description: '카카오 지도 서비스가 아직 준비되지 않았습니다.',
+                                buttonText: '확인'
+                            }
+                        );
+                        return;
+                    }
+
+                    kakao.maps.load(function () {
+                        const geocoder = new kakao.maps.services.Geocoder();
+                        geocoder.addressSearch(selectedAddress, function (result, status) {
+                            if (status !== kakao.maps.services.Status.OK || !result.length) {
+                                setAddressError('선택한 주소를 좌표로 변환할 수 없습니다.');
+                                openSignupModal(
+                                    ['선택한 주소의 위치를 확인할 수 없습니다. 다른 도로명 주소로 다시 검색해주세요.'],
+                                    addressSearchButton,
+                                    {
+                                        title: '주소 위치를 찾지 못했어요',
+                                        description: '알림 반경 계산을 위해 위치 확인이 필요합니다.',
+                                        buttonText: '다시 확인하기'
+                                    }
+                                );
+                                return;
+                            }
+                            addressLatInput.value = result[0].y;
+                            addressLngInput.value = result[0].x;
+                            setAddressSuccess('주소 반영 완료. 접수 반경 1km 기준으로 알림을 받을 수 있습니다.');
+                        });
+                    });
+                }
+            }).embed(postcodeSearchFrame, {
+                autoClose: false
+            });
+        });
+
+        form.addEventListener('submit', function (event) {
+            const issues = [];
+            let firstInvalidTarget = null;
+            const nicknameInput = document.getElementById('nickname');
+            const username = idInput.value.trim();
+            const password = pwInput.value;
+            const email = emailInput.value.trim();
+            const emailPattern = /^[a-zA-Z0-9]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+            function addIssue(message, target) {
+                issues.push(message);
+                if (!firstInvalidTarget) firstInvalidTarget = target;
+            }
+
+            if (!nicknameInput.value.trim()) {
+                addIssue('서비스에서 사용할 닉네임을 입력해주세요.', nicknameInput);
+            } else if (nicknameInput.value.trim().length > 20) {
+                addIssue('닉네임은 20자 이내로 입력해주세요.', nicknameInput);
+            }
+
+            if (!username) {
+                addIssue('아이디를 입력해주세요.', idInput);
+            } else if (!/^[A-Za-z0-9_]{4,30}$/.test(username)) {
+                addIssue('아이디는 영문, 숫자, 밑줄 조합 4~30자로 입력해주세요.', idInput);
+            } else if (!isIdChecked) {
+                addIssue('아이디 중복 확인을 진행해주세요.', idInput);
+            }
+
+            if (!password) {
+                addIssue('비밀번호를 입력해주세요.', pwInput);
+            } else if (password.length < 10 || password.length > 128) {
+                addIssue('비밀번호는 10자 이상 128자 이하로 입력해주세요.', pwInput);
+            }
+
+            if (!pwCheckInput.value) {
+                addIssue('비밀번호 확인을 입력해주세요.', pwCheckInput);
+            } else if (password !== pwCheckInput.value) {
+                addIssue('입력한 두 비밀번호가 서로 다릅니다.', pwCheckInput);
+            }
+
+            if (!email) {
+                addIssue('이메일을 입력해주세요.', emailInput);
+            } else if (!emailPattern.test(email)) {
+                addIssue('이메일 형식을 올바르게 입력해주세요.', emailInput);
+            } else if (!isEmailChecked) {
+                addIssue('이메일 중복 확인을 진행해주세요.', emailInput);
+            }
+
+            if (!addressInput.value || !addressLatInput.value || !addressLngInput.value) {
+                addIssue('주소 검색 도우미로 기준 주소를 연결해주세요.', addressSearchButton);
+            }
+
+            if (issues.length) {
+                event.preventDefault();
+                openSignupModal(issues, firstInvalidTarget);
+            }
+        });
+    })();
+</script>
 {% endblock %}

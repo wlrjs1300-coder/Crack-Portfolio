@@ -1,595 +1,222 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
-{% block title %}寃뚯떆湲 ?섏젙{% endblock %}
+{% block title %}제보 수정 - CRACK{% endblock %}
 
 {% block content %}
-<style>
-    main {
-        padding: 0 !important;
-    }
+<link rel="stylesheet" href="{{ url_for('static', filename='alert_edit.css') }}">
 
-    .edit-container {
-        padding: 0;
-        background: #fcfcfc;
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-	padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
+{% set detail_url = '/alert/view/' ~ detail.id ~ ('?from=status' if request.args.get('from') == 'status' else '') %}
 
-    .edit-header {
-        position: sticky;
-        top: -1px;
-        z-index: 100;
-        background: #ffffff;
-        padding: 14px 20px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
+<main class="report-edit-page" data-report-id="{{ detail.id }}" data-detail-url="{{ detail_url }}">
+    <header class="report-edit-header">
+        <a href="{{ detail_url }}" class="report-edit-back" aria-label="상세 페이지로 돌아가기">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </a>
+        <div>
+            <span>도로 알림</span>
+            <h1>제보 내용 수정</h1>
+        </div>
+        <span class="report-edit-state">작성자 수정</span>
+    </header>
 
-    .back-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f5f5f5;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-        flex-shrink: 0;
-    }
-
-    .back-btn:active {
-        transform: scale(0.95);
-        background: #eee;
-    }
-
-    .media-preview-section {
-        width: 100%;
-        aspect-ratio: 4/3;
-        background: #111;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .media-preview-section img,
-    .media-preview-section video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .media-overlay-badge {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        background: rgba(0,0,0,0.55);
-        color: #fff;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        backdrop-filter: blur(4px);
-    }
-
-    .edit-card {
-        background: white;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
-
-    .section-label {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: var(--point-orange);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .edit-input,
-    .edit-textarea {
-        width: 100%;
-        background: #f8fafc;
-        border: 1.5px solid #f0f0f0;
-        border-radius: 16px;
-        padding: 14px 16px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #1a1a2e;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        font-family: inherit;
-        box-sizing: border-box;
-    }
-
-    .edit-input:focus,
-    .edit-textarea:focus {
-        border-color: var(--point-orange);
-        box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.12);
-        background: #fff;
-    }
-
-    .edit-textarea {
-        resize: none;
-        min-height: 110px;
-        line-height: 1.6;
-    }
-
-    .char-counter {
-        text-align: right;
-        font-size: 0.72rem;
-        color: #aaa;
-        margin-top: 5px;
-        font-weight: 600;
-    }
-
-    .char-counter.warn {
-        color: var(--point-orange);
-    }
-
-    #edit-map {
-        width: 100%;
-        height: 200px;
-        border-radius: 20px;
-        margin-top: 10px;
-        border: 1px solid rgba(0, 0, 0, 0.03);
-        pointer-events: none;
-        opacity: 0.85;
-    }
-
-    .map-readonly-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        background: #f1f5f9;
-        color: #94a3b8;
-        font-size: 0.72rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 8px;
-        margin-top: 8px;
-    }
-
-    .save-btn-wrap {
-        padding: 16px 20px;
-        margin-bottom: env(safe-area-inset-bottom);
-    }
-
-    .save-btn {
-        width: 100%;
-        height: 54px;
-        border-radius: 18px;
-        background: var(--point-orange);
-        color: white;
-        font-size: 1rem;
-        font-weight: 800;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.35);
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .save-btn:active {
-        transform: scale(0.98);
-        box-shadow: 0 3px 10px rgba(255, 140, 0, 0.25);
-    }
-
-    .save-btn:disabled {
-        background: #e2e8f0;
-        color: #94a3b8;
-        box-shadow: none;
-        cursor: not-allowed;
-    }
-
-    /* 而ㅼ뒪? ?쇰읉 紐⑤떖 */
-    .custom-alert-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.4);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        padding: 20px;
-        opacity: 0;
-        transition: opacity 0.25s ease-out;
-    }
-
-    .custom-alert-backdrop.show {
-        display: flex;
-        opacity: 1;
-    }
-
-    .custom-alert-card {
-        width: min(92vw, 380px);
-        background: #fff;
-        border-radius: 28px;
-        overflow: hidden;
-        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
-        transform: translateY(20px);
-        transition: transform 0.3s cubic-bezier(0.17, 0.67, 0.43, 1.15);
-        text-align: center;
-    }
-
-    .custom-alert-backdrop.show .custom-alert-card {
-        transform: translateY(0);
-    }
-
-    .custom-alert-body {
-        padding: 32px 24px 24px;
-    }
-
-    .alert-icon {
-        font-size: 42px;
-        color: var(--point-orange);
-        margin-bottom: 16px;
-    }
-
-    .alert-title {
-        font-size: 19px;
-        font-weight: 900;
-        color: #0f172a;
-        margin-bottom: 8px;
-    }
-
-    .alert-desc {
-        font-size: 15px;
-        color: #64748b;
-        line-height: 1.5;
-    }
-
-    .alert-footer {
-        display: flex;
-        gap: 8px;
-        padding: 0 24px 24px;
-    }
-
-    .alert-btn {
-        flex: 1;
-        height: 50px;
-        border-radius: 16px;
-        font-size: 15px;
-        font-weight: 800;
-        cursor: pointer;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .btn-secondary { background: #f1f5f9; color: #475569; }
-    .btn-primary   { background: var(--point-orange); color: #fff; }
-    .alert-btn:active { transform: scale(0.96); }
-</style>
-
-<div id="safe-report-context" data-report-id="{{ detail.id }}" style="display:none;"></div>
-
-<div class="edit-container">
-
-    <!-- ?ㅻ뜑 -->
-    <div class="edit-header">
-        <button class="back-btn" onclick="history.back()">
-            <i class="bi bi-chevron-left"></i>
-        </button>
-        <h3 style="margin:0; font-size:1.1rem; font-weight:800; flex:1;">寃뚯떆湲 ?섏젙</h3>
-        <span style="font-size:0.75rem; color:#aaa; font-weight:600;">蹂몄씤 寃뚯떆湲</span>
-    </div>
-
-    <!-- 誘몃뵒??誘몃━蹂닿린 (?대┃?섏뿬 蹂寃쏀븯?? -->
-<div class="media-preview-section" style="position: relative; cursor: pointer;" onclick="document.getElementById('edit-file').click()">
-    <div id="current-media-display" style="width:100%; height:100%;">
+    <section class="report-edit-media" aria-label="등록된 첨부 자료">
         {% if detail.file_type == 'video' and detail.file_path %}
-        <video src="{{ detail.file_path }}" muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+        <video src="{{ detail.file_path }}" controls playsinline preload="metadata"></video>
         {% elif detail.thumbnail_path %}
-        <img src="{{ detail.thumbnail_path }}" alt="?좉퀬 ?ъ쭊">
+        <img src="{{ detail.thumbnail_path }}" alt="등록된 도로 파손 사진">
         {% elif detail.file_path %}
-        <img src="{{ detail.file_path }}" alt="?좉퀬 ?ъ쭊">
+        <img src="{{ detail.file_path }}" alt="등록된 도로 파손 사진">
         {% else %}
-        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#1a1a2e;">
-            <i class="bi bi-image" style="font-size:3rem; opacity:0.15; color:white;"></i>
+        <div class="report-edit-media-empty">
+            <i class="bi bi-image" aria-hidden="true"></i>
+            <span>등록된 첨부 자료가 없습니다.</span>
         </div>
         {% endif %}
-    </div>
+        <span class="report-edit-media-label">
+            <i class="bi bi-paperclip" aria-hidden="true"></i>
+            등록된 현장 자료
+        </span>
+    </section>
 
-    <img id="new-image-preview" src="" alt="???ъ쭊 誘몃━蹂닿린" style="display:none; width:100%; height:100%; object-fit:cover;">
+    <section class="report-edit-guide">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        <p>
+            제목과 설명을 수정할 수 있습니다.
+            <small>첨부 자료와 신고 위치는 접수 당시 정보로 유지됩니다.</small>
+        </p>
+    </section>
 
-    <input type="file" id="edit-file" name="file" accept="image/*,video/*" style="display:none;" onchange="previewNewFile(this)">
+    <form id="report-edit-form" class="report-edit-form" novalidate>
+        <section class="report-edit-card">
+            <div class="report-edit-card-head">
+                <span class="report-edit-step">01</span>
+                <div>
+                    <h2>제보 제목</h2>
+                    <p>어떤 위험인지 짧고 분명하게 적어주세요.</p>
+                </div>
+            </div>
+            <label for="edit-title">제목 <strong>필수</strong></label>
+            <input id="edit-title" name="title" type="text" maxlength="30"
+                value="{{ detail.title or '' }}" placeholder="예: 횡단보도 앞 포트홀" required>
+            <div class="report-edit-counter">
+                <span id="title-error" class="report-edit-error" aria-live="polite"></span>
+                <span><b id="title-count">{{ (detail.title or '') | length }}</b>/30</span>
+            </div>
+        </section>
 
-    <div class="media-overlay-badge" style="background: rgba(var(--point-orange-rgb, 255, 140, 0), 0.7);">
-        <i class="bi bi-camera-fill"></i>
-        ?대┃?섏뿬 誘몃뵒??蹂寃?    </div>
+        <section class="report-edit-card">
+            <div class="report-edit-card-head">
+                <span class="report-edit-step">02</span>
+                <div>
+                    <h2>추가 설명</h2>
+                    <p>현장 상황이나 위험 정도를 알려주세요.</p>
+                </div>
+            </div>
+            <label for="edit-content">상세 내용 <span>선택</span></label>
+            <textarea id="edit-content" name="content" maxlength="5000"
+                placeholder="차량 통행에 어떤 위험이 있는지 적어주세요.">{{ detail.content or '' }}</textarea>
+            <div class="report-edit-counter">
+                <span></span>
+                <span><b id="content-count">{{ (detail.content or '') | length }}</b>/5000</span>
+            </div>
+        </section>
+
+        <section class="report-edit-card report-edit-location">
+            <div class="report-edit-card-head">
+                <span class="report-edit-step">03</span>
+                <div>
+                    <h2>신고 위치</h2>
+                    <p>접수 당시 등록된 위치입니다.</p>
+                </div>
+            </div>
+            <div class="report-edit-location-row">
+                <span><i class="bi bi-geo-alt-fill" aria-hidden="true"></i></span>
+                <div>
+                    <small>등록 주소</small>
+                    <strong>{{ detail.address or '위치 정보 없음' }}</strong>
+                </div>
+                <i class="bi bi-lock-fill report-edit-lock" aria-label="수정할 수 없음"></i>
+            </div>
+        </section>
+
+        <div id="edit-result" class="report-edit-result" role="status" aria-live="polite"></div>
+
+        <div class="report-edit-actions">
+            <a href="{{ detail_url }}" class="report-edit-cancel">취소</a>
+            <button id="report-edit-submit" type="submit" class="report-edit-submit">
+                <span>변경 내용 저장</span>
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+    </form>
+</main>
+
+<div id="edit-confirm-modal" class="edit-confirm-backdrop" aria-hidden="true">
+    <section class="edit-confirm-card" role="dialog" aria-modal="true" aria-labelledby="edit-confirm-title">
+        <span class="edit-confirm-icon"><i class="bi bi-pencil-square" aria-hidden="true"></i></span>
+        <h2 id="edit-confirm-title">변경 내용을 저장할까요?</h2>
+        <p>수정한 제목과 설명이 알림 상세 페이지에 바로 반영됩니다.</p>
+        <div>
+            <button type="button" data-edit-modal="cancel">계속 수정</button>
+            <button type="button" class="is-primary" data-edit-modal="confirm">저장하기</button>
+        </div>
+    </section>
 </div>
-
-    <!-- ?쒕ぉ 移대뱶 -->
-    <div class="edit-card" style="border-radius: 24px 24px 0 0; margin: 10px 20px 0 20px;">
-        <div class="section-label">
-            <i class="bi bi-pencil-fill"></i> ?쒕ぉ
-        </div>
-        <input
-            id="edit-title"
-            type="text"
-            class="edit-input"
-            maxlength="100"
-            placeholder="?쒕ぉ???낅젰?섏꽭??
-            value="{{ detail.title or '' }}"
-            oninput="updateCharCount('edit-title', 'title-counter', 100)"
-        >
-        <div class="char-counter" id="title-counter">
-            {{ (detail.title or '') | length }} / 100
-        </div>
-    </div>
-
-    <!-- ?댁슜 移대뱶 -->
-    <div class="edit-card" style="border-radius: 0; margin: 2px 20px 0 20px;">
-        <div class="section-label">
-            <i class="bi bi-card-text"></i> ?댁슜
-        </div>
-        <textarea
-            id="edit-content"
-            class="edit-textarea"
-            maxlength="500"
-            placeholder="?좉퀬 ?댁슜???낅젰?섏꽭??
-            oninput="updateCharCount('edit-content', 'content-counter', 500)"
-        >{{ detail.content or '' }}</textarea>
-        <div class="char-counter" id="content-counter">
-            {{ (detail.content or '') | length }} / 500
-        </div>
-    </div>
-
-        <!-- ?꾩튂 移대뱶 (?쎄린 ?꾩슜) -->
-    <div class="edit-card" style="border-radius: 0 0 24px 24px; margin: 2px 20px 20px 20px;">
-        <div class="section-label">
-            <i class="bi bi-geo-alt-fill"></i> ?좉퀬 ?꾩튂
-        </div>
-        <div style="font-size:0.85rem; font-weight:600; color:#475569; background:#f8fafc; border-radius:12px; padding:12px 14px;">
-            <i class="bi bi-pin-map" style="color:var(--point-orange); margin-right:6px;"></i>
-            {{ detail.address or '?꾩튂 ?뺣낫 ?놁쓬' }}
-        </div>
-        <div id="edit-map"></div>
-        <div class="map-readonly-badge">
-            <i class="bi bi-lock-fill"></i>
-            ?꾩튂???섏젙?????놁뒿?덈떎
-        </div>
-    </div>  
-
-    <!-- ???踰꾪듉 (edit-container ?? edit-card 諛? -->
-    <div class="save-btn-wrap">
-        <button class="save-btn" id="updateBtn" onclick="handleUpdate()">
-            <i class="bi bi-check-lg"></i> ?섏젙 ?꾨즺
-        </button>
-    </div>
-
-</div>
-
-<!-- 而ㅼ뒪? ?쇰읉 紐⑤떖 -->
-<div id="customAlert" class="custom-alert-backdrop" onclick="if(event.target===this) hideAlert()">
-    <div class="custom-alert-card">
-        <div class="custom-alert-body">
-            <div class="alert-icon" id="alertIcon"><i class="bi bi-exclamation-circle-fill"></i></div>
-            <div class="alert-title" id="alertTitle">?뺤씤</div>
-            <div class="alert-desc" id="alertDesc">?댁슜???뺤씤?댁＜?몄슂.</div>
-        </div>
-        <div class="alert-footer">
-            <button class="alert-btn btn-secondary" id="alertCancelBtn" onclick="hideAlert()">痍⑥냼</button>
-            <button class="alert-btn btn-primary" id="alertConfirmBtn">?뺤씤</button>
-        </div>
-    </div>
-</div>
-
 
 <script nonce="{{ csp_nonce }}">
-    /* ?? [FIX] ?꾩뿭 Promise resolve 李몄“ (hideAlert?먯꽌 ?ъ슜) ?? */
-    let alertPromiseResolve = null;
+    (function () {
+        const page = document.querySelector('.report-edit-page');
+        const form = document.getElementById('report-edit-form');
+        const titleInput = document.getElementById('edit-title');
+        const contentInput = document.getElementById('edit-content');
+        const titleCount = document.getElementById('title-count');
+        const contentCount = document.getElementById('content-count');
+        const titleError = document.getElementById('title-error');
+        const result = document.getElementById('edit-result');
+        const submitButton = document.getElementById('report-edit-submit');
+        const modal = document.getElementById('edit-confirm-modal');
+        const reportId = page.dataset.reportId;
+        const detailUrl = page.dataset.detailUrl;
+        let submitting = false;
 
-     /* ?? [?좉퇋] ???뚯씪 誘몃━蹂닿린 ?⑥닔 ?? */
-    function previewNewFile(input) {
-        const currentMedia = document.getElementById('current-media-display');
-        const newPreview = document.getElementById('new-image-preview');
-
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                if (file.type.startsWith('image/')) {
-                    newPreview.src = e.target.result;
-                    newPreview.style.display = 'block';
-                    if (currentMedia) currentMedia.style.display = 'none';
-                } else if (file.type.startsWith('video/')) {
-                    newPreview.style.display = 'none';
-                    if (currentMedia) {
-                        currentMedia.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111;"><i class="bi bi-file-earmark-play" style="font-size:3rem; color:white;"></i><span style="color:white; margin-left:10px;">??鍮꾨뵒???좏깮??/span></div>';
-                        currentMedia.style.display = 'flex';
-                    }
-                    showAlert({ title: '?뚮┝', desc: '鍮꾨뵒???뚯씪???좏깮?섏뿀?듬땲?? ??????뺤씤 媛?ν빀?덈떎.', confirmOnly: true });
-                }
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-
-    /* ?? 1. ?곗씠??濡쒕뱶 ?뺤씤 ?? */
-    const contextEl = document.getElementById('safe-report-context');
-    const REPORT_ID = contextEl ? contextEl.dataset.reportId : null;
-    console.log("?ㅽ겕由쏀듃 濡쒕뱶 ?꾨즺. REPORT_ID:", REPORT_ID);
-
-    /* ?? 2. 湲????移댁슫???? */
-    function updateCharCount(inputId, counterId, max) {
-        const el = document.getElementById(inputId);
-        const counter = document.getElementById(counterId);
-        if(!el || !counter) return;
-        const len = el.value.length;
-        counter.textContent = `${len} / ${max}`;
-    }
-
-    /* ?? 3. 而ㅼ뒪? ?쇰읉 ?⑥닔 ?? */
-    function showAlert({ title, desc, icon = 'bi-exclamation-circle', confirmOnly = false }) {
-        return new Promise((resolve) => {
-            const modal = document.getElementById('customAlert');
-            if (!modal) {
-                const res = confirm(`${title}\n\n${desc}`);
-                resolve(res);
-                return;
-            }
-
-            document.getElementById('alertTitle').innerText = title;
-            document.getElementById('alertDesc').innerText = desc;
-            const cancelBtn = document.getElementById('alertCancelBtn');
-            if(cancelBtn) cancelBtn.style.display = confirmOnly ? 'none' : 'block';
-
-            // [FIX] ?댁쟾 Promise媛 ?⑥븘?덉쑝硫?null濡?resolve?섏뿬 ?뺣━
-            if (alertPromiseResolve) {
-                alertPromiseResolve(null);
-            }
-            alertPromiseResolve = resolve;
-
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
-
-            document.getElementById('alertConfirmBtn').onclick = () => {
-                alertPromiseResolve = null; // resolve ?꾩뿉 李몄“ ?댁젣
-                modal.classList.remove('show');
-                setTimeout(() => { modal.style.display = 'none'; }, 200);
-                resolve(true);
-            };
-
-            if(cancelBtn) {
-                cancelBtn.onclick = () => {
-                    alertPromiseResolve = null;
-                    modal.classList.remove('show');
-                    setTimeout(() => { modal.style.display = 'none'; }, 200);
-                    resolve(false);
-                };
-            }
-        });
-    }
-
-    /* ?? [FIX] hideAlert ?⑥닔 ?뺤쓽 (backdrop ?대┃ ???몄텧?? ?? */
-    function hideAlert() {
-        const modal = document.getElementById('customAlert');
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-            if (alertPromiseResolve) {
-                alertPromiseResolve(false);
-                alertPromiseResolve = null;
-            }
-        }, 200);
-    }
-
-    /* ?? 4. [FIX] ?섏젙 ?꾨즺 泥섎━ - FormData ?ъ슜 (?뚯씪 ?낅줈??吏?? ?? */
-    async function handleUpdate() {
-        console.log("?섏젙 ?꾨즺 踰꾪듉 ?대┃??);
-
-        const btn = document.getElementById('updateBtn');
-        const titleVal = document.getElementById('edit-title').value.trim();
-        const contentVal = document.getElementById('edit-content').value.trim();
-
-        if (!titleVal || !contentVal) {
-            await showAlert({ title: '?ㅻ쪟', desc: '?쒕ぉ怨??댁슜??紐⑤몢 ?낅젰?댁＜?몄슂.', confirmOnly: true });
-            return;
+        function updateCounters() {
+            titleCount.textContent = titleInput.value.length;
+            contentCount.textContent = contentInput.value.length;
+            titleError.textContent = '';
         }
 
-        const ok = await showAlert({
-            title: '?섏젙 ?뺤씤',
-            desc: '蹂寃쎌궗??쓣 ??ν븯?쒓쿋?듬땲源?',
-            icon: 'bi-question-circle'
-        });
+        function setModal(open) {
+            modal.classList.toggle('is-open', open);
+            modal.setAttribute('aria-hidden', open ? 'false' : 'true');
+            document.documentElement.classList.toggle('modal-active', open);
+        }
 
-        if (ok) {
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> ???以?..';
+        function validate() {
+            if (!titleInput.value.trim()) {
+                titleError.textContent = '제목을 입력해주세요.';
+                titleInput.focus();
+                return false;
+            }
+            return true;
+        }
+
+        async function saveChanges() {
+            if (submitting) return;
+            submitting = true;
+            setModal(false);
+            submitButton.disabled = true;
+            submitButton.classList.add('is-loading');
+            submitButton.querySelector('span').textContent = '저장 중';
+            result.className = 'report-edit-result';
+            result.textContent = '';
 
             try {
-                // [FIX] JSON ???FormData ?ъ슜 ???뚯씪 ?낅줈??+ ?띿뒪???숈떆 ?꾩넚 媛??                const formData = new FormData();
-                formData.append('title', titleVal);
-                formData.append('content', contentVal);
-
-                // ?덈줈 ?좏깮???뚯씪???덉쑝硫??④퍡 ?꾩넚
-                const fileInput = document.getElementById('edit-file');
-                if (fileInput.files && fileInput.files[0]) {
-                    formData.append('file', fileInput.files[0]);
-                }
-
-                const resp = await fetch(`/api/report/${REPORT_ID}/update`, {
+                const response = await fetch(`/api/report/${reportId}/edit`, {
                     method: 'POST',
-                    // [FIX] Content-Type ?ㅻ뜑瑜?紐낆떆?섏? ?딆쓬 (FormData媛 ?먮룞?쇰줈 multipart/form-data ?ㅼ젙)
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: titleInput.value.trim(),
+                        content: contentInput.value.trim()
+                    })
                 });
-
-                const data = await resp.json();
-
-                if (data.success) {
-                    await showAlert({ title: '?섏젙 ?꾨즺', desc: '?깃났?곸쑝濡??섏젙?섏뿀?듬땲??', confirmOnly: true });
-                    window.location.href = '/status';
-                } else {
-                    throw new Error(data.message || '????ㅽ뙣');
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || '수정 내용을 저장하지 못했습니다.');
                 }
-            } catch (e) {
-                console.error("?먮윭:", e);
-                await showAlert({ title: '?ㅽ뙣', desc: '?쒕쾭 ???以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', confirmOnly: true });
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-lg"></i> ?섏젙 ?꾨즺';
+                result.classList.add('is-success');
+                result.textContent = '수정 내용을 저장했습니다. 상세 페이지로 이동합니다.';
+                setTimeout(function () {
+                    window.location.assign(detailUrl);
+                }, 650);
+            } catch (error) {
+                result.classList.add('is-error');
+                result.textContent = error.message || '수정 중 오류가 발생했습니다.';
+                submitting = false;
+                submitButton.disabled = false;
+                submitButton.classList.remove('is-loading');
+                submitButton.querySelector('span').textContent = '변경 내용 저장';
             }
         }
-    }
 
-    /* ?? [NEW] ?뚰봽????젣 (DB 蹂댁〈, status='??젣'濡?蹂寃? ?? */
-    async function handleSoftDelete() {
-        const ok = await showAlert({
-            title: '寃뚯떆湲 ??젣',
-            desc: '??寃뚯떆臾쇱쓣 ??젣?섏떆寃좎뒿?덇퉴?\n??젣 ?꾩뿉??紐⑸줉?먯꽌 ?щ씪吏묐땲??',
-            icon: 'bi-trash3'
+        titleInput.addEventListener('input', updateCounters);
+        contentInput.addEventListener('input', updateCounters);
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (validate()) setModal(true);
         });
 
-        if (ok) {
-            try {
-                const resp = await fetch(`/api/report/${REPORT_ID}/soft-delete`, {
-                    method: 'POST'
-                });
-                const data = await resp.json();
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) setModal(false);
+            const action = event.target.closest('[data-edit-modal]');
+            if (!action) return;
+            if (action.dataset.editModal === 'confirm') saveChanges();
+            if (action.dataset.editModal === 'cancel') setModal(false);
+        });
 
-                if (data.success) {
-                    await showAlert({ title: '??젣 ?꾨즺', desc: '寃뚯떆臾쇱씠 ??젣?섏뿀?듬땲??', confirmOnly: true });
-                    window.location.href = '/status';
-                } else {
-                    await showAlert({ title: '?ㅽ뙣', desc: data.message || '??젣???ㅽ뙣?덉뒿?덈떎.', confirmOnly: true });
-                }
-            } catch (err) {
-                console.error("??젣 ?ㅻ쪟:", err);
-                await showAlert({ title: '?ㅻ쪟', desc: '?쒕쾭 ?듭떊 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.', confirmOnly: true });
-            }
-        }
-    }
-
-
-    /* ?? 移댁뭅??吏???? */
-    window.onload = () => {
-        try {
-            const lat = parseFloat('{{ detail.lat or 37.5665 }}');
-            const lng = parseFloat('{{ detail.lng or 126.9780 }}');
-            const mapOption = { center: new kakao.maps.LatLng(lat, lng), level: 3 };
-            const map = new kakao.maps.Map(document.getElementById('edit-map'), mapOption);
-            new kakao.maps.Marker({ position: new kakao.maps.LatLng(lat, lng) }).setMap(map);
-        } catch (e) {
-            console.log("吏??濡쒕뱶 ?ㅽ뙣:", e);
-        }
-    };
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('is-open')) setModal(false);
+        });
+    })();
 </script>
 {% endblock %}

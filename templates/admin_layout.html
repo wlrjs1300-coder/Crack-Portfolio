@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}CRACK 愿由ъ옄{% endblock %}</title>
+  <title>{% block title %}CRACK 관리자{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token }}">
   <script src="{{ url_for('static', filename='security.js') }}"></script>
 
@@ -73,56 +73,132 @@
       transition: opacity 0.12s ease;
     }
 
+    .dashboard-shell.admin-page-leaving {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+
+    .dashboard-shell.admin-page-leaving .page-body {
+      opacity: 0;
+      transform: translateX(-16px);
+      transition:
+        opacity .17s ease,
+        transform .2s cubic-bezier(.4, 0, 1, 1);
+    }
+
+    .page-transition-overlay.admin-motion-show {
+      opacity: 1;
+      background: transparent;
+    }
+
+    .page-transition-overlay.admin-motion-show::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 34%;
+      height: 3px;
+      border-radius: 0 999px 999px 0;
+      background: linear-gradient(90deg, #ff9a52 0%, #ff6b00 72%, #ffb27c 100%);
+      box-shadow: 0 2px 9px rgba(255, 107, 0, .28);
+      animation: adminNavigationLine .24s cubic-bezier(.4, 0, .2, 1) both;
+    }
+
+    @keyframes adminNavigationLine {
+      0% {
+        opacity: 0;
+        transform: translateX(-105%);
+      }
+      18% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(292%);
+      }
+    }
+
+    .admin-control-activating {
+      filter: brightness(.97) saturate(1.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 107, 0, .18) !important;
+      transition: filter .12s ease, box-shadow .12s ease !important;
+    }
+
+    .admin-panel-refreshing {
+      animation: adminPanelRefresh .28s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    @keyframes adminPanelRefresh {
+      0% {
+        opacity: .66;
+        transform: translateX(7px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     body.admin-enter {
       overflow: hidden;
     }
 
     body.admin-enter .layout {
-      opacity: 0;
-      transform: scale(0.992);
+      opacity: 1;
+      transform: none;
     }
 
     body.admin-enter .dashboard-shell {
-      opacity: 0;
-      transform: translateY(10px) scaleY(0.985);
-      transform-origin: center top;
-      filter: blur(4px);
-      box-shadow:
-        0 10px 24px rgba(15, 23, 42, 0.05),
-        0 2px 8px rgba(15, 23, 42, 0.03);
+      opacity: 1;
+      transform: none;
+      filter: none;
     }
 
     body.admin-enter .dashboard-shell > * {
+      opacity: 1;
+      transform: none;
+    }
+
+    body.admin-enter .page-body {
       opacity: 0;
-      transform: translateY(12px);
+      transform: translateX(18px);
     }
 
     body.admin-enter-active .layout {
       opacity: 1;
-      transform: scale(1);
-      transition: opacity 0.22s ease, transform 0.38s ease;
+      transform: none;
     }
 
     body.admin-enter-active .dashboard-shell {
       opacity: 1;
-      transform: translateY(0) scaleY(1);
+      transform: none;
       filter: blur(0);
-      box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.08),
-        0 4px 12px rgba(15, 23, 42, 0.04);
-      transition:
-        opacity 0.24s ease 0.04s,
-        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.04s,
-        filter 0.28s ease 0.04s,
-        box-shadow 0.28s ease 0.04s;
     }
 
     body.admin-enter-active .dashboard-shell > * {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
+    }
+
+    body.admin-enter-active .page-body {
+      opacity: 1;
+      transform: translateX(0);
       transition:
-        opacity 0.28s ease 0.18s,
-        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
+        opacity .24s ease .03s,
+        transform .32s cubic-bezier(.22, 1, .36, 1) .03s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .layout,
+      .dashboard-shell,
+      .dashboard-shell > *,
+      .page-transition-overlay,
+      .admin-control-activating,
+      .admin-panel-refreshing {
+        animation: none !important;
+        transition-duration: .01ms !important;
+      }
     }
 
     .main {
@@ -375,6 +451,9 @@
       .topbar {
         flex-direction: column;
         align-items: stretch;
+        height: auto;
+        min-height: 118px;
+        margin-bottom: 14px;
       }
 
       .topbar-actions {
@@ -400,8 +479,9 @@
       }
 
       .topbar-left {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
       }
 
       .header-quick-actions {
@@ -415,6 +495,20 @@
 
       .topbar-actions {
         gap: 14px;
+      }
+
+      .topbar {
+        min-height: 154px;
+      }
+
+      .topbar-menu {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .menu-item {
+        font-size: 13px;
       }
 
       .topbar-user {
@@ -433,9 +527,9 @@
           <div class="topbar-left">
             <a href="/admin/dashboard" class="header-brand js-page-transition-link">
               <div class="header-brand-row">
-                <span class="logo-icon">??/span>
+                <span class="logo-icon">⚡</span>
                 <span class="header-brand-main">CRACK</span>
-                <span class="header-brand-badge">愿由ъ옄??/span>
+                <span class="header-brand-badge">관리자용</span>
               </div>
               <div class="header-brand-sub">Admin Monitoring System</div>
             </a>
@@ -449,16 +543,19 @@
             <nav class="topbar-menu">
               <a href="/admin/dashboard"
                  class="menu-item js-page-transition-link {% if request.path == '/admin/dashboard' %}active{% endif %}">
-                ??쒕낫??              </a>
+                대시보드
+              </a>
               <a href="/admin/incidents"
                  class="menu-item js-page-transition-link {% if request.path.startswith('/admin/incidents') %}active{% endif %}">
-                ?좉퀬愿由?              </a>
+                신고관리
+              </a>
               <a href="/admin/members"
                   class="menu-item js-page-transition-link {% if request.path.startswith('/admin/members') %}active{% endif %}">
-                ?뚯썝愿由?              </a>
+                회원관리
+              </a>
               <a href="/admin/statistics"
                  class="menu-item js-page-transition-link {% if request.path.startswith('/admin/statistics') %}active{% endif %}">
-                ?듦퀎
+                통계
               </a>
             </nav>
 
@@ -468,10 +565,10 @@
                 href="{{ url_for('admin.admin_member_detail', member_id=session.get('user_id')) }}"
                 class="account-chip js-page-transition-link"
               >
-                <strong>{{ session.get('user_name', '愿由ъ옄') }}</strong>
+                <strong>{{ session.get('user_name', '관리자') }}</strong>
                 <span>{{ session.get('role', 'admin') }}</span>
               </a>
-              <a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
+              <a href="/logout" class="logout-pill js-page-transition-link">로그아웃</a>
               {% endblock %}
             </div>
           </div>
@@ -489,22 +586,28 @@
 <script nonce="{{ csp_nonce }}">
 (function () {
   const overlay = document.getElementById('pageTransitionOverlay');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let navigationRunning = false;
 
   function clearTransitionState() {
+    navigationRunning = false;
+
     if (overlay) {
-      overlay.classList.remove('show');
+      overlay.classList.remove('show', 'admin-motion-show');
     }
 
     const shell = document.querySelector('.dashboard-shell');
     if (shell) {
-      shell.classList.remove('page-leaving');
+      shell.classList.remove('page-leaving', 'admin-page-leaving');
     }
 
+    document.querySelector('.layout')?.classList.remove('admin-navigation-leaving');
     document.body.classList.remove('admin-enter');
     document.body.classList.remove('admin-enter-active');
   }
 
   function runEnterAnimation() {
+    if (reducedMotion) return;
     document.body.classList.add('admin-enter');
 
     requestAnimationFrame(() => {
@@ -516,15 +619,14 @@
     setTimeout(() => {
       document.body.classList.remove('admin-enter');
       document.body.classList.remove('admin-enter-active');
-    }, 900);
+    }, 520);
   }
 
   function isModifiedEvent(event) {
     return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
   }
 
-  function isSamePage(link) {
-    const targetUrl = new URL(link.href, window.location.href);
+  function isSamePage(targetUrl) {
     return (
       targetUrl.pathname === window.location.pathname &&
       targetUrl.search === window.location.search &&
@@ -532,36 +634,109 @@
     );
   }
 
-  function runPageTransition(href) {
-    if (!href) return;
+  function beginLeaving() {
+    if (navigationRunning) return false;
+    navigationRunning = true;
 
     const shell = document.querySelector('.dashboard-shell');
-    if (overlay) overlay.classList.add('show');
-    if (shell) shell.classList.add('page-leaving');
+    if (overlay) overlay.classList.add('show', 'admin-motion-show');
+    if (shell) shell.classList.add('admin-page-leaving');
+    return true;
+  }
+
+  function runPageTransition(href, replace = false) {
+    if (!href || !beginLeaving()) return;
 
     setTimeout(() => {
-      window.location.href = href;
-    }, 160);
+      if (replace) {
+        window.location.replace(href);
+      } else {
+        window.location.href = href;
+      }
+    }, reducedMotion ? 0 : 210);
   }
+
+  function getNavigableUrl(link) {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('#')) return null;
+
+    let targetUrl;
+    try {
+      targetUrl = new URL(href, window.location.href);
+    } catch (_error) {
+      return null;
+    }
+
+    if (!['http:', 'https:'].includes(targetUrl.protocol)) return null;
+    if (targetUrl.origin !== window.location.origin) return null;
+    return targetUrl;
+  }
+
+  function animateLocalControl(control) {
+    if (reducedMotion || !control) return;
+    control.classList.add('admin-control-activating');
+    setTimeout(() => control.classList.remove('admin-control-activating'), 150);
+
+    const panel = control.closest(
+      '.panel, .incident-section, .member-section, .dashboard-list-area, .region-chart-body'
+    );
+    if (!panel) return;
+    panel.classList.remove('admin-panel-refreshing');
+    requestAnimationFrame(() => panel.classList.add('admin-panel-refreshing'));
+    setTimeout(() => panel.classList.remove('admin-panel-refreshing'), 380);
+  }
+
+  window.AdminMotion = {
+    navigate: runPageTransition,
+    reset: clearTransitionState,
+    animatePanel: animateLocalControl
+  };
+
+  document.addEventListener('click', function (event) {
+    const link = event.target.closest('a[href]');
+    if (!link || link.matches('.js-summary-card')) return;
+    if (link.target === '_blank' || link.hasAttribute('download')) return;
+    if (isModifiedEvent(event)) return;
+
+    const targetUrl = getNavigableUrl(link);
+    if (!targetUrl || isSamePage(targetUrl)) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    runPageTransition(targetUrl.href);
+  }, true);
+
+  document.addEventListener('submit', function (event) {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    if ((form.method || 'get').toLowerCase() !== 'get') return;
+    if (form.target && form.target !== '_self') return;
+
+    let actionUrl;
+    try {
+      actionUrl = new URL(form.action || window.location.href, window.location.href);
+    } catch (_error) {
+      return;
+    }
+    if (actionUrl.origin !== window.location.origin) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (!beginLeaving()) return;
+    setTimeout(() => HTMLFormElement.prototype.submit.call(form), reducedMotion ? 0 : 210);
+  }, true);
+
+  document.addEventListener('click', function (event) {
+    const control = event.target.closest(
+      '[role="tab"], [data-admin-tab], .region-view-btn, .trend-filter-chip, ' +
+      '.region-page-btn, .pagination-current-btn, [data-region-view]'
+    );
+    if (!control) return;
+    animateLocalControl(control);
+  });
 
   document.addEventListener('DOMContentLoaded', function () {
     runEnterAnimation();
-
-    document.addEventListener('click', function (event) {
-      const link = event.target.closest('a.js-page-transition-link');
-      if (!link) return;
-
-      const href = link.getAttribute('href');
-      if (!href) return;
-      if (href.startsWith('#')) return;
-      if (link.target === '_blank') return;
-      if (link.hasAttribute('download')) return;
-      if (isModifiedEvent(event)) return;
-      if (isSamePage(link)) return;
-
-      event.preventDefault();
-      runPageTransition(link.href);
-    });
   });
 
   window.addEventListener('pageshow', function () {
@@ -579,7 +754,7 @@
     window.adminSocket = io();
     window.adminSocket.on('new_report', function(data) {
         if (typeof showToast === 'function') {
-            showToast('?뱧 ' + data.address + ' ???쒕낫 ?묒닔');
+            showToast('📍 ' + data.address + ' 새 제보 접수');
         }
     });
 })();
@@ -587,4 +762,3 @@
 {% block extra_script %}{% endblock %}
 </body>
 </html>
-

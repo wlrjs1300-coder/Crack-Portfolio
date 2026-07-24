@@ -1,324 +1,800 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
-{% block title %}Login - Crack{% endblock %}
+{% block title %}로그인 - CRACK{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-brand">
-        <i class="bi bi-lightning-charge-fill"></i> CRACK
-    </div>
-
-    <div class="auth-card">
-        <h2 style="margin-bottom: 8px; font-size: 1.5rem;">濡쒓렇??/h2>
-        <p style="margin-bottom: 30px; opacity: 0.5; font-size: 0.9rem;">?좎냽???꾨줈 ?뚯넀 ?좉퀬? ?뺤씤???꾪빐<br>濡쒓렇?몄씠 ?꾩슂?⑸땲??</p>
-
-        {% if error %}
-        <p style="color: #FF4D4D; font-size: 0.85rem; margin-bottom: 15px; font-weight: 600;">{{ error }}</p>
-        {% endif %}
-
-        <form method="POST" action="/login" style="display: flex; flex-direction: column; gap: 12px;">
-            <input type="text" name="username" placeholder="?꾩씠?? required
-                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s;">
-            <input type="password" name="password" placeholder="鍮꾨?踰덊샇" required
-                style="padding: 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.2s; margin-bottom: 8px;">
-
-            <button type="submit" class="auth-btn" style="margin-bottom: 0;">
-                <i class="bi bi-box-arrow-in-right"></i> 濡쒓렇??            </button>
-        </form>
-        <div class="auth-links">
-            <button type="button" class="link-btn" onclick="openModal('findIdModal')">?꾩씠??李얘린</button>
-            <span>|</span>
-            <button type="button" class="link-btn" onclick="openModal('findPwModal')">鍮꾨?踰덊샇 李얘린</button>
-        </div>
-    </div>
-</div>
-
-<div id="findIdModal" class="modal-overlay">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('findIdModal')">&times;</button>
-        <h3>?꾩씠??李얘린</h3>
-        <p class="modal-desc">媛?낇븷 ???ъ슜???뺣낫瑜??낅젰?댁＜?몄슂.</p>
-
-        <div id="find-id-result" style="margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; min-height: 20px;"></div>
-
-        <form id="find-id-form" class="modal-form">
-            <input type="text" id="find-name" name="name" placeholder="?대쫫" required>
-            <input type="email" id="find-email" name="email" placeholder="?대찓?? required>
-            <button type="submit" class="auth-btn">?꾩씠??李얘린</button>
-        </form>
-    </div>
-</div>
-
-<div id="findPwModal" class="modal-overlay">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('findPwModal')">&times;</button>
-        <h3>鍮꾨?踰덊샇 李얘린</h3>
-        <p class="modal-desc">媛?낇븳 ?꾩씠?붿? ?대찓?쇱쓣 ?낅젰?댁＜?몄슂.</p>
-
-        <div id="find-pw-result" style="margin-bottom: 15px; font-size: 0.9rem; font-weight: 600; text-align: center; min-height: 20px;"></div>
-
-        <form id="find-pw-form" class="modal-form">
-            <input type="text" id="find-pw-username" name="username" placeholder="?꾩씠?? required>
-            <input type="email" id="find-pw-email" name="email" placeholder="?대찓?? required>
-            <button type="submit" class="auth-btn">鍮꾨?踰덊샇 李얘린</button>
-        </form>
-    </div>
-</div>
-
-<div id="resetPwModal" class="modal-overlay" style="display: none;">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('resetPwModal')">&times;</button>
-        <h3>鍮꾨?踰덊샇 ?ъ꽕??/h3>
-        <p class="modal-desc">?덈줈??鍮꾨?踰덊샇瑜??낅젰?댁＜?몄슂.</p>
-
-        <div id="reset-pw-msg" style="margin-bottom: 15px; font-size: 0.85rem; text-align: center;"></div>
-
-        <form id="reset-pw-form" class="modal-form">
-            <input type="hidden" id="reset-username">
-            <input type="hidden" id="reset-token">
-            <input type="password" id="new-password" placeholder="?덈줈??鍮꾨?踰덊샇" required>
-            <input type="password" id="confirm-password" placeholder="?덈줈??鍮꾨?踰덊샇 ?뺤씤" required>
-            <button type="submit" class="auth-btn" style="background: #ff8a00;">鍮꾨?踰덊샇 蹂寃쏀븯湲?/button>
-        </form>
-    </div>
-</div>
-
 <style>
-    .auth-links {
-        margin-top: 18px;
+    .bottom-nav {
+        display: none !important;
+    }
+
+    .app-container {
+        grid-template-rows: auto 1fr !important;
+    }
+
+    main {
+        padding: 0 !important;
+        background: #f6f6f3;
+    }
+
+    .auth-tools a[href="/login"] {
+        display: none !important;
+    }
+
+    .login-page {
+        min-height: 100%;
+        padding: 34px 20px 48px;
+        background:
+            radial-gradient(circle at 92% 2%, rgba(249, 115, 22, .13), transparent 25%),
+            linear-gradient(180deg, #fffaf5 0, #f6f6f3 260px);
+    }
+
+    .login-intro {
+        margin-bottom: 22px;
+        padding: 5px 4px 0;
+        text-align: left;
+    }
+
+    .login-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 11px;
+        color: #e85d04;
+        font-size: .76rem;
+        font-weight: 850;
+    }
+
+    .login-intro h1 {
+        margin: 0;
+        color: #171717;
+        font-size: clamp(1.7rem, 7vw, 2.1rem);
+        line-height: 1.25;
+        letter-spacing: -.045em;
+    }
+
+    .login-intro p {
+        margin: 9px 0 0;
+        color: #71717a;
+        font-size: .86rem;
+        line-height: 1.55;
+    }
+
+    .login-panel {
+        padding: 22px 20px 20px;
+        border: 1px solid rgba(24, 24, 27, .07);
+        border-radius: 26px;
+        background: rgba(255, 255, 255, .96);
+        box-shadow: 0 16px 45px rgba(39, 32, 25, .08);
+    }
+
+    .login-error {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 11px 12px;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-size: .78rem;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .login-field {
+        margin-bottom: 13px;
+    }
+
+    .login-field label,
+    .recovery-field label {
+        display: block;
+        margin: 0 0 7px 2px;
+        color: #3f3f46;
+        font-size: .75rem;
+        font-weight: 800;
+    }
+
+    .login-input-shell,
+    .recovery-input-shell {
+        display: flex;
+        min-height: 50px;
+        align-items: center;
+        overflow: hidden;
+        border: 1px solid #dedede;
+        border-radius: 14px;
+        background: #fafafa;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .login-input-shell:focus-within,
+    .recovery-input-shell:focus-within {
+        border-color: #fb923c;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, .1);
+    }
+
+    .login-input-icon,
+    .recovery-input-icon {
+        width: 43px;
+        flex: 0 0 43px;
+        color: #a1a1aa;
         text-align: center;
-        font-size: 0.85rem;
-        color: #bbb;
     }
 
-    .link-btn {
-        background: none;
-        border: none;
-        color: #666;
-        font-size: 0.85rem;
+    .login-input-shell input,
+    .recovery-input-shell input {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+        padding: 0 12px 0 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #18181b;
+        font-size: .88rem;
+    }
+
+    .login-input-shell input::placeholder,
+    .recovery-input-shell input::placeholder {
+        color: #aaaab1;
+    }
+
+    .password-visibility {
+        display: grid;
+        width: 42px;
+        height: 48px;
+        flex: 0 0 42px;
+        place-items: center;
+        border: 0;
+        background: transparent;
+        color: #8b8b94;
         cursor: pointer;
-        margin: 0 6px;
-        padding: 0;
-        transition: color 0.2s ease;
     }
 
-    .link-btn:hover {
-        color: #111;
-        text-decoration: underline;
+    .login-submit,
+    .recovery-submit {
+        display: flex;
+        width: 100%;
+        min-height: 51px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 18px;
+        border: 0;
+        border-radius: 15px;
+        background: #18181b;
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 850;
+        box-shadow: 0 10px 22px rgba(24, 24, 27, .16);
+        cursor: pointer;
+        transition: transform .18s ease, background .18s ease;
     }
 
-    .modal-overlay {
-        display: none;
+    .login-submit:hover,
+    .recovery-submit:hover {
+        background: #f97316;
+        transform: translateY(-1px);
+    }
+
+    .login-submit:disabled,
+    .recovery-submit:disabled {
+        cursor: wait;
+        opacity: .65;
+        transform: none;
+    }
+
+    .account-help {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid #eeeae5;
+    }
+
+    .account-help-title {
+        margin: 0 0 10px 2px;
+        color: #71717a;
+        font-size: .72rem;
+        font-weight: 750;
+    }
+
+    .account-help-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .account-help-button {
+        display: flex;
+        min-height: 58px;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 10px;
+        border: 1px solid #ebe7e2;
+        border-radius: 14px;
+        background: #fafaf9;
+        color: #3f3f46;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    .account-help-button:hover {
+        border-color: #fdba74;
+        background: #fff7ed;
+        transform: translateY(-1px);
+    }
+
+    .account-help-icon {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        place-items: center;
+        border-radius: 11px;
+        background: #ffedd5;
+        color: #ea580c;
+        font-size: .9rem;
+    }
+
+    .account-help-copy strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: .76rem;
+        font-weight: 850;
+    }
+
+    .account-help-copy small {
+        display: block;
+        color: #8b8b94;
+        font-size: .64rem;
+        line-height: 1.3;
+    }
+
+    .login-signup {
+        margin: 17px 0 0;
+        color: #8a8a93;
+        font-size: .77rem;
+        text-align: center;
+    }
+
+    .login-signup a {
+        margin-left: 4px;
+        color: #ea580c;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    .recovery-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        z-index: 9999;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .modal-box {
-        position: relative;
-        width: 100%;
-        max-width: 420px;
-        background: #fff;
-        border-radius: 20px;
-        padding: 28px 24px 24px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        animation: modalFade 0.2s ease;
-    }
-
-    .modal-box h3 {
-        margin: 0 0 8px;
-        font-size: 1.2rem;
-        font-weight: 700;
-    }
-
-    .modal-desc {
-        margin-bottom: 18px;
-        font-size: 0.9rem;
-        color: #777;
-        line-height: 1.5;
-    }
-
-    .modal-form {
+        z-index: 30000;
         display: flex;
-        flex-direction: column;
-        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        padding: 22px;
+        background: rgba(24, 24, 27, .55);
+        -webkit-backdrop-filter: blur(7px);
+        backdrop-filter: blur(7px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .22s ease, visibility .22s ease;
     }
 
-    .modal-form input {
-        padding: 14px;
-        border: 1px solid rgba(0,0,0,0.1);
-        border-radius: 12px;
-        font-size: 0.95rem;
-        outline: none;
-        transition: 0.2s;
+    .recovery-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
     }
 
-    .modal-form input:focus {
-        border-color: #666;
+    .recovery-modal {
+        position: relative;
+        width: min(370px, 100%);
+        padding: 27px 22px 20px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .65);
+        border-radius: 26px;
+        background: #fff;
+        box-shadow: 0 26px 70px rgba(0, 0, 0, .26);
+        text-align: left;
+        transform: translateY(16px) scale(.97);
+        transition: transform .24s cubic-bezier(.2, .8, .2, 1);
     }
 
-    .modal-close {
+    .recovery-backdrop.is-open .recovery-modal {
+        transform: translateY(0) scale(1);
+    }
+
+    .recovery-close {
         position: absolute;
         top: 14px;
-        right: 16px;
-        background: none;
-        border: none;
-        font-size: 2.5rem;
-        color: #888;
+        right: 14px;
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border: 0;
+        border-radius: 10px;
+        background: #f5f5f4;
+        color: #78716c;
         cursor: pointer;
     }
 
-    .modal-close:hover {
-        color: #111;
+    .recovery-symbol {
+        display: grid;
+        width: 50px;
+        height: 50px;
+        margin-bottom: 13px;
+        place-items: center;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #ffedd5, #fff7ed);
+        color: #ea580c;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 20px rgba(249, 115, 22, .12);
     }
 
-    @keyframes modalFade {
-        from {
-            opacity: 0;
-            transform: translateY(10px) scale(0.98);
+    .recovery-kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: #ea580c;
+        font-size: .68rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+    }
+
+    .recovery-modal h2 {
+        margin: 0;
+        color: #18181b;
+        font-size: 1.2rem;
+        letter-spacing: -.03em;
+    }
+
+    .recovery-description {
+        margin: 7px 0 18px;
+        color: #85858d;
+        font-size: .77rem;
+        line-height: 1.5;
+        word-break: keep-all;
+    }
+
+    .recovery-field {
+        margin-bottom: 12px;
+    }
+
+    .recovery-result {
+        display: none;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 11px 12px;
+        border: 1px solid #e7e5e4;
+        border-radius: 12px;
+        background: #fafaf9;
+        color: #57534e;
+        font-size: .75rem;
+        font-weight: 700;
+        line-height: 1.45;
+    }
+
+    .recovery-result.is-visible {
+        display: flex;
+    }
+
+    .recovery-result.is-success {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .recovery-result.is-error {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .recovery-result i {
+        margin-top: 1px;
+        flex: 0 0 auto;
+    }
+
+    .recovery-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        margin: 14px 1px 0;
+        color: #8a8a93;
+        font-size: .67rem;
+        line-height: 1.45;
+    }
+
+    .recovery-note i {
+        color: #f97316;
+    }
+
+    body.recovery-open {
+        overflow: hidden !important;
+    }
+
+    @media (max-width: 370px) {
+        .login-page {
+            padding-right: 14px;
+            padding-left: 14px;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+
+        .login-panel {
+            padding-right: 16px;
+            padding-left: 16px;
+        }
+
+        .account-help-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
 
+<div class="login-page">
+    <section class="login-intro">
+        <span class="login-kicker"><i class="bi bi-shield-lock"></i> 안전한 계정 로그인</span>
+        <h1>도로 안전을 위한<br>CRACK에 로그인하세요</h1>
+        <p>내 주변 알림을 확인하고 도로 파손을 간편하게 제보할 수 있습니다.</p>
+    </section>
+
+    <section class="login-panel">
+        {% if error %}
+        <div class="login-error" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/login">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            {% endif %}
+            <div class="login-field">
+                <label for="login-username">아이디</label>
+                <div class="login-input-shell">
+                    <i class="bi bi-person login-input-icon"></i>
+                    <input type="text" id="login-username" name="username" placeholder="아이디 입력"
+                        autocomplete="username" required>
+                </div>
+            </div>
+            <div class="login-field">
+                <label for="login-password">비밀번호</label>
+                <div class="login-input-shell">
+                    <i class="bi bi-lock login-input-icon"></i>
+                    <input type="password" id="login-password" name="password" placeholder="비밀번호 입력"
+                        autocomplete="current-password" required>
+                    <button type="button" class="password-visibility" data-password-target="login-password"
+                        aria-label="비밀번호 보기"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+            <button type="submit" class="login-submit">
+                로그인 <i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="account-help">
+            <p class="account-help-title">로그인에 도움이 필요하신가요?</p>
+            <div class="account-help-grid">
+                <button type="button" class="account-help-button" data-open-recovery="findIdModal">
+                    <span class="account-help-icon"><i class="bi bi-person-badge"></i></span>
+                    <span class="account-help-copy">
+                        <strong>아이디 찾기</strong>
+                        <small>닉네임과 이메일로 확인</small>
+                    </span>
+                </button>
+                <button type="button" class="account-help-button" data-open-recovery="findPwModal">
+                    <span class="account-help-icon"><i class="bi bi-key"></i></span>
+                    <span class="account-help-copy">
+                        <strong>비밀번호 찾기</strong>
+                        <small>이메일로 재설정 링크 받기</small>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <p class="login-signup">아직 계정이 없으신가요? <a href="/signup">회원가입</a></p>
+    </section>
+</div>
+
+<div id="findIdModal" class="recovery-backdrop" aria-hidden="true">
+    <section class="recovery-modal" role="dialog" aria-modal="true" aria-labelledby="find-id-title">
+        <button type="button" class="recovery-close" data-close-recovery aria-label="아이디 찾기 닫기">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="recovery-symbol"><i class="bi bi-person-badge"></i></div>
+        <span class="recovery-kicker">계정 확인</span>
+        <h2 id="find-id-title">아이디 찾기</h2>
+        <p class="recovery-description">회원가입 때 입력한 닉네임과 이메일을 입력해주세요.</p>
+        <div id="find-id-result" class="recovery-result" aria-live="polite"></div>
+        <form id="find-id-form" novalidate>
+            <div class="recovery-field">
+                <label for="find-name">닉네임</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-person recovery-input-icon"></i>
+                    <input type="text" id="find-name" name="name" placeholder="가입한 닉네임"
+                        autocomplete="nickname" required>
+                </div>
+            </div>
+            <div class="recovery-field">
+                <label for="find-email">이메일</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-envelope recovery-input-icon"></i>
+                    <input type="email" id="find-email" name="email" placeholder="name@example.com"
+                        autocomplete="email" required>
+                </div>
+            </div>
+            <button type="submit" class="recovery-submit">내 아이디 확인하기</button>
+        </form>
+    </section>
+</div>
+
+<div id="findPwModal" class="recovery-backdrop" aria-hidden="true">
+    <section class="recovery-modal" role="dialog" aria-modal="true" aria-labelledby="find-pw-title">
+        <button type="button" class="recovery-close" data-close-recovery aria-label="비밀번호 찾기 닫기">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="recovery-symbol"><i class="bi bi-envelope-paper"></i></div>
+        <span class="recovery-kicker">비밀번호 재설정</span>
+        <h2 id="find-pw-title">재설정 메일 받기</h2>
+        <p class="recovery-description">가입한 아이디와 이메일을 확인한 뒤 재설정 링크를 보내드려요.</p>
+        <div id="find-pw-result" class="recovery-result" aria-live="polite"></div>
+        <form id="find-pw-form" novalidate>
+            <div class="recovery-field">
+                <label for="find-pw-username">아이디</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-person recovery-input-icon"></i>
+                    <input type="text" id="find-pw-username" name="username" placeholder="가입한 아이디"
+                        autocomplete="username" required>
+                </div>
+            </div>
+            <div class="recovery-field">
+                <label for="find-pw-email">이메일</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-envelope recovery-input-icon"></i>
+                    <input type="email" id="find-pw-email" name="email" placeholder="name@example.com"
+                        autocomplete="email" required>
+                </div>
+            </div>
+            <button type="submit" class="recovery-submit">재설정 메일 보내기</button>
+        </form>
+        <p class="recovery-note">
+            <i class="bi bi-info-circle"></i>
+            <span>가입 여부 보호를 위해 입력 정보가 일치하지 않아도 동일한 안내가 표시됩니다.</span>
+        </p>
+    </section>
+</div>
+
+<div id="resetPwModal" class="recovery-backdrop" aria-hidden="true">
+    <section class="recovery-modal" role="dialog" aria-modal="true" aria-labelledby="reset-pw-title">
+        <button type="button" class="recovery-close" data-close-recovery aria-label="비밀번호 재설정 닫기">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="recovery-symbol"><i class="bi bi-shield-lock"></i></div>
+        <span class="recovery-kicker">새 비밀번호 설정</span>
+        <h2 id="reset-pw-title">비밀번호 변경</h2>
+        <p class="recovery-description">새 비밀번호는 10자 이상으로 입력해주세요.</p>
+        <div id="reset-pw-result" class="recovery-result" aria-live="polite"></div>
+        <form id="reset-pw-form" novalidate>
+            <input type="hidden" id="reset-username">
+            <input type="hidden" id="reset-token">
+            <div class="recovery-field">
+                <label for="new-password">새 비밀번호</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-lock recovery-input-icon"></i>
+                    <input type="password" id="new-password" placeholder="10자 이상 입력"
+                        autocomplete="new-password" minlength="10" maxlength="128" required>
+                    <button type="button" class="password-visibility" data-password-target="new-password"
+                        aria-label="새 비밀번호 보기"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+            <div class="recovery-field">
+                <label for="confirm-password">새 비밀번호 확인</label>
+                <div class="recovery-input-shell">
+                    <i class="bi bi-lock-fill recovery-input-icon"></i>
+                    <input type="password" id="confirm-password" placeholder="한 번 더 입력"
+                        autocomplete="new-password" minlength="10" maxlength="128" required>
+                </div>
+            </div>
+            <button type="submit" class="recovery-submit">비밀번호 변경하기</button>
+        </form>
+    </section>
+</div>
 
 <script nonce="{{ csp_nonce }}">
-    // ?꾩뿭 紐⑤떖 ?닿린/?リ린 ?⑥닔
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (!modal) return;
+    (function () {
+        let activeRecoveryModal = null;
+        let recoveryTrigger = null;
 
-        modal.style.display = 'flex';
-
-        // 媛?紐⑤떖蹂?珥덇린??濡쒖쭅
-        if (modalId === 'findIdModal') {
-            document.getElementById('find-id-result').innerText = '';
-            document.getElementById('find-id-form').reset();
-        } else if (modalId === 'findPwModal') {
-            document.getElementById('find-pw-result').innerText = '';
-            document.getElementById('find-pw-form').reset();
-        } else if (modalId === 'resetPwModal') {
-            document.getElementById('reset-pw-msg').innerText = '';
-            document.getElementById('reset-pw-form').reset();
+        function setRecoveryResult(element, message, type) {
+            if (!element) return;
+            element.replaceChildren();
+            element.className = 'recovery-result';
+            if (!message) return;
+            const icon = document.createElement('i');
+            const text = document.createElement('span');
+            icon.className = type === 'success'
+                ? 'bi bi-check-circle-fill'
+                : 'bi bi-exclamation-circle-fill';
+            text.textContent = message;
+            element.append(icon, text);
+            element.classList.add('is-visible', type === 'success' ? 'is-success' : 'is-error');
         }
 
-        const firstInput = modal.querySelector('input');
-        if (firstInput) firstInput.focus();
-    }
+        function openRecoveryModal(modalId, options) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            const settings = options || {};
+            recoveryTrigger = settings.trigger || document.activeElement;
+            activeRecoveryModal = modal;
 
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.style.display = 'none';
-    }
-
-    // ?꾩씠??李얘린 ???쒖텧
-    document.getElementById('find-id-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('find-name').value;
-        const email = document.getElementById('find-email').value;
-        const resultDiv = document.getElementById('find-id-result');
-
-        fetch('/api/find-id', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 'name': name, 'email': email })
-        })
-        .then(res => res.json())
-        .then(data => {
-            resultDiv.textContent = data.message;
-            resultDiv.style.color = data.success ? '#2D63FF' : '#FF4D4D';
-        })
-        .catch(err => {
-            resultDiv.textContent = '?쒕쾭 ?듭떊 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
-            resultDiv.style.color = '#FF4D4D';
-        });
-    });
-
-    // 鍮꾨?踰덊샇 李얘린(議고쉶) ?④퀎
-    document.getElementById('find-pw-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const username = document.getElementById('find-pw-username').value;
-        const email = document.getElementById('find-pw-email').value;
-        const resultDiv = document.getElementById('find-pw-result');
-
-        fetch('/api/find-pw', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 'username': username, 'email': email })
-        })
-        .then(res => res.json())
-        .then(data => {
-            resultDiv.textContent = data.message;
-            resultDiv.style.color = data.success ? '#2D63FF' : '#FF4D4D';
-        })
-        .catch(err => {
-            console.error("Error:", err);
-            resultDiv.textContent = '?쒕쾭 ?듭떊 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.';
-            resultDiv.style.color = '#FF4D4D';
-        });
-    });
-
-    // ?ㅼ젣 鍮꾨?踰덊샇 蹂寃??ㅽ뻾 ?④퀎 (Alert Box -> 而ㅼ뒪? 紐⑤떖濡?援먯껜)
-    document.getElementById('reset-pw-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const username = document.getElementById('reset-username').value;
-        const password = document.getElementById('new-password').value;
-        const confirm = document.getElementById('confirm-password').value;
-        const msgDiv = document.getElementById('reset-pw-msg');
-
-        if (password !== confirm) {
-            msgDiv.innerText = "鍮꾨?踰덊샇媛 ?쇱튂?섏? ?딆뒿?덈떎.";
-            msgDiv.style.color = "#FF4D4D";
-            return;
-        }
-
-        fetch('/api/reset-pw', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 'username': username, 'password': password, 'token': document.getElementById('reset-token').value })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // report.html ?ㅽ??쇱쓽 而ㅼ뒪? ?뚮┝ 紐⑤떖 ?몄텧
-                if (typeof showNoticeModal === 'function') {
-                    showNoticeModal("鍮꾨?踰덊샇媛 蹂寃쎈릺?덉뒿?덈떎. ?ㅼ떆 濡쒓렇?명빐二쇱꽭??");
-                } else {
-                    // ?뱀떆?쇰룄 ?⑥닔媛 ?놁쓣 寃쎌슦瑜??鍮꾪븳 ?泥?硫붿떆吏
-                    msgDiv.innerHTML = `<span style="color: #2D63FF;">蹂寃??꾨즺! 濡쒓렇???붾㈃?쇰줈 ?대룞?⑸땲??</span>`;
-                }
-
-                // ?뺤씤 ???섏씠吏 ?덈줈怨좎묠 (2珥??ъ쑀)
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            } else {
-                msgDiv.innerText = data.message;
-                msgDiv.style.color = "#FF4D4D";
+            if (settings.reset !== false) {
+                modal.querySelector('form')?.reset();
+                setRecoveryResult(modal.querySelector('.recovery-result'), '', 'error');
             }
-        })
-        .catch(err => {
-            msgDiv.innerText = "?쒕쾭 ?듭떊 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.";
-            msgDiv.style.color = "#FF4D4D";
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('recovery-open');
+            window.setTimeout(function () {
+                modal.querySelector('input:not([type="hidden"])')?.focus();
+            }, 100);
+        }
+
+        function closeRecoveryModal() {
+            if (!activeRecoveryModal) return;
+            activeRecoveryModal.classList.remove('is-open');
+            activeRecoveryModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('recovery-open');
+            const trigger = recoveryTrigger;
+            activeRecoveryModal = null;
+            recoveryTrigger = null;
+            trigger?.focus();
+        }
+
+        async function submitRecoveryRequest(url, payload, button) {
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '확인 중...';
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                return { ok: response.ok && data.success, data };
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        document.querySelectorAll('[data-open-recovery]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                openRecoveryModal(button.dataset.openRecovery, { trigger: button });
+            });
         });
-    });
 
-    const resetParams = new URLSearchParams(window.location.search);
-    if (resetParams.has('reset_token') && resetParams.has('username')) {
-        document.getElementById('reset-token').value = resetParams.get('reset_token');
-        document.getElementById('reset-username').value = resetParams.get('username');
-        openModal('resetPwModal');
-        history.replaceState({}, document.title, '/login');
-    }
+        document.querySelectorAll('[data-close-recovery]').forEach(function (button) {
+            button.addEventListener('click', closeRecoveryModal);
+        });
+
+        document.querySelectorAll('.recovery-backdrop').forEach(function (backdrop) {
+            backdrop.addEventListener('click', function (event) {
+                if (event.target === backdrop) closeRecoveryModal();
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && activeRecoveryModal) closeRecoveryModal();
+        });
+
+        document.querySelectorAll('.password-visibility').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const input = document.getElementById(button.dataset.passwordTarget);
+                const icon = button.querySelector('i');
+                if (!input || !icon) return;
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+                button.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 보기');
+            });
+        });
+
+        document.getElementById('find-id-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const nickname = document.getElementById('find-name').value.trim();
+            const email = document.getElementById('find-email').value.trim();
+            const result = document.getElementById('find-id-result');
+            const button = event.submitter;
+
+            if (!nickname || !email) {
+                setRecoveryResult(result, '닉네임과 이메일을 모두 입력해주세요.', 'error');
+                return;
+            }
+
+            try {
+                const response = await submitRecoveryRequest('/api/find-id', {
+                    name: nickname,
+                    email: email
+                }, button);
+                setRecoveryResult(result, response.data.message, response.ok ? 'success' : 'error');
+            } catch (error) {
+                setRecoveryResult(result, '요청 처리 중 오류가 발생했습니다. 잠시 뒤 다시 시도해주세요.', 'error');
+            }
+        });
+
+        document.getElementById('find-pw-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('find-pw-username').value.trim();
+            const email = document.getElementById('find-pw-email').value.trim();
+            const result = document.getElementById('find-pw-result');
+            const button = event.submitter;
+
+            if (!username || !email) {
+                setRecoveryResult(result, '아이디와 이메일을 모두 입력해주세요.', 'error');
+                return;
+            }
+
+            try {
+                const response = await submitRecoveryRequest('/api/find-pw', {
+                    username: username,
+                    email: email
+                }, button);
+                setRecoveryResult(result, response.data.message, response.ok ? 'success' : 'error');
+            } catch (error) {
+                setRecoveryResult(result, '메일 요청 중 오류가 발생했습니다. 잠시 뒤 다시 시도해주세요.', 'error');
+            }
+        });
+
+        document.getElementById('reset-pw-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('reset-username').value;
+            const token = document.getElementById('reset-token').value;
+            const password = document.getElementById('new-password').value;
+            const confirmation = document.getElementById('confirm-password').value;
+            const result = document.getElementById('reset-pw-result');
+            const button = event.submitter;
+
+            if (password.length < 10) {
+                setRecoveryResult(result, '새 비밀번호는 10자 이상 입력해주세요.', 'error');
+                return;
+            }
+            if (password !== confirmation) {
+                setRecoveryResult(result, '입력한 두 비밀번호가 서로 다릅니다.', 'error');
+                return;
+            }
+
+            try {
+                const response = await submitRecoveryRequest('/api/reset-pw', {
+                    username: username,
+                    token: token,
+                    password: password
+                }, button);
+                setRecoveryResult(result, response.data.message, response.ok ? 'success' : 'error');
+                if (response.ok) {
+                    window.setTimeout(function () {
+                        closeRecoveryModal();
+                        window.location.assign('/login');
+                    }, 1400);
+                }
+            } catch (error) {
+                setRecoveryResult(result, '비밀번호 변경 중 오류가 발생했습니다.', 'error');
+            }
+        });
+
+        const resetParams = new URLSearchParams(window.location.search);
+        const resetToken = resetParams.get('reset_token');
+        const resetUsername = resetParams.get('username');
+        if (resetToken && resetUsername) {
+            document.getElementById('reset-token').value = resetToken;
+            document.getElementById('reset-username').value = resetUsername;
+            openRecoveryModal('resetPwModal', { reset: false });
+            history.replaceState({}, document.title, '/login');
+        }
+    })();
 </script>
-
 {% endblock %}
-

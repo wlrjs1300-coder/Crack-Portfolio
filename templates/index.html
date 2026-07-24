@@ -1,157 +1,384 @@
 {% extends 'layout.html' %}
 
-{% block title %}Home - Crack{% endblock %}
+{% block title %}홈 - CRACK{% endblock %}
 
 {% block content %}
 <style>
-    .service-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        padding-top: 10px;
-    }
-
-    .service-card {
-        background: white;
-        border-radius: 28px;
-        padding: 24px 20px;
+    .home-dashboard {
+        --home-ink: #172033;
+        --home-muted: #697386;
+        --home-line: #e9edf2;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(0, 0, 0, 0.02);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none;
-        color: inherit;
+        gap: 22px;
+        padding: 2px 0 8px;
+    }
+
+    .home-hero {
         position: relative;
         overflow: hidden;
-        aspect-ratio: 1 / 1.1;
+        padding: 24px 22px 22px;
+        border: 1px solid rgba(249, 115, 22, 0.18);
+        border-radius: 26px;
+        background:
+            radial-gradient(circle at 92% 12%, rgba(255, 255, 255, 0.9) 0 11%, transparent 12%),
+            linear-gradient(145deg, #fff7ed 0%, #fffaf5 58%, #ffffff 100%);
+        box-shadow: 0 14px 34px rgba(78, 47, 22, 0.08);
     }
 
-    .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(249, 115, 22, 0.2);
-        border-color: rgba(249, 115, 22, 0.3);
+    .home-hero::after {
+        content: '';
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        right: -72px;
+        bottom: -84px;
+        border: 28px solid rgba(249, 115, 22, 0.08);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    .service-card i {
-        font-size: 3rem;
-        margin-bottom: 14px;
-        color: var(--point-orange);
-        transition: transform 0.3s ease;
-    }
-
-    .service-card:hover i {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .service-title {
-        font-size: 1.3rem;
+    .home-greeting {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 13px;
+        color: #9a4d0a;
+        font-size: 0.84rem;
         font-weight: 800;
-        margin-bottom: 6px;
-        font-family: 'Outfit', sans-serif;
     }
 
-    .service-desc {
-        font-size: 0.85rem;
-        opacity: 0.5;
-        line-height: 1.4;
-        font-weight: 500;
-    }
-
-    .welcome-section {
-        margin-bottom: 24px;
-        padding: 30px 4px 10px 4px;
-        /* 상단 패딩을 10px에서 30px로 증량 */
-    }
-
-    .welcome-text {
-        font-size: 1.4rem;
-        font-weight: 900;
-        font-family: 'Outfit', sans-serif;
-        line-height: 1.2;
-    }
-
-    .welcome-text span {
+    .home-greeting i {
         color: var(--point-orange);
+        font-size: 0.95rem;
     }
 
-    /* 애니메이션 효과 */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
+    .home-title {
+        max-width: 340px;
+        margin: 0;
+        color: var(--home-ink);
+        font-size: clamp(1.55rem, 6vw, 1.85rem);
+        font-weight: 900;
+        line-height: 1.25;
+        letter-spacing: -0.055em;
+        word-break: keep-all;
+    }
+
+    .home-title strong {
+        color: var(--point-orange);
+        font-weight: 900;
+    }
+
+    .home-summary {
+        max-width: 340px;
+        margin: 10px 0 19px;
+        color: var(--home-muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+        word-break: keep-all;
+    }
+
+    .home-primary-action {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 58px;
+        padding: 10px 13px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #ff7a18 0%, #f45d0b 100%);
+        color: #ffffff;
+        text-decoration: none;
+        box-shadow: 0 12px 24px rgba(244, 93, 11, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .home-primary-icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        place-items: center;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.18);
+        font-size: 1.25rem;
+    }
+
+    .home-primary-copy {
+        display: flex;
+        min-width: 0;
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .home-primary-copy strong {
+        font-size: 0.98rem;
+        font-weight: 900;
+    }
+
+    .home-primary-copy small {
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.75rem;
+    }
+
+    .home-primary-arrow {
+        margin-right: 4px;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .home-primary-action:hover,
+    .home-primary-action:active {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(244, 93, 11, 0.32);
+    }
+
+    .home-primary-action:hover .home-primary-arrow {
+        transform: translateX(3px);
+    }
+
+    .quick-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .quick-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 0 2px;
+    }
+
+    .quick-heading h2 {
+        margin: 0;
+        color: var(--home-ink);
+        font-size: 1.05rem;
+        font-weight: 900;
+        letter-spacing: -0.025em;
+    }
+
+    .quick-heading p {
+        margin: 0;
+        color: #98a1b2;
+        font-size: 0.72rem;
+    }
+
+    .quick-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .quick-card {
+        position: relative;
+        display: flex;
+        min-height: 132px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 17px;
+        overflow: hidden;
+        border: 1px solid var(--home-line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.92);
+        color: inherit;
+        text-decoration: none;
+        box-shadow: 0 9px 24px rgba(20, 30, 50, 0.055);
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .quick-card::after {
+        content: '';
+        position: absolute;
+        right: -24px;
+        bottom: -32px;
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        background: rgba(249, 115, 22, 0.055);
+    }
+
+    .quick-card-icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        margin-bottom: 13px;
+        place-items: center;
+        border-radius: 13px;
+        background: #fff2e8;
+        color: var(--point-orange);
+        font-size: 1.1rem;
+    }
+
+    .quick-card-title {
+        margin-bottom: 4px;
+        color: var(--home-ink);
+        font-size: 0.95rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+    }
+
+    .quick-card-description {
+        max-width: 130px;
+        color: var(--home-muted);
+        font-size: 0.76rem;
+        line-height: 1.4;
+        word-break: keep-all;
+    }
+
+    .quick-card-arrow {
+        position: absolute;
+        top: 19px;
+        right: 17px;
+        color: #c1c7d0;
+        font-size: 0.8rem;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .quick-card:hover,
+    .quick-card:active {
+        transform: translateY(-3px);
+        border-color: rgba(249, 115, 22, 0.28);
+        box-shadow: 0 13px 27px rgba(84, 51, 26, 0.11);
+    }
+
+    .quick-card:hover .quick-card-arrow {
+        color: var(--point-orange);
+        transform: translateX(2px);
+    }
+
+    .home-primary-action:focus-visible,
+    .quick-card:focus-visible {
+        outline: 3px solid rgba(249, 115, 22, 0.32);
+        outline-offset: 3px;
+    }
+
+    @media (max-width: 360px) {
+        .home-dashboard {
+            gap: 18px;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .home-hero {
+            padding: 20px 17px 18px;
+            border-radius: 22px;
+        }
+
+        .home-summary {
+            font-size: 0.83rem;
+        }
+
+        .quick-grid {
+            gap: 10px;
+        }
+
+        .quick-card {
+            min-height: 122px;
+            padding: 14px;
+            border-radius: 19px;
+        }
+
+        .quick-card-icon {
+            width: 34px;
+            height: 34px;
+            margin-bottom: 10px;
+        }
+
+        .quick-card-arrow {
+            top: 16px;
+            right: 14px;
         }
     }
 
-    .service-card {
-        animation: fadeInUp 0.5s ease backwards;
-    }
-
-    .service-card:nth-child(1) {
-        animation-delay: 0.1s;
-    }
-
-    .service-card:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .service-card:nth-child(3) {
-        animation-delay: 0.3s;
-    }
-
-    .service-card:nth-child(4) {
-        animation-delay: 0.4s;
-    }
-
-    .service-card:nth-child(5) {
-        animation-delay: 0.5s;
-    }
-
-    /* 관리자 카드 특별 스타일 */
-    .admin-dashboard-card:hover {
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
-        transform: translateY(-5px);
+    @media (prefers-reduced-motion: reduce) {
+        .home-primary-action,
+        .home-primary-arrow,
+        .quick-card,
+        .quick-card-arrow {
+            transition: none;
+        }
     }
 </style>
-<div class="welcome-section">
-    <h1 class="welcome-text">
-        안녕하세요, <span>{{ session.get('user_name', '탐험가') }}</span>님!<br>
-        무엇을 도와드릴까요?
-    </h1>
-</div>
 
-<div class="service-container">
-    <a href="/alert" class="service-card">
-        <i class="bi bi-bell-fill"></i>
-        <div class="service-title">Alert</div>
-        <div class="service-desc">실시간 도로 파손<br>위험 지역 알림</div>
-    </a>
+{% set is_logged_in = session.get('user_id') %}
+{% set alert_href = '/alert' if is_logged_in else '/login?next=/alert' %}
+{% set report_href = '/report' if is_logged_in else '/login?next=/report' %}
+{% set status_href = '/status' if is_logged_in else '/login?next=/status' %}
+{% set mypage_href = '/mypage' if is_logged_in else '/login?next=/mypage' %}
 
-    <a href="/report" class="service-card" onclick="return checkMyPage(event)">
-        <i class="bi bi-plus-circle-fill"></i>
-        <div class="service-title">Report</div>
-        <div class="service-desc">직접 파손 제보<br>AI 분석 및 등록</div>
-    </a>
+<div class="home-dashboard">
+    <section class="home-hero" aria-labelledby="home-title">
+        <div class="home-greeting">
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+            {% if is_logged_in %}
+            <span>반갑습니다, {{ session.get('user_name', '사용자') }}님</span>
+            {% else %}
+            <span>로그인 후 서비스를 이용해주세요</span>
+            {% endif %}
+        </div>
 
-    <a href="/status" class="service-card" onclick="return checkMyPage(event)">
-        <i class="bi bi-file-text-fill"></i>
-        <div class="service-title">Status</div>
-        <div class="service-desc">나의 제보 현황<br>및 처리 결과 확인</div>
-    </a>
+        <h1 id="home-title" class="home-title">
+            도로 위 위험을 발견했다면<br>
+            <strong>바로 알려주세요</strong>
+        </h1>
 
-    <a href="/mypage" class="service-card" onclick="return checkMyPage(event)">
-        <i class="bi bi-person-fill"></i>
-        <div class="service-title">My</div>
-        <div class="service-desc">포인트 확인 및<br>프로필 관리</div>
-    </a>
+        <p class="home-summary">
+            사진이나 영상으로 간편하게 제보하고 처리 과정까지 한곳에서 확인할 수 있습니다.
+        </p>
 
+        <a href="{{ report_href }}" class="home-primary-action"
+            aria-label="{{ '새로운 도로 파손 제보 등록하기' if is_logged_in else '로그인하고 도로 파손 제보하기' }}">
+            <span class="home-primary-icon"><i class="bi bi-camera-fill" aria-hidden="true"></i></span>
+            <span class="home-primary-copy">
+                {% if is_logged_in %}
+                <strong>새로운 도로 파손 신고하기</strong>
+                <small>사진 또는 영상으로 빠르게 등록</small>
+                {% else %}
+                <strong>로그인하고 도로 파손 신고하기</strong>
+                <small>로그인 후 사진 또는 영상을 등록할 수 있어요</small>
+                {% endif %}
+            </span>
+            <i class="bi bi-arrow-right home-primary-arrow" aria-hidden="true"></i>
+        </a>
+    </section>
+
+    <section class="quick-section" aria-labelledby="quick-menu-title">
+        <div class="quick-heading">
+            <h2 id="quick-menu-title">빠른 메뉴</h2>
+            <p>필요한 메뉴로 바로 이동하세요</p>
+        </div>
+
+        <div class="quick-grid">
+            <a href="{{ alert_href }}" class="quick-card" aria-label="주변 도로 알림 확인하기">
+                <span class="quick-card-icon"><i class="bi bi-bell-fill" aria-hidden="true"></i></span>
+                <strong class="quick-card-title">도로 알림</strong>
+                <span class="quick-card-description">주변의 위험 제보를 확인해요</span>
+                <i class="bi bi-chevron-right quick-card-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ status_href }}" class="quick-card" aria-label="내 제보 처리 현황 확인하기">
+                <span class="quick-card-icon"><i class="bi bi-clipboard2-check-fill" aria-hidden="true"></i></span>
+                <strong class="quick-card-title">처리 현황</strong>
+                <span class="quick-card-description">내 제보의 진행 과정을 확인해요</span>
+                <i class="bi bi-chevron-right quick-card-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ report_href }}" class="quick-card" aria-label="도로 파손 제보 등록하기">
+                <span class="quick-card-icon"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
+                <strong class="quick-card-title">제보 등록</strong>
+                <span class="quick-card-description">사진과 영상을 새로 등록해요</span>
+                <i class="bi bi-chevron-right quick-card-arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ mypage_href }}" class="quick-card" aria-label="마이페이지로 이동하기">
+                <span class="quick-card-icon"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+                <strong class="quick-card-title">마이페이지</strong>
+                <span class="quick-card-description">프로필과 계정 정보를 관리해요</span>
+                <i class="bi bi-chevron-right quick-card-arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+    </section>
 </div>
 {% endblock %}

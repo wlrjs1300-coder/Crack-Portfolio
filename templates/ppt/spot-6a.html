@@ -18,7 +18,7 @@
             <div class="defense-hover" style="--defense-color: #E53935;">
                 <div class="defense-badge"><i class="bi bi-shield-fill-check"></i> 방어 로직</div>
                 <h4>Duplicate Cross-Check</h4>
-                <p>사용자가 지도에서 직접 선택한 <strong>GPS 좌표</strong>를 기반으로, <strong>최근 24시간 내 반경 50m 이내</strong>의 동일한 중복 제보는 시스템
+                <p>사용자가 지도에서 직접 선택한 <strong>GPS 좌표</strong>를 기반으로, <strong>반경 30m 이내에서 처리 중인</strong> 동일한 중복 제보는 시스템
                     단에서 자동 승인 거절됩니다.</p>
             </div>
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
@@ -66,8 +66,7 @@
             <div class="defense-hover" style="--defense-color: #FBC02D;">
                 <div class="defense-badge"><i class="bi bi-shield-fill-check"></i> 방어 로직</div>
                 <h4>AI Filtering</h4>
-                <p><strong>YOLOv8s Vision AI</strong>가 사진을 스레드로 정밀 판독하여 도로 파손 특성이 발견되지 않는 경우, 사람이 직접 보기도 전에 <strong>자동으로
-                        반려(Rejected) 상태로 강등</strong> 처리해 행정 인력을 보호합니다.</p>
+                <p><strong>YOLOv8 Vision AI</strong>가 사진을 백그라운드에서 판독하고 위험도와 파손 유형을 제공하여, 관리자가 접수된 신고의 <strong>처리 우선순위를 빠르게 판단</strong>하도록 돕습니다.</p>
             </div>
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
                 <i class="bi bi-robot" style="font-size: 2.5rem; color: #FBC02D;"></i>

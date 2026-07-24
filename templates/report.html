@@ -1,160 +1,1039 @@
 ﻿{% extends 'layout.html' %}
 
-{% block title %}Report - Crack{% endblock %}
+{% block title %}도로 위험 제보 - CRACK{% endblock %}
 
 {% block content %}
-<!-- h2 포트홀 사진 또는 영상을 찍어 신고해주세요 삭제-->
-<!-- 로컬 공지 모달 제거 (layout.html 전역 모달 사용) -->
-
-<div class="report-form card" style="margin-bottom: 24px;">
-    <!--제목div 위로 올림-->
-    <div class="form-group" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">제목</label>
-        <input type="text" id="report-title" placeholder="신고 제목을 입력해주세요" maxlength="30"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; font-family: inherit;">
-    </div>
-
-    <!-- 버그 수정: 글로벌 모달 제거하고 무조건 file-input 강제 클릭 (os 창 딱 1회만 호출) -->
-    <div class="upload-area" id="upload-area-box" onclick="triggerFileInput()"
-        style="border: 2px dashed rgba(255,140,0, 0.4); border-radius: 20px; text-align: center; margin-bottom: 24px; cursor: pointer; transition: background 0.2s; aspect-ratio: 16 / 9; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; position: relative; overflow: hidden;">
-
-        <div id="upload-placeholder"
-            style="display: flex; flex-direction: column; align-items: center; cursor: pointer; justify-content: center; width: 100%;">
-            <i class="bi bi-camera-fill" style="font-size: 3rem; color: var(--point-orange); margin-bottom: 10px;"></i>
-            <p id="selected-file-name" style="margin-top: 12px; font-weight: 700; font-size: 1.1rem;">현장 사진 촬영 또는 첨부</p>
-            <span style="font-size: 0.8rem; opacity: 0.6;">포트홀이 잘 보이도록 가까이서 찍어주세요.</span>
-        </div>
-
-        <!-- 크롭 컨테이너 (꽉 차게 조정) / 클릭 시 사진 재선택 가능하도록 함 -->
-        <div id="crop-container"
-            style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; ">
-            <img id="crop-image" src="" style="display: block; width: 100%; height: 100%;">
-        </div>
-
-        <!-- 최종 렌더링 화면 -->
-        <img id="final-preview-image" src="" style="display: none; width: 100%; height: 100%; object-fit: cover;position: absolute; top: 0; left: 0;">
-    </div>
-
-    <!-- 크롭 조작 메뉴 -->
-    <div id="crop-controls" style="display: none; margin-bottom: 24px; gap: 10px; width: 100%;">
-        <button type="button" class="btn-auth-solid"
-            style="flex: 1; min-width: 0; width: 50%; padding: 12px; font-size: 0.9rem; background: var(--point-orange); border: none; display: flex; align-items: center; justify-content: center; gap: 6px;"
-            onclick="openCropModal()">
-            <i class="bi bi-scissors"></i> 사진 자르기
-        </button>
-        <button type="button" class="btn-auth-outline"
-            style="flex: 1; min-width: 0; width: 50%; padding: 12px; font-size: 0.9rem; color: #ef4444; border-color: #ef4444; display: flex; align-items: center; justify-content: center; gap: 6px;"
-            onclick="removeImage()">
-            <i class="bi bi-trash3-fill"></i> 첨부파일 삭제
-        </button>
-    </div>
-
-    <!-- Hidden Inputs (단일화) / 갤러리 촬영 두가지 옵션 뜸-->
-    <input type="file" id="file-input" accept="image/*,video/*"  style="display: none;"
-        onchange="handleFileSelection(this)">
-
-
-    <div class="form-group" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px;">위치 설정</label>
-
-        <!-- 초기 노출되는 직접 위치 설정 버튼 -->
-        <div id="location-guide-msg"
-            style="padding: 12px; background: rgba(255, 140, 0, 0.05); border: 1px solid rgba(255, 140, 0, 0.2); border-radius: 12px; margin-bottom: 12px; font-size: 0.85rem; color: var(--point-orange); font-weight: 600; display: flex; align-items: center; gap: 8px; line-height: 1.4;">
-            <i class="bi bi-info-circle-fill" style="font-size: 1.1rem; flex-shrink: 0;"></i>
-            <span>사진/영상을 첨부하면 위치 설정 지도가 활성화됩니다.</span>
-        </div>
-
-        <!-- 초기 노출되는 직접 위치 설정 버튼 -->
-        <button type="button" id="btn-manual-location"
-            style="width: 100%; padding: 14px; border: 2px dashed var(--point-orange); border-radius: 12px; background: white; color: var(--point-orange); font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;"
-            onclick="activateMapManually()">
-            <i class="bi bi-geo-alt-fill"></i> 직접 위치 설정하기
-        </button>
-
-        <!-- [수정] 위치 입력창 (내 위치 버튼 제거) -->
-        <div id="location-input-group" style="display: none;">
-            <input type="text" id="report-location-text" placeholder="주소 검색 또는 지도에 핀 지정" readonly
-                style="width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; font-family: inherit; background: #fafafa; cursor: pointer;">
-        </div>
-
-        <!-- 좌표 저장용 (hidden) -->
-        <input type="hidden" id="report-lat">
-        <input type="hidden" id="report-lng">
-        <input type="hidden" id="report-address">
-        <input type="hidden" id="pre-uploaded-path">
-
-        <!-- 지도 영역 (초기 숨김) -->
-        <div id="map-interaction-area" style="display: none;">
-            <!-- [추가] EXIF 추출 성공 알림 영역 -->
-            <div id="exif-success-msg"
-                style="display: none; padding: 12px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #2e7d32; font-weight: 600; align-items: flex-start; gap: 8px; line-height: 1.4;">
-                <i class="bi bi-check-circle-fill" style="font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;"></i>
-                <span id="exif-success-text">사진 위치(메타데이터)가 확인되어 적용되었습니다.</span>
+<div class="report-page">
+    <div class="report-form">
+        <div class="report-page-heading">
+            <span class="report-heading-icon" aria-hidden="true">
+                <i class="bi bi-exclamation-triangle"></i>
+            </span>
+            <div class="report-heading-copy">
+                <h1 id="report-page-title">도로 위험 신고</h1>
+                <p>현장 사진과 정확한 위치를 등록해주세요.</p>
             </div>
+        </div>
 
-            <div id="map"
-                style="margin-top: 12px; height: 220px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden; position: relative; z-index: 1;">
-                <div id="gps-status-badge"
-                    style="display: none; align-items: center; gap: 8px; font-size: 0.85rem; color: #E65100; background: #FFF3E0; padding: 10px 14px; border-radius: 12px; font-weight: 700; position: absolute; top: 12px; left: 12px; z-index: 10;">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <span id="gps-status-text">내 위치 찾는 중...</span>
+        <section class="report-section">
+            <div class="report-section-head">
+                <span class="report-step">01</span>
+                <div>
+                    <h2>제보 제목</h2>
+                    <p>어떤 위험인지 짧고 분명하게 적어주세요.</p>
                 </div>
             </div>
-            <p style="font-size: 0.75rem; color: var(--point-orange); margin-top: 6px; font-weight: 600;">
-                <i class="bi bi-info-circle"></i> 지도를 터치하여 정확한 위치를 선택할 수 있습니다.
-            </p>
-        </div>
-    </div>
+            <label class="report-label" for="report-title">제목 <b>필수</b></label>
+            <div class="report-input-shell">
+                <i class="bi bi-pencil-square"></i>
+                <input type="text" id="report-title" placeholder="예: 횡단보도 앞 포트홀" maxlength="30"
+                    autocomplete="off" spellcheck="false">
+            </div>
+            <span class="report-field-note">최대 30자까지 입력할 수 있어요.</span>
+        </section>
 
-    <div class="form-group" style="margin-bottom: 15px;">
-        <label style="display: block; font-size: 0.9rem; font-weight: 600; margin-bottom:8px;">추가 설명</label>
-        <textarea id="report-content" rows="1" placeholder="상황에 대한 상세 내용을 적어주세요 (선택)"
-            style="width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; resize: none; font-family: inherit;"></textarea>
-    </div>
+        <section class="report-section">
+            <div class="report-section-head">
+                <span class="report-step">02</span>
+                <div>
+                    <h2>현장 사진 또는 동영상</h2>
+                    <p>파손 부위와 주변 도로가 함께 보이면 좋아요.</p>
+                </div>
+            </div>
 
-    <button type="button" id="submit-btn" class="btn-auth-solid"
-        style="width: 100%; box-shadow: 0 4px 14px rgba(255,140,0,0.3); font-size: 1rem; padding: 14px; border: none; cursor: pointer;"
-        onclick="submitReport()">
-        신고 제출하기
-    </button>
+            <div class="upload-area" id="upload-area-box" role="button" tabindex="0"
+                data-report-action="select-file" aria-label="현장 사진 또는 동영상 첨부">
+                <div id="upload-placeholder" class="upload-placeholder">
+                    <span class="upload-icon"><i class="bi bi-camera-fill"></i></span>
+                    <strong id="selected-file-name">사진·동영상 첨부하기</strong>
+                    <span>촬영하거나 기기에서 파일을 선택하세요</span>
+                    <small>이미지 또는 동영상 · 최대 100MB</small>
+                </div>
+                <div id="crop-container" class="crop-container">
+                    <img id="crop-image" src="" alt="선택한 이미지 편집 화면">
+                </div>
+                <img id="final-preview-image" src="" alt="첨부파일 미리보기">
+                <span class="preview-change-hint"><i class="bi bi-arrow-repeat"></i> 다시 선택</span>
+            </div>
+
+            <div id="crop-controls" class="crop-controls">
+                <button type="button" class="report-secondary-button" data-report-action="open-crop">
+                    <i class="bi bi-scissors"></i> 사진 자르기
+                </button>
+                <button type="button" class="report-danger-button" data-report-action="remove-file">
+                    <i class="bi bi-trash3"></i> 파일 삭제
+                </button>
+            </div>
+            <input type="file" id="file-input" accept="image/*,video/*" hidden>
+        </section>
+
+        <section class="report-section">
+            <div class="report-section-head">
+                <span class="report-step">03</span>
+                <div>
+                    <h2>발견 위치</h2>
+                    <p>사진의 위치 정보가 없으면 지도에서 지정해주세요.</p>
+                </div>
+            </div>
+
+            <div id="location-guide-msg" class="location-guide-msg">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>파일을 첨부하면 위치 확인을 시작합니다.</span>
+            </div>
+
+            <button type="button" id="btn-manual-location" class="manual-location-button"
+                data-report-action="manual-location">
+                <span><i class="bi bi-geo-alt-fill"></i></span>
+                <strong>지도에서 위치 설정</strong>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <div id="location-input-group" class="location-input-group">
+                <label class="report-label" for="report-location-text">선택한 주소</label>
+                <div class="report-input-shell is-location">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="report-location-text" placeholder="주소 검색 또는 지도에 핀 지정" readonly>
+                    <span>변경</span>
+                </div>
+            </div>
+
+            <input type="hidden" id="report-lat">
+            <input type="hidden" id="report-lng">
+            <input type="hidden" id="report-address">
+            <input type="hidden" id="pre-uploaded-path">
+
+            <div id="map-interaction-area" class="map-interaction-area">
+                <div id="exif-success-msg" class="exif-success-msg">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span id="exif-success-text">사진 위치가 확인되어 적용되었습니다.</span>
+                </div>
+                <div id="map" class="report-map">
+                    <div id="gps-status-badge" class="gps-status-badge">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span id="gps-status-text">내 위치 찾는 중...</span>
+                    </div>
+                </div>
+                <p class="map-help"><i class="bi bi-hand-index-thumb"></i> 지도를 눌러 정확한 위치로 핀을 옮길 수 있어요.</p>
+            </div>
+        </section>
+
+        <section class="report-section">
+            <div class="report-section-head">
+                <span class="report-step">04</span>
+                <div>
+                    <h2>추가 설명</h2>
+                    <p>통행 상황이나 위험 정도를 알려주세요.</p>
+                </div>
+            </div>
+            <label class="report-label" for="report-content">상세 내용 <span>선택</span></label>
+            <textarea id="report-content" rows="4" maxlength="500"
+                placeholder="예: 차량이 피하기 어려울 정도로 크고, 야간에는 잘 보이지 않습니다."></textarea>
+
+            <div class="report-section-submit">
+                <div class="report-submit-note">
+                    <i class="bi bi-shield-check"></i>
+                    <span>등록한 내용은 AI 분석 후 담당자에게 전달됩니다.</span>
+                </div>
+                <button type="button" id="submit-btn" class="report-submit-button"
+                    data-report-action="submit-report">
+                    <span>제보하기</span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+    </div>
 </div>
 
-<!-- [추가] 전용 크롭 모달 (최상위 계층으로 독립 배치) -->
-<div id="cropModal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; padding: 15px; pointer-events: auto;">
-    <div
-        style="width: 100%; max-width: 500px; background: white; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh; position: relative;">
-        <div
-            style="padding: 18px 24px; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: #333;">사진 편집</h3>
-            <button type="button" onclick="closeCropModal()"
-                style="border: none; background: none; font-size: 1.8rem; line-height: 1; cursor: pointer; color: #999; padding: 0;">&times;</button>
+<div id="cropModal" class="crop-modal-backdrop">
+    <section class="crop-modal-card" role="dialog" aria-modal="true" aria-labelledby="crop-modal-title">
+        <div class="crop-modal-head">
+            <div>
+                <span>사진 편집</span>
+                <h2 id="crop-modal-title">필요한 부분만 남겨주세요</h2>
+            </div>
+            <button type="button" class="crop-modal-close" data-report-action="close-crop"
+                aria-label="사진 편집 닫기"><i class="bi bi-x-lg"></i></button>
         </div>
-        <div
-            style="flex: 1; background: #000; display: flex; align-items: center; justify-content: center; min-height: 280px; max-height: 55vh; overflow: hidden; position: relative;">
-            <img id="modal-crop-image" style="max-width: 100%; display: block;" alt="crop preview">
+        <div class="crop-modal-canvas">
+            <img id="modal-crop-image" alt="자르기 미리보기">
         </div>
-        <div style="padding: 20px 24px; display: flex; gap: 12px; background: #fff;">
-            <button type="button" class="btn-auth-outline"
-                style="flex: 1; padding: 14px; border-radius: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-align: center;"
-                onclick="closeCropModal()">취소</button>
-            <button type="button" class="btn-auth-solid"
-                style="flex: 1; padding: 14px; background: var(--point-orange); border-radius: 14px; font-weight: 600; border: none; color: white; display: flex; align-items: center; justify-content: center; text-align: center;"
-                onclick="confirmCrop()">적용하기</button>
+        <div class="crop-modal-actions">
+            <button type="button" class="report-secondary-button" data-report-action="close-crop">취소</button>
+            <button type="button" class="report-primary-button" data-report-action="confirm-crop">
+                <i class="bi bi-check2"></i> 적용하기
+            </button>
         </div>
-    </div>
+    </section>
 </div>
 
-<!-- 기존 불필요했던 히든 인풋 제거 -->
+<div id="duplicate-report-modal" class="duplicate-report-backdrop" aria-hidden="true">
+    <section class="duplicate-report-modal" role="dialog" aria-modal="true"
+        aria-labelledby="duplicate-report-title">
+        <button type="button" class="duplicate-report-close" data-report-action="close-duplicate"
+            aria-label="기존 사고 안내 닫기">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <span class="duplicate-report-symbol"><i class="bi bi-geo-alt-fill"></i></span>
+        <span class="duplicate-report-kicker">가까운 제보 발견</span>
+        <h2 id="duplicate-report-title">이미 접수된 도로 위험이 있어요</h2>
+        <p id="duplicate-report-description">같은 사고인지 확인한 후 제보 방법을 선택해주세요.</p>
+
+        <div class="duplicate-report-summary">
+            <span class="duplicate-report-status" id="duplicate-report-status">접수완료</span>
+            <strong id="duplicate-report-existing-title">도로 위험 제보</strong>
+            <p><i class="bi bi-geo-alt"></i><span id="duplicate-report-address">위치 정보 없음</span></p>
+            <div>
+                <span><i class="bi bi-rulers"></i><b id="duplicate-report-distance">0m</b> 거리</span>
+                <span><i class="bi bi-people"></i><b id="duplicate-report-count">1명</b> 제보</span>
+            </div>
+        </div>
+
+        <p id="duplicate-report-same-user" class="duplicate-report-warning" hidden>
+            <i class="bi bi-info-circle-fill"></i>
+            이미 내가 제보한 사고입니다. 기존 제보를 확인하거나 위치를 다시 지정해주세요.
+        </p>
+
+        <div class="duplicate-report-actions">
+            <button type="button" class="duplicate-report-secondary" data-report-action="change-location">
+                위치 다시 확인
+            </button>
+            <button type="button" id="duplicate-report-join" class="duplicate-report-primary"
+                data-report-action="join-duplicate">
+                기존 사고에 추가 제보
+            </button>
+            <button type="button" class="duplicate-report-link" data-report-action="view-duplicate">
+                기존 제보 상세보기 <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </section>
+</div>
 
 {% block extra_style %}
 <style>
-    /* [교정] 신고 탭에서는 브라우저 기본 PTR 및 스크롤 바운스 완전 차단 */
     main {
+        padding: 0 !important;
+        background: #f5f5f2 !important;
         overscroll-behavior-y: contain !important;
     }
 
-    /* [고도화] 크로퍼 UI 커스텀 (모바일 터치 편의성 및 테마 통일) */
+    .report-page {
+        min-height: 100%;
+        padding: 0 0 24px;
+        color: #172033;
+    }
+
+    .report-form {
+        display: grid;
+        gap: 10px;
+        padding: 0 14px;
+    }
+
+    .report-page-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 18px 4px 15px;
+    }
+
+    .report-heading-icon {
+        display: grid;
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        place-items: center;
+        border-radius: 13px;
+        background: #fff0e4;
+        color: #f97316;
+        font-size: 1rem;
+    }
+
+    .report-heading-copy {
+        min-width: 0;
+        text-align: left;
+    }
+
+    .report-page-heading h1 {
+        margin: 0;
+        color: #202838;
+        font-size: 1.1rem;
+        font-weight: 900;
+        line-height: 1.25;
+        letter-spacing: -.035em;
+    }
+
+    .report-page-heading p {
+        margin: 4px 0 0;
+        color: #8b929e;
+        font-size: .68rem;
+        line-height: 1.4;
+    }
+
+    .report-section {
+        padding: 17px 16px;
+        border: 1px solid #e5e5e2;
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: none;
+    }
+
+    .report-section-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 17px;
+    }
+
+    .report-step {
+        display: grid;
+        width: 29px;
+        height: 29px;
+        flex: 0 0 29px;
+        place-items: center;
+        border-radius: 8px;
+        background: #fff4eb;
+        color: #ea580c;
+        font-size: .63rem;
+        font-weight: 900;
+    }
+
+    .report-section-head h2 {
+        margin: 1px 0 3px;
+        color: #202838;
+        font-size: .94rem;
+        letter-spacing: -.025em;
+    }
+
+    .report-section-head p {
+        margin: 0;
+        color: #9299a5;
+        font-size: .68rem;
+        line-height: 1.45;
+        word-break: keep-all;
+    }
+
+    .report-label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0 0 7px 2px;
+        color: #4b5563;
+        font-size: .7rem;
+        font-weight: 800;
+    }
+
+    .report-label b {
+        color: #ea580c;
+        font-size: .61rem;
+    }
+
+    .report-label span {
+        color: #9ca3af;
+        font-size: .62rem;
+        font-weight: 700;
+    }
+
+    .report-input-shell {
+        display: flex;
+        min-height: 49px;
+        align-items: center;
+        gap: 9px;
+        padding: 0 13px;
+        border: 1px solid #dedfdc;
+        border-radius: 14px;
+        background: #fafaf9;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .report-input-shell:focus-within {
+        border-color: #fb923c;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, .1);
+    }
+
+    .report-input-shell > i {
+        color: #a1a1aa;
+        font-size: .87rem;
+    }
+
+    .report-input-shell input {
+        width: 100%;
+        min-width: 0;
+        height: 47px;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #27272a;
+        caret-color: #f97316;
+        font: inherit;
+        font-size: .82rem;
+    }
+
+    .report-input-shell input::selection,
+    #report-content::selection {
+        color: #27272a;
+        background: rgba(249, 115, 22, .22);
+    }
+
+    .report-input-shell input:-webkit-autofill,
+    .report-input-shell input:-webkit-autofill:hover,
+    .report-input-shell input:-webkit-autofill:focus,
+    .report-input-shell input:-webkit-autofill:active {
+        -webkit-text-fill-color: #27272a;
+        caret-color: #f97316;
+        box-shadow: 0 0 0 1000px #fff inset !important;
+        transition: background-color 9999s ease-out 0s;
+    }
+
+    .report-input-shell input::placeholder,
+    #report-content::placeholder {
+        color: #b0b1b7;
+    }
+
+    .report-field-note {
+        display: block;
+        margin: 6px 2px 0;
+        color: #a1a1aa;
+        font-size: .61rem;
+        text-align: right;
+    }
+
+    .upload-area {
+        position: relative;
+        display: flex;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 1.5px dashed #f6b77d;
+        border-radius: 15px;
+        background: #fffaf6;
+        cursor: pointer;
+        transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+
+    .upload-area:hover {
+        border-color: #f97316;
+        box-shadow: 0 10px 25px rgba(249, 115, 22, .1);
+        transform: translateY(-1px);
+    }
+
+    .upload-area:focus-visible {
+        outline: 3px solid rgba(249, 115, 22, .25);
+        outline-offset: 3px;
+    }
+
+    .upload-placeholder {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .upload-icon {
+        display: grid;
+        width: 52px;
+        height: 52px;
+        margin-bottom: 12px;
+        place-items: center;
+        border-radius: 17px;
+        background: #ffeddd;
+        color: #f97316;
+        font-size: 1.28rem;
+        box-shadow: none;
+    }
+
+    .upload-placeholder strong {
+        color: #313846;
+        font-size: .91rem;
+        font-weight: 900;
+    }
+
+    .upload-placeholder > span:not(.upload-icon) {
+        margin-top: 5px;
+        color: #858d9a;
+        font-size: .69rem;
+    }
+
+    .upload-placeholder small {
+        margin-top: 10px;
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, .85);
+        color: #a1a1aa;
+        font-size: .58rem;
+    }
+
+    .crop-container {
+        position: absolute;
+        inset: 0;
+        display: none;
+    }
+
+    .crop-container img,
+    #final-preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    #final-preview-image {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        display: none;
+    }
+
+    .preview-change-hint {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        z-index: 4;
+        display: none;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 9px;
+        background: rgba(24, 24, 27, .72);
+        color: #fff;
+        font-size: .61rem;
+        font-weight: 750;
+        backdrop-filter: blur(5px);
+    }
+
+    .upload-area:has(#final-preview-image[style*="block"]) .preview-change-hint {
+        display: inline-flex;
+    }
+
+    .crop-controls {
+        display: none;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .report-secondary-button,
+    .report-danger-button,
+    .report-primary-button {
+        display: flex;
+        min-height: 44px;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 12px;
+        font-size: .72rem;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .report-secondary-button {
+        border: 1px solid #dedfdc;
+        background: #fff;
+        color: #525866;
+    }
+
+    .report-danger-button {
+        border: 1px solid #fee2e2;
+        background: #fff7f7;
+        color: #dc2626;
+    }
+
+    .report-primary-button {
+        border: 0;
+        background: #f97316;
+        color: #fff;
+    }
+
+    .location-guide-msg,
+    .exif-success-msg {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 10px 11px;
+        border: 1px solid #fed7aa;
+        border-radius: 11px;
+        background: #fff7ed;
+        color: #c2410c;
+        font-size: .67rem;
+        font-weight: 750;
+        line-height: 1.45;
+    }
+
+    .location-guide-msg > i,
+    .exif-success-msg > i {
+        margin-top: 1px;
+        flex: 0 0 auto;
+    }
+
+    .manual-location-button {
+        display: flex;
+        width: 100%;
+        min-height: 53px;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border: 1px solid #eadfd5;
+        border-radius: 14px;
+        background: #fff;
+        color: #394150;
+        cursor: pointer;
+    }
+
+    .manual-location-button > span {
+        display: grid;
+        width: 35px;
+        height: 35px;
+        flex: 0 0 35px;
+        place-items: center;
+        border-radius: 11px;
+        background: #ffedd5;
+        color: #ea580c;
+    }
+
+    .manual-location-button strong {
+        flex: 1;
+        font-size: .77rem;
+        text-align: left;
+    }
+
+    .manual-location-button > i {
+        color: #fb923c;
+        font-size: .72rem;
+    }
+
+    .location-input-group,
+    .map-interaction-area {
+        display: none;
+    }
+
+    .report-input-shell.is-location {
+        padding-right: 9px;
+    }
+
+    .report-input-shell.is-location span {
+        flex: 0 0 auto;
+        padding: 5px 7px;
+        border-radius: 7px;
+        background: #ffedd5;
+        color: #c2410c;
+        font-size: .6rem;
+        font-weight: 850;
+    }
+
+    .exif-success-msg {
+        display: none;
+        margin: 11px 0 0;
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .report-map {
+        position: relative;
+        z-index: 1;
+        height: 220px;
+        margin-top: 11px;
+        overflow: hidden;
+        border: 1px solid #dedfdc;
+        border-radius: 16px;
+        background: #f3f4f6;
+    }
+
+    .gps-status-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        display: none;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 9px;
+        border-radius: 9px;
+        background: rgba(255, 247, 237, .94);
+        color: #c2410c;
+        font-size: .63rem;
+        font-weight: 800;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    }
+
+    .map-help {
+        margin: 7px 2px 0;
+        color: #8a909b;
+        font-size: .61rem;
+        line-height: 1.4;
+    }
+
+    .map-help i {
+        margin-right: 3px;
+        color: #f97316;
+    }
+
+    #report-content {
+        width: 100%;
+        min-height: 102px;
+        padding: 13px;
+        resize: vertical;
+        border: 1px solid #dedfdc;
+        border-radius: 14px;
+        outline: 0;
+        background: #fafaf9;
+        color: #27272a;
+        font: inherit;
+        font-size: .79rem;
+        line-height: 1.55;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    #report-content:focus {
+        border-color: #fb923c !important;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, .1) !important;
+    }
+
+    .report-section-submit {
+        margin-top: 14px;
+        padding-top: 13px;
+        border-top: 1px solid #efefec;
+    }
+
+    .report-submit-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 10px;
+        color: #8a909b;
+        font-size: .63rem;
+    }
+
+    .report-submit-note i {
+        color: #f97316;
+    }
+
+    .report-submit-button {
+        display: flex;
+        width: 100%;
+        min-height: 54px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 17px 0 20px;
+        border: 0;
+        border-radius: 15px;
+        background: #f97316;
+        color: #fff;
+        font-size: .87rem;
+        font-weight: 900;
+        box-shadow: none;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .report-submit-button:hover {
+        box-shadow: 0 8px 18px rgba(249, 115, 22, .18);
+        transform: translateY(-1px);
+    }
+
+    .report-submit-button:disabled {
+        opacity: .62;
+        cursor: wait;
+        transform: none;
+    }
+
+    .report-submit-button > i {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .18);
+    }
+
+    .crop-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(24, 24, 27, .65);
+        backdrop-filter: blur(8px);
+    }
+
+    .crop-modal-card {
+        width: min(440px, 100%);
+        max-height: 86vh;
+        overflow: hidden;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 28px 70px rgba(0, 0, 0, .32);
+    }
+
+    .crop-modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 19px 15px;
+    }
+
+    .crop-modal-head span {
+        color: #ea580c;
+        font-size: .62rem;
+        font-weight: 900;
+    }
+
+    .crop-modal-head h2 {
+        margin: 3px 0 0;
+        color: #27272a;
+        font-size: .98rem;
+    }
+
+    .crop-modal-close {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 0;
+        border-radius: 11px;
+        background: #f5f5f4;
+        color: #78716c;
+        cursor: pointer;
+    }
+
+    .crop-modal-canvas {
+        display: flex;
+        min-height: 280px;
+        max-height: 52vh;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #111;
+    }
+
+    .crop-modal-canvas img {
+        display: block;
+        max-width: 100%;
+    }
+
+    .crop-modal-actions {
+        display: flex;
+        gap: 9px;
+        padding: 15px 18px 18px;
+    }
+
+    .duplicate-report-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 30000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(24, 31, 44, .58);
+        opacity: 0;
+        visibility: hidden;
+        backdrop-filter: blur(8px);
+        transition: opacity .2s ease, visibility .2s ease;
+    }
+
+    .duplicate-report-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .duplicate-report-modal {
+        position: relative;
+        width: min(360px, 100%);
+        padding: 27px 21px 19px;
+        border-radius: 25px;
+        background: #fff;
+        box-shadow: 0 26px 70px rgba(15, 23, 42, .26);
+        text-align: center;
+        transform: translateY(14px) scale(.98);
+        transition: transform .22s cubic-bezier(.2, .75, .25, 1);
+    }
+
+    .duplicate-report-backdrop.is-open .duplicate-report-modal {
+        transform: translateY(0) scale(1);
+    }
+
+    .duplicate-report-close {
+        position: absolute;
+        top: 13px;
+        right: 13px;
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 0;
+        border-radius: 11px;
+        background: #f5f5f3;
+        color: #7b818b;
+        cursor: pointer;
+    }
+
+    .duplicate-report-symbol {
+        display: grid;
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 12px;
+        place-items: center;
+        border-radius: 17px;
+        background: #fff0e5;
+        color: #f26716;
+        font-size: 1.15rem;
+    }
+
+    .duplicate-report-kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: #ec6212;
+        font-size: .64rem;
+        font-weight: 900;
+    }
+
+    .duplicate-report-modal h2 {
+        margin: 0;
+        color: #202838;
+        font-size: 1.05rem;
+        letter-spacing: -.035em;
+    }
+
+    .duplicate-report-modal > p {
+        margin: 7px auto 15px;
+        color: #858c98;
+        font-size: .68rem;
+        line-height: 1.5;
+    }
+
+    .duplicate-report-summary {
+        padding: 14px;
+        border: 1px solid #eee9e3;
+        border-radius: 17px;
+        background: #faf9f7;
+        text-align: left;
+    }
+
+    .duplicate-report-status {
+        display: inline-flex;
+        margin-bottom: 7px;
+        padding: 5px 7px;
+        border-radius: 8px;
+        background: #fff0e5;
+        color: #e85d0c;
+        font-size: .57rem;
+        font-weight: 850;
+    }
+
+    .duplicate-report-summary > strong {
+        display: block;
+        overflow: hidden;
+        color: #283142;
+        font-size: .78rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .duplicate-report-summary > p {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 6px 0 11px;
+        overflow: hidden;
+        color: #858c97;
+        font-size: .62rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .duplicate-report-summary > p i {
+        color: #f26716;
+    }
+
+    .duplicate-report-summary > div {
+        display: flex;
+        gap: 7px;
+    }
+
+    .duplicate-report-summary > div span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 8px;
+        border-radius: 9px;
+        background: #fff;
+        color: #8b919b;
+        font-size: .58rem;
+    }
+
+    .duplicate-report-summary > div i,
+    .duplicate-report-summary > div b {
+        color: #e96112;
+    }
+
+    .duplicate-report-modal .duplicate-report-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        margin: 10px 0 0;
+        padding: 10px;
+        border-radius: 11px;
+        background: #fff7ed;
+        color: #a64a0a;
+        font-size: .61rem;
+        text-align: left;
+    }
+
+    .duplicate-report-modal .duplicate-report-warning[hidden] {
+        display: none;
+    }
+
+    .duplicate-report-actions {
+        display: grid;
+        grid-template-columns: 1fr 1.35fr;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .duplicate-report-actions button {
+        min-height: 47px;
+        border: 0;
+        border-radius: 13px;
+        font-family: inherit;
+        font-size: .68rem;
+        font-weight: 850;
+        cursor: pointer;
+    }
+
+    .duplicate-report-secondary {
+        background: #f1f1ef;
+        color: #646b76;
+    }
+
+    .duplicate-report-primary {
+        background: #ff6818;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(255, 104, 24, .2);
+    }
+
+    .duplicate-report-primary[hidden] {
+        display: none;
+    }
+
+    .duplicate-report-link {
+        grid-column: 1 / -1;
+        min-height: 35px !important;
+        background: transparent;
+        color: #e85d0c;
+    }
+
     .cropper-point {
         width: 12px !important;
         height: 12px !important;
@@ -172,14 +1051,30 @@
         outline: 2px solid var(--point-orange) !important;
     }
 
-    .report-form.card:active {
-    transform: none !important;
+    @media (max-width: 360px) {
+        .report-form {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        .report-section {
+            padding-right: 14px;
+            padding-left: 14px;
+        }
+
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .upload-area,
+        .report-submit-button {
+            transition: none;
+        }
     }
 </style>
 {% endblock %}
 
-<!-- [수정] exifr CDN 추가 (수동 GPS 바이너리 파서 대체) -->
-<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+<!-- [수정] exifr 추가 (수동 GPS 바이너리 파서 대체) -->
+<script src="{{ url_for('static', filename='vendor/exifr/exifr.full.umd.js') }}"></script>
 
 <script nonce="{{ csp_nonce }}">
     console.log('[Report] Loaded Version: 1.5.0');
@@ -251,7 +1146,6 @@
     }
 
     function triggerFileInput() {
-        if (selectedFile) return; // 파일 있으면 무시
         document.getElementById('file-input').click();
     }
     function validateFileSize(input) {
@@ -324,24 +1218,31 @@
             activateMapManually();
 
             // [수정] exifr 라이브러리로 GPS 추출 (수동 바이너리 파서 제거)
-            exifr.gps(originalFile).then(function(gps) {
-                if (gps && gps.latitude && gps.longitude) {
-                    console.log('[EXIF] GPS found:', gps.latitude, gps.longitude);
-                    ensureMapReady(function() {
-                        updateMarkerOnly(gps.latitude, gps.longitude, true);
-                        reverseGeocode(gps.latitude, gps.longitude);
-                        const exifMsg = document.getElementById('exif-success-msg');
-                        if (exifMsg) exifMsg.style.display = 'flex';
-                        updateLocationGuideMsg('has-gps');
-                    });
-                } else {
-                    console.log('[EXIF] No GPS data. Manual pin required.');
+            // exifr는 외부 CDN에서 로드되므로, 네트워크 차단 등으로 로드에 실패해도
+            // 아래 미리보기 렌더링이 항상 실행되도록 존재 여부를 먼저 확인한다.
+            if (typeof exifr !== 'undefined') {
+                exifr.gps(originalFile).then(function(gps) {
+                    if (gps && gps.latitude && gps.longitude) {
+                        console.log('[EXIF] GPS found:', gps.latitude, gps.longitude);
+                        ensureMapReady(function() {
+                            updateMarkerOnly(gps.latitude, gps.longitude, true);
+                            reverseGeocode(gps.latitude, gps.longitude);
+                            const exifMsg = document.getElementById('exif-success-msg');
+                            if (exifMsg) exifMsg.style.display = 'flex';
+                            updateLocationGuideMsg('has-gps');
+                        });
+                    } else {
+                        console.log('[EXIF] No GPS data. Manual pin required.');
+                        updateLocationGuideMsg('no-gps');
+                    }
+                }).catch(function(e) {
+                    console.log('[EXIF] Parse error:', e);
                     updateLocationGuideMsg('no-gps');
-                }
-            }).catch(function(e) {
-                console.log('[EXIF] Parse error:', e);
+                });
+            } else {
+                console.warn('[EXIF] exifr library unavailable (failed to load). Skipping GPS extraction.');
                 updateLocationGuideMsg('no-gps');
-            });
+            }
 
             // 미리보기 로드 (Cropper) - GPS 추출과 병렬 진행
             const reader = new FileReader();
@@ -449,7 +1350,10 @@
             modalImg.src = e.target.result;
             if (window.cropper) { window.cropper.destroy(); window.cropper = null; }
             window.cropper = new Cropper(modalImg, {
-                viewMode: 1, dragMode: 'move', aspectRatio: NaN,
+                // 미리보기 박스가 aspect-ratio:16/9 + object-fit:cover 고정이라,
+                // 자유 비율(NaN)로 자르면 박스에 맞춰 위/아래(또는 좌/우)가 다시 잘려 보임.
+                // 크롭 비율을 미리보기와 동일하게 고정해 보이는 그대로 저장되게 함.
+                viewMode: 1, dragMode: 'move', aspectRatio: 16 / 9,
                 autoCropArea: 0.8, restore: false, guides: true, center: true,
                 highlight: false, cropBoxMovable: true, cropBoxResizable: true,
                 toggleDragModeOnDblclick: false, background: false
@@ -499,7 +1403,7 @@
         document.getElementById('final-preview-image').style.display = "none";
         document.getElementById('final-preview-image').src = "";
         document.getElementById('upload-placeholder').style.display = "flex";
-        document.getElementById('selected-file-name').innerText = "사진/영상 첨부 또는 직접 촬영";
+        document.getElementById('selected-file-name').innerText = "사진·동영상 첨부하기";
         document.getElementById('selected-file-name').style.color = "inherit";
         restoreMapState();
         document.getElementById('pre-uploaded-path').value = "";
@@ -553,6 +1457,109 @@
         });
     }
 
+    let pendingDuplicateFormData = null;
+    let pendingDuplicateReportId = null;
+
+    function openDuplicateReportModal(result, formData) {
+        const report = result.existing_report || {};
+        const modal = document.getElementById('duplicate-report-modal');
+        pendingDuplicateFormData = formData;
+        pendingDuplicateReportId = report.id;
+
+        document.getElementById('duplicate-report-status').textContent = report.status || '접수완료';
+        document.getElementById('duplicate-report-existing-title').textContent = report.title || '도로 위험 제보';
+        document.getElementById('duplicate-report-address').textContent = report.address || '위치 정보 없음';
+        document.getElementById('duplicate-report-distance').textContent = `${report.distance_m || 0}m`;
+        document.getElementById('duplicate-report-count').textContent = `${report.reporter_count || 1}명`;
+        document.getElementById('duplicate-report-description').textContent = result.same_reporter
+            ? '이미 내가 제보한 사고와 같은 위치로 확인됩니다.'
+            : '기존 사고에 현장 자료를 추가하면 담당자가 함께 확인할 수 있어요.';
+
+        const sameUserWarning = document.getElementById('duplicate-report-same-user');
+        const joinButton = document.getElementById('duplicate-report-join');
+        sameUserWarning.hidden = !result.same_reporter;
+        joinButton.hidden = Boolean(result.same_reporter);
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.documentElement.classList.add('modal-active');
+    }
+
+    function closeDuplicateReportModal(clearPending = true) {
+        const modal = document.getElementById('duplicate-report-modal');
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.documentElement.classList.remove('modal-active');
+        if (clearPending) {
+            pendingDuplicateFormData = null;
+            pendingDuplicateReportId = null;
+        }
+    }
+
+    function changeDuplicateLocation() {
+        closeDuplicateReportModal();
+        activateMapManually();
+        const locationSection = document.getElementById('btn-manual-location')?.closest('.report-section');
+        if (locationSection) {
+            locationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        showToastMsg('지도에서 실제 위험 위치를 다시 확인해주세요.');
+    }
+
+    function viewDuplicateReport() {
+        if (!pendingDuplicateReportId) return;
+        window.location.assign(`/alert/view/${pendingDuplicateReportId}`);
+    }
+
+    async function joinDuplicateReport() {
+        if (!pendingDuplicateFormData || !pendingDuplicateReportId) return;
+        const formData = pendingDuplicateFormData;
+        formData.set('related_report_id', String(pendingDuplicateReportId));
+        closeDuplicateReportModal(false);
+        await sendReportForm(formData);
+    }
+
+    async function sendReportForm(formData) {
+        const submitBtn = document.getElementById('submit-btn');
+        if (submitBtn) submitBtn.disabled = true;
+
+        showPremiumLoader('파일을 업로드하고 있습니다...\n화면을 벗어나지 마세요.');
+
+        try {
+            const response = await fetch('/api/report', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                pendingDuplicateFormData = null;
+                pendingDuplicateReportId = null;
+                showPremiumLoader('업로드 완료! AI 분석을 시작합니다...');
+                showToastMsg('제보가 접수되었습니다!');
+                setTimeout(() => {
+                    window.location.href = '/status';
+                }, 1000);
+                return;
+            }
+
+            hidePremiumLoader();
+            if (response.status === 409 && result.duplicate) {
+                if (submitBtn) submitBtn.disabled = false;
+                openDuplicateReportModal(result, formData);
+                return;
+            }
+
+            showToastMsg('제출 실패: ' + result.message);
+            if (submitBtn) submitBtn.disabled = false;
+        } catch (error) {
+            hidePremiumLoader();
+            showToastMsg('서버 연결 오류');
+            console.error('Submit Error:', error);
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    }
+
     async function submitReport() {
         const title = document.getElementById('report-title')?.value || '';
         if (!title.trim()) {
@@ -596,34 +1603,7 @@
             return;
         }
 
-        const submitBtn = document.getElementById('submit-btn');
-        if (submitBtn) submitBtn.disabled = true;
-
-        showPremiumLoader('파일을 업로드하고 있습니다...\n화면을 벗어나지 마세요.');
-
-        try {
-            const response = await fetch('/api/report', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-
-            if (result.success) {
-                showPremiumLoader('업로드 완료! AI 분석을 시작합니다...');
-                showToastMsg('제보가 접수되었습니다!');
-                setTimeout(() => {
-                    window.location.href = '/status';
-                }, 1000);
-            } else {
-                hidePremiumLoader();
-                showToastMsg('제출 실패: ' + result.message);
-                if (submitBtn) submitBtn.disabled = false;
-            }
-        } catch (error) {
-            showToastMsg('서버 연결 오류');
-            console.error('Submit Error:', error);
-            if (submitBtn) submitBtn.disabled = false;
-        }
+        await sendReportForm(formData);
     }
 
     function showToastMsg(msg) {
@@ -649,7 +1629,7 @@
         };
 
         map = new kakao.maps.Map(mapContainer, mapOption);
-        geocoder = new kakao.maps.services.Geocoder();
+        geocoder = kakao.maps.services ? new kakao.maps.services.Geocoder() : null;
 
         marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(defaultLat, defaultLng),
@@ -724,17 +1704,28 @@
             return;
         }
 
-        kakao.maps.load(function () {
-            if (!kakao.maps.services) {
-                console.log("Waiting for Kakao Maps Services...");
-                setTimeout(function () { ensureMapReady(callback); }, 200);
-                return;
-            }
+        if (kakao.maps.readyState === 0) {
+            kakao.maps.load(function () {});
+        }
 
-            console.log("Kakao Maps SDK & Services Loaded. Initializing...");
-            if (!map) initMap();
-            if (callback) setTimeout(callback, 200);
-        });
+        if (typeof kakao.maps.Map === 'undefined') {
+            console.log("Waiting for Kakao Maps core...");
+            setTimeout(function () { ensureMapReady(callback); }, 200);
+            return;
+        }
+
+        if (!map) initMap();
+
+        if (!kakao.maps.services) {
+            console.log("Waiting for Kakao Maps Services...");
+            setTimeout(function () { ensureMapReady(callback); }, 200);
+            return;
+        }
+
+        if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
+
+        console.log("Kakao Maps SDK & Services Loaded. Initializing...");
+        if (callback) setTimeout(callback, 200);
     }
 
     // [수정] getCurrentLocation 함수 유지 (내부 참조 방어용, UI에서는 노출 안 함)
@@ -849,10 +1840,70 @@
         ensureMapReady();
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', triggerMapInit);
-    } else {
+    function bindReportControls() {
+        const actions = {
+            'select-file': triggerFileInput,
+            'open-crop': openCropModal,
+            'remove-file': removeImage,
+            'manual-location': activateMapManually,
+            'submit-report': submitReport,
+            'close-crop': closeCropModal,
+            'confirm-crop': confirmCrop,
+            'close-duplicate': closeDuplicateReportModal,
+            'change-location': changeDuplicateLocation,
+            'join-duplicate': joinDuplicateReport,
+            'view-duplicate': viewDuplicateReport
+        };
+
+        document.querySelectorAll('[data-report-action]').forEach(function (control) {
+            const action = actions[control.dataset.reportAction];
+            if (!action) return;
+
+            control.addEventListener('click', function (event) {
+                event.preventDefault();
+                action();
+            });
+
+            if (control.getAttribute('role') === 'button') {
+                control.addEventListener('keydown', function (event) {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    action();
+                });
+            }
+        });
+
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', function () {
+                handleFileSelection(fileInput);
+            });
+        }
+
+        const duplicateModal = document.getElementById('duplicate-report-modal');
+        if (duplicateModal) {
+            duplicateModal.addEventListener('click', function (event) {
+                if (event.target === duplicateModal) closeDuplicateReportModal();
+            });
+        }
+
+        const cropModal = document.getElementById('cropModal');
+        if (cropModal) {
+            cropModal.addEventListener('click', function (event) {
+                if (event.target === cropModal) closeCropModal();
+            });
+        }
+    }
+
+    function initializeReportPage() {
+        bindReportControls();
         triggerMapInit();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeReportPage, { once: true });
+    } else {
+        initializeReportPage();
     }
 </script>
 
@@ -872,4 +1923,3 @@
     }
 </style>
 {% endblock %}
-

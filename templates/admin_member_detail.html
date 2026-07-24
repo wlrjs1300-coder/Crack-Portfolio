@@ -1,17 +1,17 @@
-﻿{% extends "admin_layout.html" %}
+{% extends "admin_layout.html" %}
 
-{% block title %}CRACK ?뚯썝 ?곸꽭{% endblock %}
+{% block title %}CRACK 회원 상세{% endblock %}
 {% block quick_actions %}
 <div class="header-quick-actions">
-  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="?뚮┝">?뵒</a>
+  <a href="/alert" class="quick-btn alert-btn js-page-transition-link" title="알림">🔔</a>
 </div>
 {% endblock %}
 {% block account_area %}
 <div class="account-chip">
-  <strong>{{ session.get('user_name', '愿由ъ옄') }}??/strong>
+  <strong>{{ session.get('user_name', '관리자') }}님</strong>
   <span>{{ session.get('role', 'admin') }}</span>
 </div>
-<a href="#" class="logout-pill" onclick="return secureLogout(event)">濡쒓렇?꾩썐</a>
+<a href="/logout" class="logout-pill">로그아웃</a>
 {% endblock %}
 
 {% block extra_style %}
@@ -400,7 +400,7 @@
   .summary-label {
     font-size: 11px;
     font-weight: 700;
-    color: #94a3b8;   /* ???먮━寃?*/
+    color: #94a3b8;   /* 더 흐리게 */
     letter-spacing: 0.2px;
   }
 
@@ -918,265 +918,1012 @@
       margin-top: 12px;
     }
   }
+
+  /* 회원 상세 화면 */
+  .member-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .member-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 2px 2px 0;
+  }
+
+  .member-detail-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .member-detail-back {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    flex: 0 0 38px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #475569;
+    font-size: 18px;
+  }
+
+  .member-detail-kicker {
+    color: #f97316;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .02em;
+    margin-bottom: 3px;
+  }
+
+  .member-detail-title {
+    margin: 0;
+    color: #172033;
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -.6px;
+  }
+
+  .member-detail-desc {
+    margin: 5px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .member-detail-edit {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #ea580c;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .member-overview-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(230px, .78fr) minmax(440px, 1.55fr) minmax(220px, .7fr);
+    gap: 24px;
+    padding: 22px 24px;
+    background: linear-gradient(135deg, #fff 0%, #fffaf6 100%);
+    border: 1px solid #f1e4d9;
+    border-radius: 20px;
+    box-shadow: 0 6px 18px rgba(60, 39, 24, .05);
+  }
+
+  .member-overview-card::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: -70px;
+    top: -100px;
+    border-radius: 50%;
+    background: rgba(255, 122, 26, .07);
+    pointer-events: none;
+  }
+
+  .member-overview-identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .member-avatar-large {
+    width: 66px;
+    height: 66px;
+    flex: 0 0 66px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #ff8a34, #ff6b00);
+    color: #fff;
+    font-size: 25px;
+    font-weight: 900;
+    box-shadow: 0 10px 22px rgba(249, 115, 22, .2);
+  }
+
+  .member-overview-name {
+    color: #172033;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: -.5px;
+  }
+
+  .member-overview-uid {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .member-overview-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .member-overview-badges .role-badge,
+  .member-overview-badges .status-badge {
+    height: 25px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 10px;
+  }
+
+  .member-overview-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .member-overview-manage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding-left: 20px;
+    border-left: 1px solid #f0dfd2;
+  }
+
+  .member-overview-manage-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 34px;
+  }
+
+  .member-overview-manage-title {
+    color: #172033;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.3;
+  }
+
+  .member-overview-manage-desc {
+    margin: 0;
+    color: #a1a1aa;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .member-overview-manage .member-role-edit-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px;
+    width: 100%;
+  }
+
+  .member-overview-manage .member-role-select,
+  .member-overview-manage .member-save-btn,
+  .member-overview-manage .member-suspend-btn {
+    height: 34px;
+  }
+
+  .member-overview-manage .member-save-btn {
+    background: #ff7a1a;
+    border-color: #ff7a1a;
+    color: #fff;
+  }
+
+  .member-overview-manage .member-inline-form,
+  .member-overview-manage .member-suspend-btn {
+    width: 100%;
+  }
+
+  .member-info-cell {
+    min-width: 0;
+    padding: 11px 13px;
+    border-radius: 13px;
+    background: rgba(255,255,255,.82);
+    border: 1px solid #eee7e1;
+  }
+
+  .member-info-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #a1a1aa;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .member-info-value {
+    display: block;
+    overflow: hidden;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-manage-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 15px 18px;
+    background: #fff;
+    border: 1px solid #f1dccb;
+    border-radius: 18px;
+  }
+
+  .member-manage-copy strong {
+    display: block;
+    color: #172033;
+    font-size: 14px;
+  }
+
+  .member-manage-copy span {
+    display: block;
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .member-manage-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+
+  .member-manage-actions .member-role-edit-form {
+    padding-right: 10px;
+    border-right: 1px solid #eee7e1;
+  }
+
+  .member-manage-actions .member-role-select,
+  .member-manage-actions .member-save-btn,
+  .member-manage-actions .member-suspend-btn,
+  .member-manage-actions .member-cancel-btn {
+    height: 38px;
+  }
+
+  .member-manage-actions .member-save-btn {
+    background: #ff7a1a;
+    border-color: #ff7a1a;
+    color: #fff;
+  }
+
+  .member-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .member-metric-card {
+    padding: 15px 17px;
+    background: #fff;
+    border: 1px solid #e7ebf0;
+    border-radius: 16px;
+  }
+
+  .member-metric-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .member-metric-label {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .member-metric-mark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd5e1;
+  }
+
+  .member-metric-card.total .member-metric-mark { background: #ff7a1a; }
+  .member-metric-card.received .member-metric-mark { background: #fb923c; }
+  .member-metric-card.processing .member-metric-mark { background: #facc15; }
+  .member-metric-card.completed .member-metric-mark { background: #22c55e; }
+
+  .member-metric-value {
+    margin-top: 9px;
+    color: #172033;
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: -.7px;
+  }
+
+  .member-metric-caption {
+    margin-top: 3px;
+    color: #a1a1aa;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .member-detail-content {
+    display: grid;
+    grid-template-columns: minmax(310px, .8fr) minmax(520px, 1.55fr);
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .member-detail-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #e7ebf0;
+    border-radius: 18px;
+  }
+
+  .member-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .member-panel-title {
+    color: #172033;
+    font-size: 15px;
+    font-weight: 900;
+  }
+
+  .member-panel-desc {
+    margin-top: 4px;
+    color: #a1a1aa;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .member-panel-pill {
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .member-health-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .member-health-item {
+    padding: 13px;
+    border-radius: 13px;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+  }
+
+  .member-health-item.warn {
+    background: #fff8f2;
+    border-color: #ffdfc7;
+  }
+
+  .member-health-label {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .member-health-value {
+    margin-top: 7px;
+    color: #172033;
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .member-health-sub {
+    margin-top: 3px;
+    color: #a1a1aa;
+    font-size: 9px;
+    font-weight: 600;
+  }
+
+  .member-rate-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .member-rate-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 9px;
+    border-top: 1px solid #f0f0f0;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .member-rate-row strong {
+    color: #172033;
+    font-size: 12px;
+  }
+
+  .member-recent-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .member-recent-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 11px 12px;
+    border: 1px solid #edf0f3;
+    border-radius: 13px;
+    text-decoration: none;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+
+  .member-recent-item:hover {
+    border-color: #fdba74;
+    background: #fffaf6;
+    transform: translateY(-1px);
+  }
+
+  .member-recent-title {
+    overflow: hidden;
+    color: #263247;
+    font-size: 12px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-recent-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  .member-recent-status {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .member-recent-arrow {
+    color: #f97316;
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .member-detail-panel .empty-box {
+    min-height: 150px;
+  }
+
+  .member-all-link {
+    align-self: flex-end;
+    margin-top: 11px;
+    color: #ea580c;
+    font-size: 11px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .member-activity-board {
+    padding: 18px 20px 17px;
+    background: #fff;
+    border: 1px solid #e7ebf0;
+    border-radius: 18px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .025);
+  }
+
+  .member-activity-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 15px;
+  }
+
+  .member-activity-title {
+    color: #172033;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -.2px;
+  }
+
+  .member-activity-subtitle {
+    margin-top: 4px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .member-activity-total {
+    display: inline-flex;
+    align-items: center;
+    height: 27px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .member-activity-summary {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-bottom: 16px;
+    padding: 13px 0;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 14px;
+  }
+
+  .member-activity-stat {
+    position: relative;
+    min-width: 0;
+    padding: 0 16px;
+  }
+
+  .member-activity-stat + .member-activity-stat {
+    border-left: 1px solid #e9e9e9;
+  }
+
+  .member-activity-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #7c8798;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .member-activity-stat-label::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+  }
+
+  .member-activity-stat.pending .member-activity-stat-label::before { background: #fb923c; }
+  .member-activity-stat.risk .member-activity-stat-label::before { background: #ef4444; }
+  .member-activity-stat.delay .member-activity-stat-label::before { background: #f59e0b; }
+  .member-activity-stat.recent .member-activity-stat-label::before { background: #38bdf8; }
+  .member-activity-stat.done .member-activity-stat-label::before { background: #22c55e; }
+
+  .member-activity-stat-value {
+    margin-top: 7px;
+    color: #172033;
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: -.4px;
+  }
+
+  .member-reports-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .member-reports-title {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .member-reports-caption {
+    color: #a1a1aa;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .member-report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .member-report-card {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    min-height: 78px;
+    padding: 11px 13px;
+    border: 1px solid #e9edf2;
+    border-radius: 14px;
+    background: #fff;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+  }
+
+  .member-report-card:hover {
+    border-color: #fdba74;
+    background: #fffaf6;
+    transform: translateY(-1px);
+    box-shadow: 0 7px 16px rgba(249, 115, 22, .07);
+  }
+
+  .member-report-number {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #fff3e9;
+    color: #f97316;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .member-report-main {
+    min-width: 0;
+  }
+
+  .member-report-title {
+    overflow: hidden;
+    color: #263247;
+    font-size: 14px;
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-report-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .member-report-location {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-report-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+  }
+
+  .member-report-status {
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #ea580c;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .member-report-score {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .member-activity-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 11px;
+  }
+
+  .member-activity-footer .member-all-link {
+    margin-top: 0;
+  }
+
+  .member-activity-board .empty-box {
+    min-height: 120px;
+    height: auto;
+  }
+
+  @media (max-width: 1180px) {
+    .member-detail-content {
+      grid-template-columns: 1fr;
+    }
+
+    .member-overview-card {
+      grid-template-columns: minmax(230px, .8fr) minmax(420px, 1.4fr);
+    }
+
+    .member-overview-manage {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto minmax(280px, 1fr) minmax(120px, .4fr);
+      align-items: center;
+      padding: 13px 0 0;
+      border-left: 0;
+      border-top: 1px solid #f0dfd2;
+    }
+
+    .member-overview-manage-desc {
+      display: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .member-detail-head,
+    .member-manage-panel {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .member-overview-info,
+    .member-metric-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .member-overview-card {
+      grid-template-columns: 1fr;
+      padding: 18px;
+    }
+
+    .member-overview-manage {
+      grid-column: auto;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .member-manage-actions {
+      justify-content: flex-start;
+    }
+
+    .member-activity-summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 0;
+    }
+
+    .member-activity-stat:nth-child(odd) {
+      border-left: 0;
+    }
+
+    .member-report-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="member-layout">
-  <div class="member-main">
-    <div class="member-profile-card">
-      <a href="/admin/members?page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
-        class="back-btn member-back-btn js-page-transition-link">
-        ??紐⑸줉?쇰줈
-      </a>
-
-      <div class="member-profile-top">
-        <div class="member-profile-name-row">
-          <div class="member-profile-identity">
-            <div class="member-profile-name">{{ member.name }}</div>
-            <div class="member-profile-id">@{{ member.uid }}</div>
-
-            {% if request.args.get('edit') == '1' %}
-            <form method="post" action="/admin/members/{{ member.id }}/role" class="member-role-edit-form">
-              <select name="role" class="member-role-select">
-                <option value="user" {% if member.role=='user' %}selected{% endif %}>?쇰컲?뚯썝</option>
-                <option value="manager" {% if member.role=='manager' %}selected{% endif %}>留ㅻ땲?</option>
-                <option value="admin" {% if member.role=='admin' %}selected{% endif %}>愿由ъ옄</option>
-              </select>
-              <button type="submit" class="member-save-btn" data-confirm-message="??븷??蹂寃쏀븯?쒓쿋?듬땲源?">???/button>
-            </form>
-
-            <div class="member-status-edit-wrap">
-              {% if member.active %}
-              <form method="post" action="/admin/members/{{ member.id }}/suspend" class="member-inline-form">
-                <button type="submit" class="member-suspend-btn danger"
-                  data-confirm-message="???뚯썝???뺤??섏떆寃좎뒿?덇퉴?">?뺤?</button>
-              </form>
-              {% else %}
-              <form method="post" action="/admin/members/{{ member.id }}/unsuspend" class="member-inline-form">
-                <button type="submit" class="member-suspend-btn" data-confirm-message="???뚯썝???뺤?瑜??댁젣?섏떆寃좎뒿?덇퉴?">?뺤?
-                  ?댁젣</button>
-              </form>
-              {% endif %}
-            </div>
-            {% else %}
-            {% if member.role == 'admin' %}
-            <span class="role-badge role-admin">愿由ъ옄</span>
-            {% elif member.role == 'manager' %}
-            <span class="role-badge role-manager">留ㅻ땲?</span>
-            {% else %}
-            <span class="role-badge role-user">?쇰컲?뚯썝</span>
-            {% endif %}
-
-            {% if member.active %}
-            <span class="status-badge">?쒖꽦</span>
-            {% else %}
-            <span class="status-badge status-inactive">?뺤?</span>
-            {% endif %}
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="member-profile-meta">
-          <span class="member-profile-chip">
-            媛?낆씪 {{ member.created_at.strftime('%Y-%m-%d') if member.created_at else '-' }}
-          </span>
-
-          {% if member.role == 'manager' %}
-          <span class="member-profile-chip">
-            吏??쨌 {{ member.manager_region if member.manager_region else '誘몄??? }}
-          </span>
-          {% endif %}
-
-          <span class="member-profile-chip">
-            ?꾩쟻 ?좉퀬 {{ member_stats.total_reports or 0 }}嫄?          </span>
-        </div>
-
-        <div class="member-profile-edit-row">
-          {% if request.args.get('edit') == '1' %}
-          <a href="/admin/members/{{ member.id }}?page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
-            class="member-cancel-btn js-page-transition-link">
-            ?몄쭛 醫낅즺
-          </a>
-          {% else %}
-          <a href="/admin/members/{{ member.id }}?edit=1&page={{ request.args.get('page', 1) }}&keyword={{ request.args.get('keyword', '') }}&role={{ request.args.get('role', '') }}&sort={{ request.args.get('sort', 'role') }}&order={{ request.args.get('order', 'asc') }}"
-            class="member-edit-btn js-page-transition-link">
-            ?몄쭛
-          </a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <div class="member-info-grid">
-      <div class="stats-card">
-        <div class="stats-card-head">
-          <div class="stats-card-title">?좉퀬 ?곹깭</div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stats-item received">
-            <div class="stats-label"><span class="stats-dot"></span>?묒닔?꾨즺</div>
-            <div class="stats-value">{{ member_stats.received_reports or 0 }}</div>
-            <div class="stats-sub">?꾩껜 ?좉퀬 ?묒닔</div>
-          </div>
-
-          <div class="stats-item processing">
-            <div class="stats-label"><span class="stats-dot"></span>泥섎━以?/div>
-            <div class="stats-value">{{ member_stats.processing_reports or 0 }}</div>
-            <div class="stats-sub">愿由ъ옄 寃??吏꾪뻾</div>
-          </div>
-
-          <div class="stats-item completed">
-            <div class="stats-label"><span class="stats-dot"></span>泥섎━?꾨즺</div>
-            <div class="stats-value">{{ member_stats.completed_reports or 0 }}</div>
-            <div class="stats-sub">議곗튂 ?꾨즺</div>
-          </div>
-
-          <div class="stats-item rejected">
-            <div class="stats-label"><span class="stats-dot"></span>諛섎젮</div>
-            <div class="stats-value">{{ member_stats.rejected_reports or 0 }}</div>
-            <div class="stats-sub">
-              {% if (member_stats.rejected_reports or 0) > 0 %}
-              諛섎젮 ?대젰 ?덉쓬
-              {% else %}
-              諛섎젮 泥섎━ ?놁쓬
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="risk-card">
-        <div class="risk-card-head">
-          <div class="risk-card-title">二쇱쓽 ?꾪솴</div>
-        </div>
-
-        <div class="risk-grid">
-          <div class="risk-item avg">
-            <div class="risk-label"><span class="risk-dot"></span>誘몄쿂由?/div>
-            <div class="risk-value">{{ member_stats.pending_reports or 0 }}</div>
-            <div class="risk-sub">?묒닔?꾨즺 + 泥섎━以?/div>
-          </div>
-
-          <div class="risk-item high">
-            <div class="risk-label"><span class="risk-dot"></span>怨좎쐞??誘몄쿂由?/div>
-            <div class="risk-value">{{ member_stats.high_risk_pending_reports or 0 }}</div>
-            <div class="risk-sub">?꾪뿕??70???댁긽</div>
-          </div>
-
-          <div class="risk-item medium">
-            <div class="risk-label"><span class="risk-dot"></span>?κ린 誘몄쿂由?/div>
-            <div class="risk-value">{{ member_stats.long_pending_reports or 0 }}</div>
-            <div class="risk-sub">24?쒓컙 ?댁긽 寃쎄낵</div>
-          </div>
-
-          <div class="risk-item low">
-            <div class="risk-label"><span class="risk-dot"></span>理쒓렐 7??/div>
-            <div class="risk-value">{{ member_stats.recent_7d_reports or 0 }}</div>
-            <div class="risk-sub">理쒓렐 ?쒕룞??/div>
-          </div>
-        </div>
+{% set return_query = 'page=' ~ request.args.get('page', 1) ~ '&keyword=' ~ request.args.get('keyword', '')|urlencode ~ '&role=' ~ request.args.get('role', '') ~ '&status=' ~ request.args.get('status', '') ~ '&sort=' ~ request.args.get('sort', 'role') ~ '&order=' ~ request.args.get('order', 'asc') %}
+<div class="member-detail-page">
+  <div class="member-detail-head">
+    <div class="member-detail-heading">
+      <a href="/admin/members?{{ return_query }}" class="back-btn member-detail-back js-page-transition-link" aria-label="회원 목록으로">←</a>
+      <div>
+        <div class="member-detail-kicker">회원 관리</div>
+        <h1 class="member-detail-title">{{ member.name }}님</h1>
+        <p class="member-detail-desc">계정 정보와 신고 활동을 확인하고 관리할 수 있습니다.</p>
       </div>
     </div>
   </div>
 
-  <div class="member-side">
-    <div class="summary-card">
-      <div class="summary-card-head">
-        <div class="summary-card-title">?쒕룞 ?붿빟</div>
-        <div class="summary-card-badge">?듭떖 吏??/div>
-      </div>
-
-      <div class="summary-grid">
-        <div class="summary-item avg">
-          <div class="summary-label">?뱀씤??/div>
-          <div class="summary-value">{{ member_stats.approved_rate or 0 }}%</div>
-        </div>
-
-        <div class="summary-item reject">
-          <div class="summary-label">諛섎젮??/div>
-          <div class="summary-value">{{ member_stats.rejected_rate or 0 }}%</div>
-        </div>
-
-        <div class="summary-item grouped">
-          <div class="summary-label">以묐났 ?좉퀬??/div>
-          <div class="summary-value">{{ member_stats.duplicate_rate or 0 }}%</div>
-        </div>
-
-        <div class="summary-item date">
-          <div class="summary-label">理쒓렐 30???쒕룞</div>
-          <div class="summary-value">{{ member_stats.recent_30d_reports or 0 }}嫄?/div>
+  <section class="member-overview-card">
+    <div class="member-overview-identity">
+      <div class="member-avatar-large">{{ (member.name or member.uid or '회')[0] }}</div>
+      <div>
+        <div class="member-overview-name">{{ member.name }}</div>
+        <div class="member-overview-uid">@{{ member.uid }}</div>
+        <div class="member-overview-badges">
+          {% if member.role == 'admin' %}
+          <span class="role-badge role-admin">관리자</span>
+          {% elif member.role == 'manager' %}
+          <span class="role-badge role-manager">매니저</span>
+          {% else %}
+          <span class="role-badge role-user">일반회원</span>
+          {% endif %}
+          {% if member.active %}
+          <span class="status-badge">정상 이용</span>
+          {% else %}
+          <span class="status-badge status-inactive">이용 정지</span>
+          {% endif %}
         </div>
       </div>
     </div>
-
-    <div class="activity-card">
-      <div class="section-card-head">
-        <div class="section-card-title">理쒓렐 ?좉퀬</div>
-        <div class="section-card-count">?꾩쟻 ?좉퀬 {{ member_stats.total_reports or 0 }}嫄?/div>
+    <div class="member-overview-info">
+      <div class="member-info-cell">
+        <span class="member-info-label">이메일</span>
+        <span class="member-info-value" title="{{ member.email or '-' }}">{{ member.email or '-' }}</span>
       </div>
-
-      {% if member_incidents and member_incidents|length > 0 %}
-      <div class="post-list">
-        {% for post in member_incidents %}
-        <a href="/admin/incidents?member_id={{ member.id }}" class="post-item js-page-transition-link">
-          <div class="post-item-top">
-            <div class="post-title">{{ post.title if post.title else '?쒕ぉ ?녿뒗 寃뚯떆湲' }}</div>
-            <div class="post-date">{{ post.first_created_at.strftime('%Y-%m-%d') if post.first_created_at else '-' }}
-            </div>
-          </div>
-
-          <div class="post-meta">
-            {% if post.risk_score >= 70 %}
-            <span class="mini-badge mini-risk-high">?꾪뿕???믪쓬</span>
-            {% elif post.risk_score >= 40 %}
-            <span class="mini-badge mini-risk-medium">?꾪뿕??以묎컙</span>
-            {% else %}
-            <span class="mini-badge mini-risk-low">?꾪뿕????쓬</span>
-            {% endif %}
-
-            {% if post.status == '?묒닔?꾨즺' %}
-            <span class="mini-badge mini-status-received">?묒닔?꾨즺</span>
-            {% elif post.status == '泥섎━以? %}
-            <span class="mini-badge mini-status-processing">泥섎━以?/span>
-            {% elif post.status == '泥섎━?꾨즺' %}
-            <span class="mini-badge mini-status-done">泥섎━?꾨즺</span>
-            {% elif post.status == '諛섎젮' %}
-            <span class="mini-badge mini-status-rejected">諛섎젮</span>
-            {% else %}
-            <span class="mini-badge mini-status-rejected">{{ post.status }}</span>
-            {% endif %}
-
-            <span class="post-location">
-              {{ post.region_name if post.region_name else (post.location if post.location else '?꾩튂 ?뺣낫 ?놁쓬') }}
-            </span>
-          </div>
-        </a>
-        {% endfor %}
+      <div class="member-info-cell">
+        <span class="member-info-label">가입일</span>
+        <span class="member-info-value">{{ member.created_at.strftime('%Y년 %m월 %d일') if member.created_at else '-' }}</span>
       </div>
-
-      <div class="section-card-footer">
-        <a href="/admin/incidents?member_id={{ member.id }}" class="section-link js-page-transition-link">?꾩껜 蹂닿린 ??/a>
+      <div class="member-info-cell">
+        <span class="member-info-label">등록 주소</span>
+        <span class="member-info-value" title="{{ member.address or '등록된 주소 없음' }}">{{ member.address or '등록된 주소 없음' }}</span>
       </div>
+      <div class="member-info-cell">
+        <span class="member-info-label">보유 크래커</span>
+        <span class="member-info-value">{{ member.points or 0 }} C</span>
+      </div>
+    </div>
+    <div class="member-overview-manage">
+      <div class="member-overview-manage-copy">
+        <div class="member-overview-manage-title">계정 관리</div>
+        <div class="member-overview-manage-desc">권한과 이용 상태를 변경합니다.</div>
+      </div>
+      <form method="post" action="/admin/members/{{ member.id }}/role" class="member-role-edit-form">
+        <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+        <input type="hidden" name="keyword" value="{{ request.args.get('keyword', '') }}">
+        <input type="hidden" name="role_filter" value="{{ request.args.get('role', '') }}">
+        <input type="hidden" name="status_filter" value="{{ request.args.get('status', '') }}">
+        <input type="hidden" name="sort" value="{{ request.args.get('sort', 'role') }}">
+        <input type="hidden" name="order" value="{{ request.args.get('order', 'asc') }}">
+        <select name="role" class="member-role-select" aria-label="회원 역할">
+          <option value="user" {% if member.role=='user' %}selected{% endif %}>일반회원</option>
+          <option value="manager" {% if member.role=='manager' %}selected{% endif %}>매니저</option>
+          <option value="admin" {% if member.role=='admin' %}selected{% endif %}>관리자</option>
+        </select>
+        <button type="submit" class="member-save-btn" data-confirm-message="회원 역할을 변경하시겠습니까?">저장</button>
+      </form>
+      {% if member.active %}
+      <form method="post" action="/admin/members/{{ member.id }}/suspend" class="member-inline-form">
+        <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+        <input type="hidden" name="keyword" value="{{ request.args.get('keyword', '') }}">
+        <input type="hidden" name="role_filter" value="{{ request.args.get('role', '') }}">
+        <input type="hidden" name="status_filter" value="{{ request.args.get('status', '') }}">
+        <input type="hidden" name="sort" value="{{ request.args.get('sort', 'role') }}">
+        <input type="hidden" name="order" value="{{ request.args.get('order', 'asc') }}">
+        <button type="submit" class="member-suspend-btn danger" data-confirm-message="이 회원의 서비스 이용을 정지하시겠습니까?">이용 정지</button>
+      </form>
       {% else %}
-      <div class="empty-box">
-        ?깅줉??寃뚯떆湲???놁뒿?덈떎.
-      </div>
+      <form method="post" action="/admin/members/{{ member.id }}/unsuspend" class="member-inline-form">
+        <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+        <input type="hidden" name="keyword" value="{{ request.args.get('keyword', '') }}">
+        <input type="hidden" name="role_filter" value="{{ request.args.get('role', '') }}">
+        <input type="hidden" name="status_filter" value="{{ request.args.get('status', '') }}">
+        <input type="hidden" name="sort" value="{{ request.args.get('sort', 'role') }}">
+        <input type="hidden" name="order" value="{{ request.args.get('order', 'asc') }}">
+        <button type="submit" class="member-suspend-btn" data-confirm-message="이 회원의 서비스 이용을 다시 활성화하시겠습니까?">정지 해제</button>
+      </form>
       {% endif %}
     </div>
-  </div>
-</div>
+  </section>
 
-<div id="pageTransitionOverlay" class="page-transition-overlay"></div>
+  <section class="member-metric-grid">
+    <div class="member-metric-card total">
+      <div class="member-metric-top"><span class="member-metric-label">전체 신고</span><i class="member-metric-mark"></i></div>
+      <div class="member-metric-value">{{ member_stats.total_reports or 0 }}건</div>
+      <div class="member-metric-caption">누적 등록 건수</div>
+    </div>
+    <div class="member-metric-card received">
+      <div class="member-metric-top"><span class="member-metric-label">접수완료</span><i class="member-metric-mark"></i></div>
+      <div class="member-metric-value">{{ member_stats.received_reports or 0 }}건</div>
+      <div class="member-metric-caption">확인이 필요한 신고</div>
+    </div>
+    <div class="member-metric-card processing">
+      <div class="member-metric-top"><span class="member-metric-label">처리중</span><i class="member-metric-mark"></i></div>
+      <div class="member-metric-value">{{ member_stats.processing_reports or 0 }}건</div>
+      <div class="member-metric-caption">현재 조치 중</div>
+    </div>
+    <div class="member-metric-card completed">
+      <div class="member-metric-top"><span class="member-metric-label">처리완료</span><i class="member-metric-mark"></i></div>
+      <div class="member-metric-value">{{ member_stats.completed_reports or 0 }}건</div>
+      <div class="member-metric-caption">조치가 끝난 신고</div>
+    </div>
+  </section>
+
+  <section class="member-activity-board">
+    <div class="member-activity-head">
+      <div>
+        <div class="member-activity-title">신고 활동</div>
+        <div class="member-activity-subtitle">처리가 필요한 항목과 최근 신고를 함께 확인합니다.</div>
+      </div>
+      <span class="member-activity-total">전체 {{ member_stats.total_reports or 0 }}건</span>
+    </div>
+
+    <div class="member-activity-summary">
+      <div class="member-activity-stat pending">
+        <div class="member-activity-stat-label">미처리</div>
+        <div class="member-activity-stat-value">{{ member_stats.pending_reports or 0 }}건</div>
+      </div>
+      <div class="member-activity-stat risk">
+        <div class="member-activity-stat-label">고위험 미처리</div>
+        <div class="member-activity-stat-value">{{ member_stats.high_risk_pending_reports or 0 }}건</div>
+      </div>
+      <div class="member-activity-stat delay">
+        <div class="member-activity-stat-label">장기 미처리</div>
+        <div class="member-activity-stat-value">{{ member_stats.long_pending_reports or 0 }}건</div>
+      </div>
+      <div class="member-activity-stat recent">
+        <div class="member-activity-stat-label">최근 7일</div>
+        <div class="member-activity-stat-value">{{ member_stats.recent_7d_reports or 0 }}건</div>
+      </div>
+      <div class="member-activity-stat done">
+        <div class="member-activity-stat-label">처리 완료율</div>
+        <div class="member-activity-stat-value">{{ member_stats.approved_rate or 0 }}%</div>
+      </div>
+    </div>
+
+    <div class="member-reports-head">
+      <div class="member-reports-title">최근 신고</div>
+      <div class="member-reports-caption">최근 등록 순으로 최대 4건</div>
+    </div>
+    {% if member_incidents and member_incidents|length > 0 %}
+    <div class="member-report-grid">
+      {% for post in member_incidents %}
+      <a href="/admin/incidents?member_id={{ member.id }}" class="member-report-card js-page-transition-link">
+        <div class="member-report-number">#{{ post.id }}</div>
+        <div class="member-report-main">
+          <div class="member-report-title">{{ post.title if post.title else '제목 없는 신고' }}</div>
+          <div class="member-report-meta">
+            <span class="member-report-location">{{ post.display_location if post.display_location else (post.location if post.location else '위치 정보 없음') }}</span>
+            <span>·</span>
+            <span>{{ post.first_created_at.strftime('%Y-%m-%d %H:%M') if post.first_created_at else '-' }}</span>
+          </div>
+        </div>
+        <div class="member-report-side">
+          <span class="member-report-status">{{ post.status or '상태 없음' }}</span>
+          <span class="member-report-score">AI {{ post.risk_score|round|int }}%</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="member-activity-footer">
+      <a href="/admin/incidents?member_id={{ member.id }}" class="member-all-link js-page-transition-link">이 회원의 신고 전체 보기 →</a>
+    </div>
+    {% else %}
+    <div class="empty-box">아직 등록한 신고가 없습니다.</div>
+    {% endif %}
+  </section>
+</div>
 
 <div id="confirmModal" class="confirm-modal-backdrop">
   <div class="confirm-modal">
-    <div class="confirm-modal-title">??踰????뺤씤?댁＜?몄슂</div>
-    <div id="confirmModalMessage" class="confirm-modal-message">?뺣쭚 吏꾪뻾?섏떆寃좎뒿?덇퉴?</div>
+    <div class="confirm-modal-title">한 번 더 확인해주세요</div>
+    <div id="confirmModalMessage" class="confirm-modal-message">정말 진행하시겠습니까?</div>
     <div class="confirm-modal-actions">
-      <button type="button" id="confirmCancelBtn" class="confirm-modal-btn secondary">痍⑥냼</button>
-      <button type="button" id="confirmOkBtn" class="confirm-modal-btn primary">?뺤씤</button>
+      <button type="button" id="confirmCancelBtn" class="confirm-modal-btn secondary">취소</button>
+      <button type="button" id="confirmOkBtn" class="confirm-modal-btn primary">확인</button>
     </div>
   </div>
 </div>
@@ -1241,7 +1988,7 @@
     const form = e.target;
     if (!form) return;
 
-    const submitButton = document.activeElement;
+    const submitButton = e.submitter || document.activeElement;
     if (!submitButton) return;
 
     const message = submitButton.getAttribute('data-confirm-message');
@@ -1268,4 +2015,3 @@
   });
 </script>
 {% endblock %}
-

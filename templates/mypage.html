@@ -1,6 +1,6 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
-{% block title %}My Page - Crack{% endblock %}
+{% block title %}마이페이지 - CRACK{% endblock %}
 
 {% block content %}
 <style>
@@ -24,48 +24,408 @@
         box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);
     }
 
-    /* 紐⑤뱺 踰꾪듉 ?몃쾭 ?④낵 媛뺤“ */
+    /* 모든 버튼 호버 효과 강조 */
     .auth-btn:hover {
         filter: brightness(0.95);
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(255, 140, 0, 0.15) !important;
     }
-</style>
-<!-- ?꾨줈???ㅻ뜑 -->
-<div class="profile-section card" style="text-align: center; padding: 24px 20px 16px; margin-bottom: 12px;">
-    <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; color: #333;">{{ session.get('user_name',
-        'Guest') }}</h2>
-    <p style="font-size: 0.9rem; color: #666; margin-bottom: 24px;">
-        {{ '愿由ъ옄 怨꾩젙' if is_admin else '?쇰컲 ?좎?' }}
-    </p>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px;">
-        <!-- ?섏쓽 ?좉퀬 -->
-        <div class="stat-highlight-card" onclick="location.href='/status'">
-            <strong style="display: block; font-size: 1.3rem; color: var(--point-orange); margin-bottom: 4px;">{{
-                my_report_count }}</strong>
-            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: 800; color: #444;">?섏쓽 ?좉퀬</span>
-        </div>
-        <!-- 泥섎━ ?꾨즺 -->
-        <div class="stat-highlight-card" onclick="location.href='/status'">
-            <strong style="display: block; font-size: 1.3rem; color: var(--point-orange); margin-bottom: 4px;">{{
-                completed_count }}</strong>
-            <span style="font-size: 0.75rem; opacity: 0.8; font-weight: 800; color: #444;">泥섎━ ?꾨즺</span>
-        </div>
-        <!-- ?щ옒而?(?ъ씤?? -->
-        <div class="stat-highlight-card cracker" onclick="openPointModal()">
-            <strong style="display: block; font-size: 1.3rem; font-family: 'Outfit'; margin-bottom: 4px;">{{
-                member.points or 0 }}</strong>
-            <span style="font-size: 0.75rem; opacity: 0.95; font-weight: 800;">?щ옒而?/span>
-            <i class="bi bi-lightning-charge-fill"
-                style="position: absolute; right: 6px; bottom: 6px; font-size: 1.5rem; color: white; opacity: 0.25;"></i>
-        </div>
-    </div>
-</div>
 
-<!-- ?ъ씤???곸꽭 ?댁뿭 紐⑤떖 (fixed濡??섏젙?섏뿬 ?ㅽ겕濡???? -->
+    main {
+        padding: 0 !important;
+        background: #f5f5f2 !important;
+    }
+
+    .mypage-page {
+        min-height: 100%;
+        padding: 18px 14px 30px;
+        color: #202838;
+    }
+
+    .profile-section.card {
+        margin: 0 0 17px !important;
+        padding: 18px 16px 15px !important;
+        border: 1px solid #e5e5e2 !important;
+        border-radius: 20px !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        text-align: left !important;
+        cursor: default;
+    }
+
+    .profile-section.card:hover,
+    .profile-section.card:active {
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .profile-identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1px 2px 16px;
+    }
+
+    .profile-avatar {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        place-items: center;
+        border-radius: 16px;
+        background: #fff0e4;
+        color: #f97316;
+        font-size: 1.2rem;
+    }
+
+    .profile-kicker {
+        display: block;
+        margin-bottom: 2px;
+        color: #e9630c;
+        font-size: .58rem;
+        font-weight: 850;
+    }
+
+    .profile-identity h1 {
+        margin: 0;
+        color: #252d3b;
+        font-size: 1.08rem;
+        line-height: 1.3;
+        letter-spacing: -.03em;
+    }
+
+    .profile-identity p {
+        margin: 3px 0 0 !important;
+        color: #9298a2 !important;
+        font-size: .64rem !important;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin: 0 !important;
+        padding-top: 13px;
+        border-top: 1px solid #efefec;
+    }
+
+    .profile-stats .stat-highlight-card {
+        position: relative;
+        display: flex;
+        min-width: 0;
+        min-height: 65px;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 10px;
+        border: 0;
+        border-radius: 12px;
+        background: #f7f7f5;
+        color: #69717e;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .profile-stats .stat-highlight-card:hover {
+        background: #fff4eb;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .profile-stats .stat-highlight-card > span {
+        font-size: .58rem;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .profile-stats .stat-highlight-card strong {
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+        color: #303746;
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .profile-stats .stat-highlight-card strong small {
+        color: #999fa8;
+        font-size: .54rem;
+        font-weight: 750;
+    }
+
+    .profile-stats .stat-highlight-card.cracker {
+        background: #fff4eb;
+        color: #b45309;
+    }
+
+    .profile-stats .stat-highlight-card.cracker strong {
+        color: #ea580c;
+    }
+
+    .mypage-section-heading {
+        padding: 0 4px 10px;
+    }
+
+    .mypage-section-heading h2 {
+        margin: 0;
+        color: #303746;
+        font-size: .9rem;
+        letter-spacing: -.025em;
+    }
+
+    .mypage-section-heading p {
+        margin: 4px 0 0;
+        color: #969ca6;
+        font-size: .62rem;
+    }
+
+    .mypage-settings-card {
+        border: 1px solid #e5e5e2 !important;
+        border-radius: 18px !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        cursor: default !important;
+    }
+
+    .mypage-settings-card:active {
+        transform: none !important;
+    }
+
+    .mypage-menu-button {
+        width: 100%;
+        min-height: 63px;
+        border: 0;
+        border-bottom: 1px solid #efefec !important;
+        background: #fff;
+        color: #404754;
+        font: inherit;
+        text-align: left;
+    }
+
+    button.mypage-menu-button {
+        appearance: none;
+    }
+
+    .mypage-menu-button:hover {
+        background: #fafaf8 !important;
+        box-shadow: none;
+        transform: none;
+    }
+
+    .mypage-menu-icon {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        place-items: center;
+        border-radius: 11px;
+        background: #fff0e4;
+        color: #f97316;
+        font-size: .85rem;
+    }
+
+    .mypage-menu-copy {
+        display: block;
+    }
+
+    .mypage-menu-copy strong {
+        display: block;
+        color: inherit;
+        font-size: .76rem;
+        font-weight: 850;
+    }
+
+    .mypage-menu-copy small {
+        display: block;
+        margin-top: 3px;
+        color: #969ca6;
+        font-size: .59rem;
+        font-weight: 500;
+    }
+
+    .mypage-menu-button.is-danger {
+        color: #dc2626 !important;
+    }
+
+    .mypage-menu-button.is-danger small {
+        color: #b59a9a;
+    }
+
+    #info-edit-menu {
+        padding: 17px 16px !important;
+        background: #f8f8f6 !important;
+    }
+
+    #info-edit-menu label {
+        color: #5f6672;
+        font-size: .66rem !important;
+        font-weight: 800;
+        opacity: 1 !important;
+    }
+
+    #info-edit-menu input,
+    #info-edit-menu select {
+        min-height: 44px;
+        border: 1px solid #dedfdc !important;
+        border-radius: 12px !important;
+        background: #fff !important;
+        color: #303746;
+        font-size: .74rem !important;
+    }
+
+    #info-edit-menu input:focus,
+    #info-edit-menu select:focus {
+        border-color: #fb923c !important;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, .1);
+    }
+
+    #info-edit-menu .auth-btn {
+        min-height: 42px;
+        border: 0;
+        border-radius: 11px;
+        background: #202838;
+        color: #fff;
+        box-shadow: none !important;
+        font-size: .7rem !important;
+        font-weight: 850;
+    }
+
+    #profile-msg {
+        padding: 9px 10px;
+        border-radius: 9px;
+        background: #fff4eb;
+        font-size: .65rem !important;
+        font-weight: 750;
+    }
+
+    #notification-toggle + #toggle-track {
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04);
+    }
+
+    #point-modal > [data-mypage-action],
+    #withdraw-modal > [data-mypage-action],
+    #app-info-modal > [data-mypage-action] {
+        background: rgba(24, 24, 27, .58) !important;
+        backdrop-filter: blur(7px) !important;
+    }
+
+    #point-modal-content,
+    #app-info-modal-content {
+        border-radius: 24px 24px 0 0 !important;
+        box-shadow: 0 -20px 55px rgba(0, 0, 0, .2) !important;
+    }
+
+    #point-modal-content h3 {
+        color: #303746;
+        font-size: .95rem !important;
+    }
+
+    #point-modal-content .auth-btn,
+    #app-info-modal-content .auth-btn {
+        min-height: 46px;
+        border: 0;
+        border-radius: 13px !important;
+        box-shadow: none !important;
+        font-size: .75rem;
+        font-weight: 850 !important;
+    }
+
+    #withdraw-modal-content {
+        width: min(330px, calc(100% - 36px)) !important;
+        padding: 24px 20px 19px !important;
+        border-radius: 22px !important;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, .24) !important;
+    }
+
+    #withdraw-modal-content h3 {
+        margin-bottom: 9px !important;
+        font-size: .98rem !important;
+    }
+
+    #withdraw-modal-content p {
+        color: #7e8591;
+        font-size: .7rem !important;
+        line-height: 1.55;
+        opacity: 1 !important;
+    }
+
+    #withdraw-password {
+        min-height: 45px;
+        border-color: #dedfdc !important;
+        font-size: .74rem;
+    }
+
+    #withdraw-modal-content .auth-btn {
+        min-height: 44px;
+        border: 0;
+        border-radius: 12px;
+        box-shadow: none !important;
+        font-size: .72rem;
+        font-weight: 850;
+    }
+
+    @media (max-width: 360px) {
+        .mypage-page {
+            padding-right: 10px;
+            padding-left: 10px;
+        }
+
+        .profile-stats {
+            gap: 5px;
+        }
+
+        .profile-stats .stat-highlight-card {
+            padding: 8px;
+        }
+    }
+</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='mypage.css', v='20260724-2') }}">
+<div class="mypage-page">
+    <section class="profile-section card" aria-labelledby="mypage-title">
+        <div class="profile-page-label">
+            <span>마이페이지</span>
+            <small>내 정보와 활동을 관리하세요.</small>
+        </div>
+        <div class="profile-identity">
+            <span class="profile-avatar"><i class="bi bi-person-fill"></i></span>
+            <div>
+                <span class="profile-kicker">{{ '관리자 계정' if is_admin else '일반 회원' }}</span>
+                <h1 id="mypage-title">{{ session.get('user_name', '사용자') }}님</h1>
+                <p>안전한 도로를 만드는 데 함께해주셔서 감사합니다.</p>
+            </div>
+        </div>
+        <div class="profile-stats">
+            <button type="button" class="stat-highlight-card" data-mypage-action="open-status">
+                <span>나의 제보</span>
+                <strong>{{ my_report_count }}<small>건</small></strong>
+            </button>
+            <button type="button" class="stat-highlight-card" data-mypage-action="open-status">
+                <span>처리완료</span>
+                <strong>{{ completed_count }}<small>건</small></strong>
+            </button>
+            <button type="button" class="stat-highlight-card cracker" data-mypage-action="open-points">
+                <span>보유 크래커</span>
+                <strong>{{ member.points or 0 }}<small>C</small></strong>
+            </button>
+        </div>
+    </section>
+
+    <section class="mypage-location-card" aria-labelledby="location-card-title">
+        <span class="mypage-location-icon"><i class="bi bi-geo-alt-fill"></i></span>
+        <div class="mypage-location-copy">
+            <span>내 알림 기준 주소</span>
+            <strong id="location-card-title">{{ member.address or '아직 등록된 주소가 없습니다.' }}</strong>
+            <small>이 주소를 기준으로 반경 1km의 도로 알림을 보여드려요.</small>
+        </div>
+        <a href="/mypage/profile#address-section" aria-label="주소 변경하기">
+            변경
+        </a>
+    </section>
+
+<!-- 포인트 상세 내역 모달 (fixed로 수정하여 스크롤 대응) -->
 <div id="point-modal"
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000;">
-    <div onclick="closePointModal()"
+    <div data-mypage-action="close-points"
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     </div>
     <div style="position: absolute; bottom: 0; left: 50%; width: 100%; max-width: 480px; background: white; border-radius: 30px 30px 0 0; display: flex; flex-direction: column; max-height: 85%; transform: translateX(-50%) translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -10px 25px rgba(0,0,0,0.1); overflow: hidden;"
@@ -74,7 +434,7 @@
         <div style="flex: 1; overflow-y: auto; padding: 24px 20px 0;">
             <h3
                 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                <i class="bi bi-clock-history" style="color: var(--point-orange);"></i> ?щ옒而??곷┰/?ъ슜 ?댁뿭
+                <i class="bi bi-clock-history" style="color: var(--point-orange);"></i> 크래커 적립/사용 내역
             </h3>
 
             {% if point_logs %}
@@ -98,102 +458,122 @@
             <div style="text-align: center; padding: 40px 0;">
                 <i class="bi bi-lightning-charge-fill"
                     style="font-size: 3rem; opacity: 0.1; display: block; margin-bottom: 12px;"></i>
-                <p style="font-size: 0.9rem; opacity: 0.3;">?꾩쭅 ?곷┰???щ옒而ㅺ? ?놁뒿?덈떎.</p>
+                <p style="font-size: 0.9rem; opacity: 0.3;">아직 적립된 크래커가 없습니다.</p>
             </div>
             {% endif %}
         </div>
 
         <!-- Footer: Fixed -->
         <div style="padding: 10px 20px 24px; background: white; border-top: 1px solid rgba(0,0,0,0.02);">
-            <button onclick="closePointModal()" class="auth-btn"
-                style="margin: 0; background: var(--point-orange); color: white; border-radius: 16px; font-weight: 700; box-shadow: 0 6px 15px rgba(255, 140, 0, 0.2) !important;">?リ린</button>
+            <button type="button" class="auth-btn" data-mypage-action="close-points"
+                style="margin: 0; background: var(--point-orange); color: white; border-radius: 16px; font-weight: 700; box-shadow: 0 6px 15px rgba(255, 140, 0, 0.2) !important;">닫기</button>
         </div>
     </div>
 </div>
 
-<!-- ?ㅼ젙 由ъ뒪??(?듯빀) -->
-<div class="card" style="padding: 0; overflow: hidden; border-radius: 20px; margin-bottom: 12px;">
-    <!-- ???뺣낫 蹂寃?(?대뵫) -->
-    <div onclick="toggleMenu('info-edit-menu')" class="clickable-item"
-        style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.03); cursor: pointer;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="bi bi-person-gear" style="font-size: 1.1rem; color: var(--point-orange);"></i>
-            <span>???뺣낫 蹂寃?/span>
-        </div>
-        <i class="bi bi-chevron-down" id="info-edit-icon" style="opacity: 0.3; transition: transform 0.2s;"></i>
+<!-- 설정 리스트 (통합) -->
+<section class="mypage-settings">
+    <div class="mypage-section-heading">
+        <h2>계정 및 설정</h2>
+        <p>필요한 항목을 선택해 변경할 수 있어요.</p>
     </div>
+<div class="card mypage-settings-card" style="padding: 0; overflow: hidden; border-radius: 20px; margin-bottom: 12px;">
+    <!-- 내 정보 변경 (폴딩) -->
+    <a href="/mypage/profile" class="clickable-item mypage-menu-button"
+        style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.03); cursor: pointer;">
+        <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="mypage-menu-icon"><i class="bi bi-person-gear"></i></span>
+            <span class="mypage-menu-copy"><strong>내 정보 관리</strong><small>닉네임, 비밀번호, 주소 변경</small></span>
+        </span>
+        <i class="bi bi-chevron-right" style="opacity: 0.3;"></i>
+    </a>
 
-    <!-- ?대뵫???낅젰 ??-->
+    <!-- 폴딩될 입력 폼 -->
     <div id="info-edit-menu"
         style="display: none; padding: 16px 20px; background: #fafafa; border-bottom: 1px solid rgba(0,0,0,0.03);">
         <div style="margin-bottom: 14px;">
-            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">?됰꽕??蹂寃?/label>
+            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">닉네임 변경</label>
             <div style="display:flex; gap:8px;">
                 <input id="input-nickname" type="text" placeholder="{{ session.get('user_name', '') }}" maxlength="20"
                     style="flex:1; padding: 10px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; outline:none; background:white;">
-                <button id="btn-save-nickname" onclick="saveNickname()" class="auth-btn"
-                    style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem; width:auto; flex-shrink:0;">???/button>
+                <button id="btn-save-nickname" type="button" class="auth-btn" data-mypage-action="save-nickname"
+                    style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem; width:auto; flex-shrink:0;">저장</button>
             </div>
         </div>
 
         <div style="border-top: 1px solid rgba(0,0,0,0.04); padding-top: 14px;">
-            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">鍮꾨?踰덊샇 蹂寃?/label>
+            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">비밀번호 변경</label>
             <div style="display: flex; flex-direction: column; gap: 8px;">
-                <input id="input-current-pw" type="password" placeholder="?꾩옱 鍮꾨?踰덊샇"
+                <input id="input-current-pw" type="password" placeholder="현재 비밀번호"
                     style="padding: 10px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; outline:none; background:white;">
-                <input id="input-new-pw" type="password" placeholder="??鍮꾨?踰덊샇"
+                <input id="input-new-pw" type="password" placeholder="새 비밀번호"
                     style="padding: 10px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; outline:none; background:white;">
-                <button id="btn-save-password" onclick="savePassword()" class="auth-btn"
-                    style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem;">鍮꾨?踰덊샇 蹂寃?/button>
+                <button id="btn-save-password" type="button" class="auth-btn" data-mypage-action="save-password"
+                    style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem;">비밀번호 변경</button>
             </div>
         </div>
 
         <div style="border-top: 1px solid rgba(0,0,0,0.04); padding-top: 14px; margin-top: 14px;">
-            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">愿??吏???ㅼ젙 (?쇰뱶 ?곗꽑
-                ?몄텧)</label>
+            <label style="font-size: 0.8rem; opacity: 0.65; display: block; margin-bottom: 6px;">내 주소</label>
+            <div style="display:flex; gap:8px;">
+                <input id="member-address" type="text" value="{{ member.address or '' }}" readonly
+                    placeholder="주소를 등록해주세요"
+                    style="min-width:0; flex:1; padding:10px 14px; border:1px solid rgba(0,0,0,0.1); border-radius:12px; font-size:0.88rem; outline:none; background:white;">
+                <button id="member-address-search-btn" type="button" class="auth-btn"
+                    style="padding:10px 14px; margin:0; font-size:0.82rem; width:auto; flex-shrink:0;">주소 찾기</button>
+            </div>
+            <input id="member-address-lat" type="hidden" value="{{ member.latitude if member.latitude is not none else '' }}">
+            <input id="member-address-lng" type="hidden" value="{{ member.longitude if member.longitude is not none else '' }}">
+            <input id="member-region-city" type="hidden" value="{{ member.region_city or '' }}">
+            <input id="member-region-district" type="hidden" value="{{ member.region_district or '' }}">
+            <p style="font-size:0.76rem; opacity:0.55; margin:7px 2px 0;">알림 목록은 이 주소에서 1km 이내의 제보만 보여줍니다.</p>
+        </div>
+
+        <div style="display:none; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 14px; margin-top: 14px;">
+            <label style="font-size: 0.8rem; opacity: 0.5; display: block; margin-bottom: 6px;">관심 지역 설정 (피드 우선
+                노출)</label>
             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <select id="select-city" onchange="updateDistrictSelect()"
+                <select id="select-city"
                     style="flex:1; padding: 10px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; outline:none; background:white; appearance:none;">
-                    <option value="" {% if not member.region_city %}selected{% endif %}>?????좏깮</option>
-                    <option value="?쒖슱?밸퀎?? {% if member.region_city=='?쒖슱?밸퀎?? %}selected{% endif %}>?쒖슱?밸퀎??/option>
-                    <option value="遺?곌킅??떆" {% if member.region_city=='遺?곌킅??떆' %}selected{% endif %}>遺?곌킅??떆</option>
-                    <option value="?援ш킅??떆" {% if member.region_city=='?援ш킅??떆' %}selected{% endif %}>?援ш킅??떆</option>
-                    <option value="?몄쿇愿묒뿭?? {% if member.region_city=='?몄쿇愿묒뿭?? %}selected{% endif %}>?몄쿇愿묒뿭??/option>
-                    <option value="愿묒＜愿묒뿭?? {% if member.region_city=='愿묒＜愿묒뿭?? %}selected{% endif %}>愿묒＜愿묒뿭??/option>
-                    <option value="??꾧킅??떆" {% if member.region_city=='??꾧킅??떆' %}selected{% endif %}>??꾧킅??떆</option>
-                    <option value="?몄궛愿묒뿭?? {% if member.region_city=='?몄궛愿묒뿭?? %}selected{% endif %}>?몄궛愿묒뿭??/option>
-                    <option value="?몄쥌?밸퀎?먯튂?? {% if member.region_city=='?몄쥌?밸퀎?먯튂?? %}selected{% endif %}>?몄쥌?밸퀎?먯튂??/option>
-                    <option value="寃쎄린?? {% if member.region_city=='寃쎄린?? %}selected{% endif %}>寃쎄린??/option>
-                    <option value="媛뺤썝?밸퀎?먯튂?? {% if member.region_city=='媛뺤썝?밸퀎?먯튂?? %}selected{% endif %}>媛뺤썝?밸퀎?먯튂??/option>
-                    <option value="異⑹껌遺곷룄" {% if member.region_city=='異⑹껌遺곷룄' %}selected{% endif %}>異⑹껌遺곷룄</option>
-                    <option value="異⑹껌?⑤룄" {% if member.region_city=='異⑹껌?⑤룄' %}selected{% endif %}>異⑹껌?⑤룄</option>
-                    <option value="?꾨씪遺곷룄" {% if member.region_city=='?꾨씪遺곷룄' %}selected{% endif %}>?꾨씪遺곷룄</option>
-                    <option value="?꾨씪?⑤룄" {% if member.region_city=='?꾨씪?⑤룄' %}selected{% endif %}>?꾨씪?⑤룄</option>
-                    <option value="寃쎌긽遺곷룄" {% if member.region_city=='寃쎌긽遺곷룄' %}selected{% endif %}>寃쎌긽遺곷룄</option>
-                    <option value="寃쎌긽?⑤룄" {% if member.region_city=='寃쎌긽?⑤룄' %}selected{% endif %}>寃쎌긽?⑤룄</option>
-                    <option value="?쒖＜?밸퀎?먯튂?? {% if member.region_city=='?쒖＜?밸퀎?먯튂?? %}selected{% endif %}>?쒖＜?밸퀎?먯튂??/option>
+                    <option value="" {% if not member.region_city %}selected{% endif %}>시/도 선택</option>
+                    <option value="서울특별시" {% if member.region_city=='서울특별시' %}selected{% endif %}>서울특별시</option>
+                    <option value="부산광역시" {% if member.region_city=='부산광역시' %}selected{% endif %}>부산광역시</option>
+                    <option value="대구광역시" {% if member.region_city=='대구광역시' %}selected{% endif %}>대구광역시</option>
+                    <option value="인천광역시" {% if member.region_city=='인천광역시' %}selected{% endif %}>인천광역시</option>
+                    <option value="광주광역시" {% if member.region_city=='광주광역시' %}selected{% endif %}>광주광역시</option>
+                    <option value="대전광역시" {% if member.region_city=='대전광역시' %}selected{% endif %}>대전광역시</option>
+                    <option value="울산광역시" {% if member.region_city=='울산광역시' %}selected{% endif %}>울산광역시</option>
+                    <option value="세종특별자치시" {% if member.region_city=='세종특별자치시' %}selected{% endif %}>세종특별자치시</option>
+                    <option value="경기도" {% if member.region_city=='경기도' %}selected{% endif %}>경기도</option>
+                    <option value="강원특별자치도" {% if member.region_city=='강원특별자치도' %}selected{% endif %}>강원특별자치도</option>
+                    <option value="충청북도" {% if member.region_city=='충청북도' %}selected{% endif %}>충청북도</option>
+                    <option value="충청남도" {% if member.region_city=='충청남도' %}selected{% endif %}>충청남도</option>
+                    <option value="전라북도" {% if member.region_city=='전라북도' %}selected{% endif %}>전라북도</option>
+                    <option value="전라남도" {% if member.region_city=='전라남도' %}selected{% endif %}>전라남도</option>
+                    <option value="경상북도" {% if member.region_city=='경상북도' %}selected{% endif %}>경상북도</option>
+                    <option value="경상남도" {% if member.region_city=='경상남도' %}selected{% endif %}>경상남도</option>
+                    <option value="제주특별자치도" {% if member.region_city=='제주특별자치도' %}selected{% endif %}>제주특별자치도</option>
                 </select>
                 <select id="select-district" disabled
                     style="flex:1; padding: 10px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; font-size: 0.9rem; outline:none; background:#f5f5f5; appearance:none;">
-                    <option value="">援?援??좏깮</option>
+                    <option value="">군/구 선택</option>
                 </select>
             </div>
-            <button id="btn-save-region" onclick="saveRegion()" class="auth-btn"
-                style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem; width:100%;">愿??吏?????/button>
+            <button id="btn-save-region" type="button" class="auth-btn" data-mypage-action="save-region"
+                style="padding: 10px 16px; margin-bottom:0; font-size:0.85rem; width:100%;">관심 지역 저장</button>
         </div>
         <p id="profile-msg" style="font-size:0.82rem; margin-top:8px; color: var(--point-orange); display:none;"></p>
     </div>
 
-    <!-- ?뚮┝ ?ㅼ젙 -->
-    <div class="clickable-item"
+    <!-- 알림 설정 -->
+    <div class="clickable-item mypage-menu-button"
         style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.03); cursor: default;">
         <div>
-            <span style="font-weight: 600;">?뚮┝ ?ㅼ젙</span>
-            <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 2px;">?좉퀬 諛??쒖뒪???뚮┝ ?섏떊</p>
+            <span class="mypage-menu-copy"><strong>알림 설정</strong><small>제보 처리와 시스템 알림 수신</small></span>
         </div>
         <label style="position:relative; display:inline-block; width:46px; height:26px; cursor:pointer; flex-shrink:0;">
             <input type="checkbox" id="notification-toggle" {% if notification_enabled %}checked{% endif %}
-                onchange="saveNotificationSetting(this.checked)" style="opacity:0; width:0; height:0;">
+                style="opacity:0; width:0; height:0;">
             <span id="toggle-track" style="position:absolute; top:0; left:0; right:0; bottom:0; border-radius:13px; transition:.3s;
                 background: {{ 'var(--point-orange)' if notification_enabled else 'rgba(0,0,0,0.12)' }};"></span>
             <span id="toggle-knob" style="position:absolute; content:''; height:20px; width:20px; left:3px; bottom:3px; background:white; border-radius:50%; transition:.3s;
@@ -201,54 +581,52 @@
         </label>
     </div>
 
-    <div class="clickable-item" onclick="openAppInfoModal()"
+    <button type="button" class="clickable-item mypage-menu-button" data-mypage-action="open-app-info"
         style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.03); cursor: pointer;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="bi bi-info-circle" style="font-size: 1.1rem; color: var(--point-orange);"></i>
-            <span>???뺣낫</span>
-        </div>
+        <span style="display: flex; align-items: center; gap: 10px;">
+            <span class="mypage-menu-icon"><i class="bi bi-info-circle"></i></span>
+            <span class="mypage-menu-copy"><strong>앱 정보</strong><small>버전과 주요 기능 안내</small></span>
+        </span>
         <i class="bi bi-chevron-right" style="opacity: 0.3;"></i>
-    </div>
-    <div class="clickable-item" onclick="openWithdrawModal()"
+    </button>
+    <button type="button" class="clickable-item mypage-menu-button is-danger" data-mypage-action="open-withdraw"
         style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; color: #FF4D4D; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.03);">
-        <span>?뚯썝 ?덊눜</span>
+        <span class="mypage-menu-copy"><strong>회원 탈퇴</strong><small>계정과 제보 내역 삭제</small></span>
         <i class="bi bi-chevron-right" style="opacity: 0.3;"></i>
-    </div>
-    <div class="clickable-item"
-        style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; color: #666; cursor: pointer;">
-        <a href="#" onclick="return secureLogout(event)" style="color: inherit; text-decoration: none; width: 100%;">濡쒓렇?꾩썐</a>
-    </div>
+    </button>
+</div>
+</section>
 </div>
 
-<!-- ?뚯썝 ?덊눜 ?뺤씤 紐⑤떖 (fixed濡??섏젙) -->
+<!-- 회원 탈퇴 확인 모달 (fixed로 수정) -->
 <div id="withdraw-modal"
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000;">
-    <div onclick="closeWithdrawModal()"
+    <div data-mypage-action="close-withdraw"
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     </div>
     <div style="position: absolute; top: 50%; left: 50%; width: 85%; max-width: 320px; transform: translate(-50%, -50%) scale(0.9); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: white; border-radius: 20px; padding: 24px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);"
         id="withdraw-modal-content">
-        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 15px; color: #FF4D4D; text-align: center;">?뚯썝 ?덊눜
+        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 15px; color: #FF4D4D; text-align: center;">회원 탈퇴
         </h3>
         <p style="font-size: 0.85rem; text-align: center; opacity: 0.7; margin-bottom: 20px;">
-            紐⑤뱺 ?쒕낫 ?댁뿭怨??ъ씤?멸? 利됱떆 ??젣?섎ŉ<br>蹂듦뎄?????놁뒿?덈떎.<br>怨꾩냽?섏떆?ㅻ㈃ 鍮꾨?踰덊샇瑜??낅젰?댁＜?몄슂.
+            모든 제보 내역과 포인트가 즉시 삭제되며<br>복구할 수 없습니다.<br>계속하시려면 비밀번호를 입력해주세요.
         </p>
-        <input type="password" id="withdraw-password" placeholder="鍮꾨?踰덊샇 ?뺤씤"
+        <input type="password" id="withdraw-password" placeholder="비밀번호 확인"
             style="width: 100%; padding: 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; outline: none; margin-bottom: 15px;">
 
         <div style="display: flex; gap: 8px;">
-            <button onclick="closeWithdrawModal()" class="auth-btn"
-                style="flex: 1; margin-bottom: 0; background: #f0f0f0; color: #666;">痍⑥냼</button>
-            <button onclick="processWithdraw()" class="auth-btn"
-                style="flex: 1; margin-bottom: 0; background: #FF4D4D;">?덊눜?섍린</button>
+            <button type="button" class="auth-btn" data-mypage-action="close-withdraw"
+                style="flex: 1; margin-bottom: 0; background: #f0f0f0; color: #666;">취소</button>
+            <button type="button" class="auth-btn" data-mypage-action="process-withdraw"
+                style="flex: 1; margin-bottom: 0; background: #FF4D4D;">탈퇴하기</button>
         </div>
     </div>
 </div>
 
-<!-- ???뺣낫 紐⑤떖 (fixed濡??섏젙) -->
+<!-- 앱 정보 모달 (fixed로 수정) -->
 <div id="app-info-modal"
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000;">
-    <div onclick="closeAppInfoModal()"
+    <div data-mypage-action="close-app-info"
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
     </div>
     <div style="position: absolute; bottom: 0; left: 50%; width: 100%; max-width: 480px; background: white; border-radius: 30px 30px 0 0; display: flex; flex-direction: column; max-height: 85%; transform: translateX(-50%) translateY(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 -10px 30px rgba(0,0,0,0.15); overflow: hidden;"
@@ -258,68 +636,111 @@
             <div style="text-align: center; margin-bottom: 25px;">
                 <div
                     style="width: 70px; height: 70px; background: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; transform: rotate(-3deg); box-shadow: 0 10px 25px rgba(255, 140, 0, 0.2); overflow: hidden; border: 1px solid rgba(0,0,0,0.03);">
-                    <img src="/static/icons/icon-192.png" alt="Crack Icon"
+                    <img src="/static/icons/icon-192.png" alt="CRACK 앱 아이콘"
                         style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <h3 style="font-size: 1.4rem; font-weight: 800; color: #333;">CRACK <span
                         style="font-size: 0.9rem; font-weight: 500; opacity: 0.4;">v1.4.7</span></h3>
-                <p style="font-size: 0.85rem; color: var(--point-orange); font-weight: 600; margin-top: 4px;">Smart Road
-                    Safety Platform (Latest Update)</p>
+                <p style="font-size: 0.85rem; color: var(--point-orange); font-weight: 600; margin-top: 4px;">
+                    도로 안전 신고 및 처리 서비스</p>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 20px; color: #444; line-height: 1.6;">
                 <div>
-                    <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #222;">?? ???뚭컻</h4>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #222;">🚀 앱 소개</h4>
                     <p style="font-size: 0.9rem; opacity: 0.8;">
-                        CRACK? ?멸났吏??湲곗닠???쒖슜?섏뿬 ?쒕??ㅺ낵 ?④퍡 ?덉쟾???꾨줈 ?섍꼍??留뚮뱾?닿????ㅻ쭏???쒕낫 ?뚮옯?쇱엯?덈떎. ?쒕????덉쑝濡??꾨줈 ???꾪뿕 ?붿냼(?ы듃? ??瑜?諛쒓껄?섍퀬,
-                        AI???덉쑝濡??뺣??섍쾶 遺꾩꽍?섏뿬 ?좎냽??蹂댁닔媛 ?대（?댁쭏 ???덈룄濡??뺤뒿?덈떎.
+                        CRACK은 인공지능 기술을 활용하여 시민들과 함께 안전한 도로 환경을 만들어가는 스마트 제보 플랫폼입니다. 시민의 눈으로 도로 위 위험 요소(포트홀 등)를 발견하고,
+                        AI의 눈으로 정밀하게 분석하여 신속한 보수가 이루어질 수 있도록 돕습니다.
                     </p>
                 </div>
 
                 <div
                     style="background: var(--bg-main); border: 1px solid rgba(0,0,0,0.03); border-radius: 20px; padding: 18px;">
-                    <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: #222;">??二쇱슂 湲곕뒫</h4>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: #222;">✨ 주요 기능</h4>
                     <ul
                         style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
                         <li style="display: flex; gap: 10px; align-items: flex-start;">
                             <i class="bi bi-robot" style="color: var(--point-orange);"></i>
-                            <span><strong>AI ?ㅼ떆媛?遺꾩꽍:</strong> ?낅줈?쒕맂 ?ъ쭊???λ윭??紐⑤뜽??利됱떆 遺꾩꽍?섏뿬 ?뚯넀 ?щ?? ?ш컖?꾨? ?먮퀎?⑸땲??</span>
+                            <span><strong>AI 실시간 분석:</strong> 업로드된 사진을 딥러닝 모델이 즉시 분석하여 파손 여부와 심각도를 판별합니다.</span>
                         </li>
                         <li style="display: flex; gap: 10px; align-items: flex-start;">
                             <i class="bi bi-geo-alt-fill" style="color: var(--point-orange);"></i>
-                            <span><strong>?꾩튂 湲곕컲 ?쒕낫:</strong> ?ㅻ쭏?명룿??GPS 湲곕뒫???쒖슜?섏뿬 ?ш퀬 吏?먯쓣 ?뺥솗?섍쾶 吏???꾩뿉 留덊궧?⑸땲??</span>
+                            <span><strong>위치 기반 제보:</strong> 스마트폰의 GPS 기능을 활용하여 사고 지점을 정확하게 지도 위에 마킹합니다.</span>
                         </li>
                         <li style="display: flex; gap: 10px; align-items: flex-start;">
                             <i class="bi bi-lightning-fill" style="color: var(--point-orange);"></i>
-                            <span><strong>?щ옒而?由ъ썙??</strong> ?좏슚???쒕낫瑜??댁＜???쒕?遺꾨뱾猿?媛먯궗???섎?濡??щ옒而??ъ씤?몃? 吏湲됲빀?덈떎.</span>
+                            <span><strong>크래커 리워드:</strong> 유효한 제보를 해주신 시민분들께 감사의 의미로 크래커 포인트를 지급합니다.</span>
                         </li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #222;">?렞 ?곕━??紐⑺몴</h4>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #222;">🎯 우리의 목표</h4>
                     <p style="font-size: 0.9rem; opacity: 0.8;">
-                        ?곕━??湲곗닠???ы쉶??遺덊렪?⑥쓣 ?닿껐????媛??媛移??덈떎怨?誘우뒿?덈떎. CRACK? 吏?먯껜? ?쒕? ?ъ씠???щ챸???뚰넻 李쎄뎄媛 ?섏뼱, 紐⑤몢媛 ?덉떖?섍퀬 嫄몄쓣 ???덈뒗 ?댁씪??                        ?꾨줈瑜?轅덇퓠?덈떎.
+                        우리는 기술이 사회적 불편함을 해결할 때 가장 가치 있다고 믿습니다. CRACK은 지자체와 시민 사이의 투명한 소통 창구가 되어, 모두가 안심하고 걸을 수 있는 내일의
+                        도로를 꿈꿉니다.
                     </p>
                 </div>
 
                 <p
                     style="font-size: 0.75rem; text-align: center; opacity: 0.4; margin-top: 20px; padding-bottom: 20px;">
-                    짤 2026 CRACK Team. All rights reserved.
+                    © 2026 CRACK Team. All rights reserved.
                 </p>
             </div>
         </div>
 
         <!-- Footer: Fixed -->
         <div style="padding: 10px 24px 30px; background: white; border-top: 1px solid rgba(0,0,0,0.02);">
-            <button onclick="closeAppInfoModal()" class="auth-btn"
-                style="margin: 0; background: var(--point-orange); color: white; border-radius: 16px; font-weight: 700; box-shadow: 0 6px 15px rgba(255, 140, 0, 0.2) !important;">?リ린</button>
+            <button type="button" class="auth-btn" data-mypage-action="close-app-info"
+                style="margin: 0; background: var(--point-orange); color: white; border-radius: 16px; font-weight: 700; box-shadow: 0 6px 15px rgba(255, 140, 0, 0.2) !important;">닫기</button>
         </div>
     </div>
 </div>
 
 <script nonce="{{ csp_nonce }}">
-    // ?덊눜 紐⑤떖 ?쒖뼱
+    document.querySelectorAll('[data-mypage-action]').forEach(function (control) {
+        control.addEventListener('click', function (event) {
+            event.preventDefault();
+            const actions = {
+                'open-status': function () { window.location.assign('/status'); },
+                'open-points': openPointModal,
+                'close-points': closePointModal,
+                'toggle-profile': function () { toggleMenu('info-edit-menu'); },
+                'open-profile': openProfileEditor,
+                'save-nickname': saveNickname,
+                'save-password': savePassword,
+                'save-region': saveRegion,
+                'open-app-info': openAppInfoModal,
+                'close-app-info': closeAppInfoModal,
+                'open-withdraw': openWithdrawModal,
+                'close-withdraw': closeWithdrawModal,
+                'process-withdraw': processWithdraw
+            };
+            const action = actions[control.dataset.mypageAction];
+            if (typeof action === 'function') action();
+        });
+    });
+
+    const regionCitySelect = document.getElementById('select-city');
+    if (regionCitySelect) {
+        regionCitySelect.addEventListener('change', updateDistrictSelect);
+    }
+
+    const notificationToggle = document.getElementById('notification-toggle');
+    if (notificationToggle) {
+        notificationToggle.addEventListener('change', function () {
+            saveNotificationSetting(notificationToggle.checked);
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
+        if (document.getElementById('point-modal').style.display !== 'none') closePointModal();
+        if (document.getElementById('app-info-modal').style.display !== 'none') closeAppInfoModal();
+        if (document.getElementById('withdraw-modal').style.display !== 'none') closeWithdrawModal();
+    });
+
+    // 탈퇴 모달 제어
     function openWithdrawModal() {
         const modal = document.getElementById('withdraw-modal');
         const content = document.getElementById('withdraw-modal-content');
@@ -341,15 +762,13 @@
         }, 300);
     }
 
-    // ?뚯썝 ?덊눜 泥섎━
+    // 회원 탈퇴 처리
     async function processWithdraw() {
         const password_confirm = document.getElementById('withdraw-password').value;
         if (!password_confirm) {
-            showToast("鍮꾨?踰덊샇瑜??낅젰?댁＜?몄슂.");
+            showToast("비밀번호를 입력해주세요.");
             return;
         }
-
-        if (!confirm("?뺣쭚 ?덊눜?섏떆寃좎뒿?덇퉴? ???묒뾽? 痍⑥냼?????놁뒿?덈떎.")) return;
 
         try {
             const resp = await fetch('/api/withdraw', {
@@ -366,7 +785,7 @@
                 showNoticeModal(data.message);
             }
         } catch (e) {
-            showToast("泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+            showToast("처리 중 오류가 발생했습니다.");
         }
     }
     function toggleMenu(id) {
@@ -381,13 +800,26 @@
         }
     }
 
+    function openProfileEditor() {
+        const menu = document.getElementById('info-edit-menu');
+        const icon = document.getElementById('info-edit-icon');
+        menu.style.display = 'block';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+        setTimeout(function () {
+            document.getElementById('member-address-search-btn').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }, 50);
+    }
+
     async function saveNickname() {
         const nickname = document.getElementById('input-nickname').value.trim();
         if (!nickname) return;
 
         const btn = document.getElementById('btn-save-nickname');
         const originalText = btn.textContent;
-        btn.textContent = '泥섎━ 以?..';
+        btn.textContent = '처리 중...';
         btn.disabled = true;
 
         try {
@@ -400,10 +832,10 @@
             const msg = document.getElementById('profile-msg');
             msg.style.display = 'block';
             msg.style.color = data.success ? 'var(--point-orange)' : '#FF4D4D';
-            msg.textContent = data.success ? '?됰꽕?꾩씠 蹂寃쎈릺?덉뒿?덈떎.' : data.message;
+            msg.textContent = data.success ? '닉네임이 변경되었습니다.' : data.message;
             if (data.success) setTimeout(() => location.reload(), 1000);
         } catch (e) {
-            showToast("泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+            showToast("처리 중 오류가 발생했습니다.");
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -414,13 +846,13 @@
         const current_password = document.getElementById('input-current-pw').value;
         const new_password = document.getElementById('input-new-pw').value;
         if (!current_password || !new_password) {
-            showToast("?꾩옱 鍮꾨?踰덊샇? ??鍮꾨?踰덊샇瑜?紐⑤몢 ?낅젰?댁＜?몄슂.");
+            showToast("현재 비밀번호와 새 비밀번호를 모두 입력해주세요.");
             return;
         }
 
         const btn = document.getElementById('btn-save-password');
         const originalText = btn.textContent;
-        btn.textContent = '泥섎━ 以?..';
+        btn.textContent = '처리 중...';
         btn.disabled = true;
 
         try {
@@ -440,7 +872,7 @@
                 setTimeout(() => msg.style.display = 'none', 3000);
             }
         } catch (e) {
-            showToast("泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+            showToast("처리 중 오류가 발생했습니다.");
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -448,23 +880,23 @@
     }
 
     const districts = {
-        '?쒖슱?밸퀎??: ['醫낅줈援?, '以묎뎄', '?⑹궛援?, '?깅룞援?, '愿묒쭊援?, '?숇?臾멸뎄', '以묐옉援?, '?깅턿援?, '媛뺣턿援?, '?꾨큺援?, '?몄썝援?, '??됯뎄', '?쒕?臾멸뎄', '留덊룷援?, '?묒쿇援?, '媛뺤꽌援?, '援щ줈援?, '湲덉쿇援?, '?곷벑?ш뎄', '?숈옉援?, '愿?낃뎄', '?쒖큹援?, '媛뺣궓援?, '?≫뙆援?, '媛뺣룞援?],
-        '遺?곌킅??떆': ['以묎뎄', '?쒓뎄', '?숆뎄', '?곷룄援?, '遺?곗쭊援?, '?숇옒援?, '?④뎄', '遺곴뎄', '?댁슫?援?, '?ы븯援?, '湲덉젙援?, '媛뺤꽌援?, '?곗젣援?, '?섏쁺援?, '?ъ긽援?, '湲곗옣援?],
-        '?援ш킅??떆': ['以묎뎄', '?숆뎄', '?쒓뎄', '?④뎄', '遺곴뎄', '?섏꽦援?, '?ъ꽌援?, '?ъ꽦援?, '援곗쐞援?],
-        '?몄쿇愿묒뿭??: ['以묎뎄', '?숆뎄', '誘몄텛?援?, '?곗닔援?, '?⑤룞援?, '遺?됯뎄', '怨꾩뼇援?, '?쒓뎄', '媛뺥솕援?, '?뱀쭊援?],
-        '愿묒＜愿묒뿭??: ['?숆뎄', '?쒓뎄', '?④뎄', '遺곴뎄', '愿묒궛援?],
-        '??꾧킅??떆': ['?숆뎄', '以묎뎄', '?쒓뎄', '?좎꽦援?, '??뺢뎄'],
-        '?몄궛愿묒뿭??: ['以묎뎄', '?④뎄', '?숆뎄', '遺곴뎄', '?몄＜援?],
-        '?몄쥌?밸퀎?먯튂??: ['?몄쥌?밸퀎?먯튂??],
-        '寃쎄린??: ['?섏썝??, '?깅궓??, '?섏젙遺??, '?덉뼇??, '遺泥쒖떆', '愿묐챸??, '?됲깮??, '?숇몢泥쒖떆', '?덉궛??, '怨좎뼇??, '怨쇱쿇??, '援щ━??, '?⑥뼇二쇱떆', '?ㅼ궛??, '?쒗씎??, '援고룷??, '?섏솗??, '?섎궓??, '?⑹씤??, '?뚯＜??, '?댁쿇??, '?덉꽦??, '源?ъ떆', '?붿꽦??, '愿묒＜??, '?묒＜??, '?ъ쿇??, '?ъ＜??, '?곗쿇援?, '媛?됯뎔', '?묓룊援?],
-        '媛뺤썝?밸퀎?먯튂??: ['異섏쿇??, '?먯＜??, '媛뺣쫱??, '?숉빐??, '?쒕갚??, '?띿큹??, '?쇱쿃??, '?띿쿇援?, '?≪꽦援?, '?곸썡援?, '?됱갹援?, '?뺤꽑援?, '泥좎썝援?, '?붿쿇援?, '?묎뎄援?, '?몄젣援?, '怨좎꽦援?, '?묒뼇援?],
-        '異⑹껌遺곷룄': ['泥?＜??, '異⑹＜??, '?쒖쿇??, '蹂댁?援?, '?μ쿇援?, '?곷룞援?, '利앺룊援?, '吏꾩쿇援?, '愿댁궛援?, '?뚯꽦援?, '?⑥뼇援?],
-        '異⑹껌?⑤룄': ['泥쒖븞??, '怨듭＜??, '蹂대졊??, '?꾩궛??, '?쒖궛??, '?쇱궛??, '怨꾨！??, '?뱀쭊??, '湲덉궛援?, '遺?ш뎔', '?쒖쿇援?, '泥?뼇援?, '?띿꽦援?, '?덉궛援?, '?쒖븞援?],
-        '?꾨씪遺곷룄': ['?꾩＜??, '援곗궛??, '?듭궛??, '?뺤쓭??, '?⑥썝??, '源?쒖떆', '?꾩＜援?, '吏꾩븞援?, '臾댁＜援?, '?μ닔援?, '?꾩떎援?, '?쒖갹援?, '怨좎갹援?, '遺?덇뎔'],
-        '?꾨씪?⑤룄': ['紐⑺룷??, '?ъ닔??, '?쒖쿇??, '?섏＜??, '愿묒뼇??, '?댁뼇援?, '怨≪꽦援?, '援щ?援?, '怨좏씎援?, '蹂댁꽦援?, '?붿닚援?, '?ν씎援?, '媛뺤쭊援?, '?대궓援?, '?곸븫援?, '臾댁븞援?, '?⑦룊援?, '?곴킅援?, '?μ꽦援?, '?꾨룄援?, '吏꾨룄援?, '?좎븞援?],
-        '寃쎌긽遺곷룄': ['?ы빆??, '寃쎌＜??, '源泥쒖떆', '?덈룞??, '援щ???, '?곸＜??, '?곸쿇??, '?곸＜??, '臾멸꼍??, '寃쎌궛??, '?섏꽦援?, '泥?넚援?, '?곸뼇援?, '?곷뜒援?, '泥?룄援?, '怨좊졊援?, '?깆＜援?, '移좉끝援?, '?덉쿇援?, '遊됲솕援?, '?몄쭊援?, '?몃쫱援?],
-        '寃쎌긽?⑤룄': ['李쎌썝??, '吏꾩＜??, '?듭쁺??, '?ъ쿇??, '源?댁떆', '諛?묒떆', '嫄곗젣??, '?묒궛??, '?섎졊援?, '?⑥븞援?, '李쎈뀞援?, '怨좎꽦援?, '?⑦빐援?, '?섎룞援?, '?곗껌援?, '?⑥뼇援?, '嫄곗갹援?, '?⑹쿇援?],
-        '?쒖＜?밸퀎?먯튂??: ['?쒖＜??, '?쒓??ъ떆']
+        '서울특별시': ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구', '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구'],
+        '부산광역시': ['중구', '서구', '동구', '영도구', '부산진구', '동래구', '남구', '북구', '해운대구', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군'],
+        '대구광역시': ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군', '군위군'],
+        '인천광역시': ['중구', '동구', '미추홀구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군', '옹진군'],
+        '광주광역시': ['동구', '서구', '남구', '북구', '광산구'],
+        '대전광역시': ['동구', '중구', '서구', '유성구', '대덕구'],
+        '울산광역시': ['중구', '남구', '동구', '북구', '울주군'],
+        '세종특별자치시': ['세종특별자치시'],
+        '경기도': ['수원시', '성남시', '의정부시', '안양시', '부천시', '광명시', '평택시', '동두천시', '안산시', '고양시', '과천시', '구리시', '남양주시', '오산시', '시흥시', '군포시', '의왕시', '하남시', '용인시', '파주시', '이천시', '안성시', '김포시', '화성시', '광주시', '양주시', '포천시', '여주시', '연천군', '가평군', '양평군'],
+        '강원특별자치도': ['춘천시', '원주시', '강릉시', '동해시', '태백시', '속초시', '삼척시', '홍천군', '횡성군', '영월군', '평창군', '정선군', '철원군', '화천군', '양구군', '인제군', '고성군', '양양군'],
+        '충청북도': ['청주시', '충주시', '제천시', '보은군', '옥천군', '영동군', '증평군', '진천군', '괴산군', '음성군', '단양군'],
+        '충청남도': ['천안시', '공주시', '보령시', '아산시', '서산시', '논산시', '계룡시', '당진시', '금산군', '부여군', '서천군', '청양군', '홍성군', '예산군', '태안군'],
+        '전라북도': ['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', '완주군', '진안군', '무주군', '장수군', '임실군', '순창군', '고창군', '부안군'],
+        '전라남도': ['목포시', '여수시', '순천시', '나주시', '광양시', '담양군', '곡성군', '구례군', '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군', '영암군', '무안군', '함평군', '영광군', '장성군', '완도군', '진도군', '신안군'],
+        '경상북도': ['포항시', '경주시', '김천시', '안동시', '구미시', '영주시', '영천시', '상주시', '문경시', '경산시', '의성군', '청송군', '영양군', '영덕군', '청도군', '고령군', '성주군', '칠곡군', '예천군', '봉화군', '울진군', '울릉군'],
+        '경상남도': ['창원시', '진주시', '통영시', '사천시', '김해시', '밀양시', '거제시', '양산시', '의령군', '함안군', '창녕군', '고성군', '남해군', '하동군', '산청군', '함양군', '거창군', '합천군'],
+        '제주특별자치도': ['제주시', '서귀포시']
     };
 
     function updateDistrictSelect() {
@@ -472,7 +904,7 @@
         const districtSelect = document.getElementById('select-district');
         const cityName = citySelect.value;
 
-        districtSelect.innerHTML = '<option value="">援?援??좏깮</option>';
+        districtSelect.innerHTML = '<option value="">군/구 선택</option>';
         if (cityName && districts[cityName]) {
             districts[cityName].forEach(district => {
                 const option = document.createElement('option');
@@ -488,10 +920,10 @@
         }
     }
 
-    // ?쒕쾭 痢??뚯썝???좏깮媛믪쓣 ?먮컮?ㅽ겕由쏀듃???꾨떖?섏뿬 濡쒕뱶 ???명똿
+    // 서버 측 회원의 선택값을 자바스크립트에 전달하여 로드 시 세팅
     document.addEventListener("DOMContentLoaded", () => {
-        const savedCity = {{ (member.region_city or '')|tojson }};
-        const savedDistrict = {{ (member.region_district or '')|tojson }};
+        const savedCity = '{{ member.region_city or "" }}';
+        const savedDistrict = '{{ member.region_district or "" }}';
 
         if (savedCity) {
             document.getElementById('select-city').value = savedCity;
@@ -510,13 +942,13 @@
         if (!region_city) {
             msg.style.display = 'block';
             msg.style.color = '#FF4D4D';
-            msg.textContent = '???꾨? ?좏깮?댁＜?몄슂.';
+            msg.textContent = '시/도를 선택해주세요.';
             return;
         }
 
         const btn = document.getElementById('btn-save-region');
         const originalText = btn.textContent;
-        btn.textContent = '泥섎━ 以?..';
+        btn.textContent = '처리 중...';
         btn.disabled = true;
 
         try {
@@ -534,7 +966,7 @@
                 setTimeout(() => msg.style.display = 'none', 3000);
             }
         } catch (e) {
-            showToast("泥섎━ 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.");
+            showToast("처리 중 오류가 발생했습니다.");
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -551,7 +983,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ notification_enabled: enabled })
         });
-        showToast(enabled ? '?뚮┝??耳쒖죱?듬땲??' : '?뚮┝??爰쇱죱?듬땲??');
+        showToast(enabled ? '알림이 켜졌습니다.' : '알림이 꺼졌습니다.');
     }
 
     function openPointModal() {
@@ -574,7 +1006,7 @@
         }, 300);
     }
 
-    // ???뺣낫 紐⑤떖 ?쒖뼱
+    // 앱 정보 모달 제어
     function openAppInfoModal() {
         const modal = document.getElementById('app-info-modal');
         const content = document.getElementById('app-info-modal-content');
@@ -594,6 +1026,64 @@
             modal.style.display = 'none';
         }, 400);
     }
+
+    async function saveMemberAddress(location) {
+        const msg = document.getElementById('profile-msg');
+        try {
+            const resp = await fetch('/api/mypage/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(location)
+            });
+            const data = await resp.json();
+            msg.style.display = 'block';
+            msg.style.color = data.success ? 'var(--point-orange)' : '#FF4D4D';
+            msg.textContent = data.message;
+        } catch (error) {
+            msg.style.display = 'block';
+            msg.style.color = '#FF4D4D';
+            msg.textContent = '주소 저장 중 오류가 발생했습니다.';
+        }
+    }
+
+    document.getElementById('member-address-search-btn').addEventListener('click', function () {
+        const msg = document.getElementById('profile-msg');
+        if (!window.daum || !window.daum.Postcode) {
+            msg.style.display = 'block';
+            msg.textContent = '주소 검색 서비스를 불러오지 못했습니다.';
+            return;
+        }
+        new daum.Postcode({
+            oncomplete: function (data) {
+                const address = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                if (!window.kakao || !window.kakao.maps) {
+                    msg.style.display = 'block';
+                    msg.textContent = '지도 서비스를 불러오지 못했습니다.';
+                    return;
+                }
+                kakao.maps.load(function () {
+                    const geocoder = new kakao.maps.services.Geocoder();
+                    geocoder.addressSearch(address, function (result, status) {
+                        if (status !== kakao.maps.services.Status.OK || !result.length) {
+                            msg.style.display = 'block';
+                            msg.textContent = '주소 위치를 확인하지 못했습니다.';
+                            return;
+                        }
+                        const location = {
+                            address: address,
+                            latitude: result[0].y,
+                            longitude: result[0].x,
+                            region_city: data.sido || '',
+                            region_district: data.sigungu || ''
+                        };
+                        document.getElementById('member-address').value = address;
+                        document.getElementById('member-address-lat').value = result[0].y;
+                        document.getElementById('member-address-lng').value = result[0].x;
+                        saveMemberAddress(location);
+                    });
+                });
+            }
+        }).open();
+    });
 </script>
 {% endblock %}
-

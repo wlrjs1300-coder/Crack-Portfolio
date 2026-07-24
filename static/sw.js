@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crack-v17';
+const CACHE_NAME = 'crack-v19';
 const ASSETS_TO_CACHE = [
     '/static/icons/icon-192.png?v=3',
     '/static/icons/icon-512.png?v=3'
@@ -29,9 +29,16 @@ self.addEventListener('fetch', (event) => {
         url.pathname.startsWith('/static/') || url.pathname === '/manifest.json' || url.pathname === '/sw.js'
     );
 
-    // HTML, API, 업로드, 외부 리소스 및 변경 요청은 캐시하지 않는다.
+    const bypassCache = url.pathname.startsWith('/static/security.js') || url.pathname.startsWith('/sw.js');
+    if (bypassCache) {
+        return;
+    }
+
+    // HTML, API, 업로드, 외부 리소스 및 변경 요청은 서비스 워커가 가로채지 않고
+    // 브라우저 기본 동작에 맡긴다. (respondWith 안에서 fetch()로 재요청하면
+    // 요청 종류(script/img 등)에 맞는 CSP 지시문이 아니라 connect-src로
+    // 재검사되어 정상적인 외부 리소스까지 차단되는 문제가 있었음)
     if (event.request.method !== 'GET' || event.request.mode === 'navigate' || !isPublicStatic) {
-        event.respondWith(fetch(event.request));
         return;
     }
 
